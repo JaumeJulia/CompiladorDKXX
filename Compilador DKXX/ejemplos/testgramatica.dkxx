@@ -1,0 +1,21 @@
+declare{
+    function int factorial(int num){
+        bool posible = false;
+        if (num == 1){
+            posible=true;
+            int aux=num;
+            num = num - 1;
+            while(num > 0){
+                aux = aux * num;
+                num = num - 1;
+            }
+            return aux;
+        }
+        return num;
+    }
+}
+
+main{
+    int i = input();
+    output(factorial(i));
+}
