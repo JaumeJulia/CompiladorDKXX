@@ -1,0 +1,139 @@
+package parser;
+
+import java_cup.runtime.*;
+
+class Parser;
+
+/**
+parser code {:
+    Scanner s;
+    Parser(Scanner s){ this.s=s; }
+:}
+
+init with {: s.init(); :};
+scan with {: return s.next_token(); :};
+**/
+
+terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
+                                   IGUALES, OR, AND, LPAREN, LPAREN, LKEY, RKEY, RETRN, WHILE, IF, 
+                                   OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
+terminal        String             ID;
+terminal        Integer            NUMERO;
+terminal        Boolean            BOLEANO;
+
+non terminal    SymbolInit         INIT;
+non terminal    SymbolDef          DEF;
+
+non terminal    SymbolProg         PROG;
+non terminal    SymbolCuerpo       CUERPO;
+non terminal    SymbolDfuncion     DFUNCION;
+non terminal    SymbolReturn       RETURN;
+non terminal    SymbolParametro    PARAMETRO;
+non terminal    SymbolParamconcat  PARAMCONCAT;
+non terminal    SymbolDeclaracion  DECLARACION;
+non terminal    SymbolDeclarend    DECLAREND;
+non terminal    SymbolType         TYPE;
+non terminal    SymbolAsignacion   ASIGNACION;
+non terminal    SymbolExpresion    EXPRESION;
+non terminal    SymbolValor        VALOR;
+non terminal    SymbolOperacion    OPERACION;
+non terminal    SymbolOp           OP;
+non terminal    SymbolFuncion      FUNCION;
+non terminal    SymbolInparam      INPARAM;
+non terminal    SymbolInparamconc  INPARAMCONC;
+
+precedence right    IGUAL;
+precedence left     SUMA, RESTA;
+precedence left     MULT, DIV;
+
+start with INIT;
+
+INIT    ::=    DECLARE LKEY DEF RKEY MAIN LKEY PROG RKEY {::}
+        ;
+
+DEF     ::=    DFUNCION DEF {::}
+        |      DECLARACION DEF {::}
+        ;
+
+PROG    ::=    FUNCION PUNTYCOMA PROG {::} 
+        | DECLARACION PROG {::}
+        | ID ASIGNACION PROG {::}
+        | WHILE LPAREN EXPRESION RPAREN LKEY PROG LKEY PROG {::}
+        | IF LPAREN EXPRESION RPAREN LKEY CUERPO RKEY PROG {::}
+        | OUT LPAREN EXPRESION RPAREN PUNTYCOMA PROG {::}
+        | {::}
+        ;
+
+CUERPO  ::= RETRN EXPRESION PUNTYCOMA CUERPO {::}
+        | PROG CUERPO {::}
+        | {::}
+        ;
+
+DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY CUERPO RKEY {::}
+            ;
+
+RETURN      ::= TYPE {::}
+            | {::}
+            ;
+
+PARAMETRO   ::= TYPE ID PARAMCONCAT {::}
+            | {::}
+            ;
+
+PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {::}
+            | {::}
+            ;
+
+DECLARACION ::= CONST TYPE ID DECLAREND {::}
+            | TYPE ID DECLAREND {::}
+            ;
+
+DECLAREND   ::= ASIGNACION {::}
+            | PUNTYCOMA {::}
+            ;
+
+TYPE        ::= INT {::}
+            | BOLEAN {::}
+            ;
+
+ASIGNACION  ::= IGUAL EXPRESION {::}
+            ;
+
+EXPRESION   ::= VALOR OPERACION {::}
+            | LPAREN EXPRESION RPAREN OPERACION {::}
+            ;
+
+VALOR       ::= ID {::}
+            | NUMERO {::}
+            | BOLEANO {::}
+            | FUNCION {::}
+            ;
+
+OPERACION   ::= OP EXPRESION {::} 
+            | {::}
+            ;
+
+OP          ::= MULT {::}
+            | DIV {::}
+            | SUMA {::}
+            | RESTA {::}
+            | MAYORQUE {::}
+            | MENORQUE {::}
+            | MAYORIGU {::}
+            | MENORIGU {::}
+            | IGUAL {::}
+            | OR {::}
+            | AND {::}
+            ;
+
+FUNCION     ::= IN LPAREN RPAREN {::}
+            | IDLPAREN INPARAM RPAREN {::}
+            ;
+
+INPARAM     ::= EXPRESION INPARAMCONC {::}
+            | {::}
+            ;
+
+INPARAMCONC ::= COMA EXPRESION INPARAMCONC {::}
+            | {::}
+            ;
