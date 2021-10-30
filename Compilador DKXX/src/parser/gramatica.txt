@@ -1,0 +1,28 @@
+INIT --> declare{A}main{B}
+
+A --> DFUNCION A | DECLARACION A | lamba
+B --> FUNCION; B | DECLARACION B | ID ASIGNACION B | while(EXPRESION){B} B | if(EXPRESION){B} B | output(EXPRESION); B | lamba
+H --> return EXPRESION; H| B H | lamba
+
+DFUNCION --> function RETURN ID(PARAMETRO){H}
+RETURN --> TYPE | lamba
+
+PARAMETRO --> TYPE ID C |lamba
+C --> ,TYPE ID C | lamba
+
+DECLARACION --> const TYPE ID D | TYPE ID D
+D --> ASIGNACION | ;
+
+TYPE --> int | bool
+
+ASIGNACION --> = EXPRESION;
+
+EXPRESION --> VALOR OPERACION | (EXPRESION) OPERACION
+VALOR --> ID | NUMERO | BOLEANO | FUNCION
+OPERACION --> OP EXPRESION | lamba
+
+OP --> * | / | + | - | > | < | >= | <= | == | | | &
+
+FUNCION --> input() | ID(F)
+F --> EXPRESION G | lamba
+G --> ,EXPRESION G | lamba
