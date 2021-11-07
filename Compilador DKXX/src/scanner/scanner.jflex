@@ -1,10 +1,19 @@
 package scanner;
 
+import java.io.*;
+import java_cup.runtime.*;
+
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import parser.ParserSym;
+
 %%
+
+%cup
 
 %public
 %class Scanner
-%standalone
+%int
+// %standalone
 
 // Declaraciones
 
@@ -13,24 +22,36 @@ variable = [A-Za-z_][A-Za-z_0-9]*
 
 WS = [ \t\r\n] // Separadores de tokens.
 
+%{
+
+    private Complex symbol(int type) {
+        return new ComplexSymbol(ParserSym.terminalNames[type], type);
+    }
+
+    private Symbol symbol(int type, Object value) {
+        return new ComplexSymbol(ParserSym.terminalNames[type], type, value);
+    }
+
+}%
+
 %%
 // Reglas y Acciones
 
 // palabras resevadas
-";"         {System.out.println("punto y coma");}
+";"         { return new symbol(ParserSym.PUNTYCOMA);}
 
 // aritmeticos
 "="         {System.out.println("asignacion");}
-"+"         {System.out.println("suma");}
+"+"         { return new symbol(ParserSym.SUMA); }
 "-"         {System.out.println("resta");}
 "*"         {System.out.println("multiplicacion");}
 "/"         {System.out.println("division");}
 
 // parentesis y brackets
-"("         {System.out.println("lparentesis");}
-")"         {System.out.println("rparentesis");}
-"{"         {System.out.println("lllave");}
-"}"         {System.out.println("rllave");}
+"("         { return new symbol(ParserSym.LPAREN); }
+")"         { return new symbol(ParserSym.RPAREN); }
+"{"         { return new symbol(ParserSym.LKEY); }
+"}"         { return new symbol(ParserSym.RKEY); }
 
 // logicos
 "true"      {System.out.println("Verdadero");}
@@ -46,8 +67,8 @@ WS = [ \t\r\n] // Separadores de tokens.
 "|"         {System.out.println("or");}
 
 // separador del programa
-"main"      {System.out.println("principal");}
-"declare"   {System.out.println("declaraciones");}
+"main"      { return new symbol(ParserSym.MAIN); }
+"declare"   { return new symbol(ParserSym.DECLARE); }
 
 // condicional y bucle
 "if"        {System.out.println("SI");}
@@ -61,17 +82,15 @@ WS = [ \t\r\n] // Separadores de tokens.
 "return"    {System.out.println("retorno");}
 
 // entrada y salida
-"output"    {System.out.println("salida");}
-"input"     {System.out.println("entrada");}
+"output"    { return new symbol(ParserSym.OUT); }
+"input"     { System.out.println("entrada"); }
 
 // no terminales
-{entero}    {System.out.println("entero " + yytext());}
-{variable}  {System.out.println("variable " + yytext());}
+{entero}    { return new symbol(ParserSym.VALOR, this.yytext()); }
+{variable}  { System.out.println("variable " + yytext()); }
 {WS}        {}
 
 
-
-
-
-
-
+//Gestión de errores
+//Acciones post identificación
+//Gestión de comentarios

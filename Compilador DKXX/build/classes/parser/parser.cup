@@ -1,6 +1,14 @@
 package parser;
 
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+
 import java_cup.runtime.*;
+
+import parser.symbols.*;
+
+/**import java.io.PrintStream;**/
+/**import java.util.HashMap;**/
 
 class Parser;
 
@@ -14,12 +22,80 @@ init with {: s.init(); :};
 scan with {: return s.next_token(); :};
 **/
 
+/**
+parser code {:
+
+    /private HashMap<String, Double>tsymbols = new HashMap<>();
+
+    public Double getSymbolValue(String id){
+        return tsymbols.get(id);
+    }
+
+    public void addSymbol(String id, Double value) {
+        if (tsymbols.get(id) == null) {
+            tsymbols.put(id, value);
+        } else {
+            tsymbols.replace(id, value);
+        }
+    }
+
+    public void printVars(PrintStream out) {
+        if (tsymbols.size() == 0) {
+            out.println("No hi ha variables declarades");
+        } else {
+            String fmt = "%-8s: %f";
+            tsymbols.forEach((k,v) -> out.println(String.format(fmt,k,v)));
+        }
+    }
+
+    private boolean errorSemantic = false;
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) throws Exception {
+        report_error("Error sintàctic catastròfic", cur_token);
+        done_parsing();        
+    }
+
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        report_error("de sintaxis", cur_token);
+    }
+
+    @Override
+    public void report_error(String message, Object info) {
+        StringBuilder msg = new StringBuilder("ERROR");
+        if (info instanceof Symbol) {
+            ComplexSymbol token = (ComplexSymbol)info;
+            Location l = token.getLeft();
+            
+            if (l != null) {
+                msg.append(" (fila: ")
+                   .append(l.getLine())
+                   .append(", columna: ")
+                   .append(l.getColumn())
+                   .append(")");
+            }
+        }
+        msg.append(": ").append(message);
+        
+        System.err.println(msg);
+    }
+
+    @Override
+    public void report_fatal_error(String message, Object info) throws Exception {
+        report_error("Error catastròfic ("+message+")", info);
+        done_parsing();
+    }
+
+:}
+**/
+
 terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
-                                   IGUALES, OR, AND, LPAREN, LPAREN, LKEY, RKEY, RETRN, WHILE, IF, 
+                                   IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, 
                                    OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
 terminal        String             ID;
 terminal        Integer            NUMERO;
-terminal        Boolean            BOLEANO;
+terminal        Boolean            BOLEAN;
 
 non terminal    SymbolInit         INIT;
 non terminal    SymbolDef          DEF;
@@ -42,98 +118,105 @@ non terminal    SymbolFuncion      FUNCION;
 non terminal    SymbolInparam      INPARAM;
 non terminal    SymbolInparamconc  INPARAMCONC;
 
+non terminal AUX;
+
 precedence right    IGUAL;
 precedence left     SUMA, RESTA;
 precedence left     MULT, DIV;
 
 start with INIT;
 
-INIT    ::=    DECLARE LKEY DEF RKEY MAIN LKEY PROG RKEY {::}
+INIT    ::=     DECLARE LKEY DEF RKEY MAIN LKEY PROG RKEY 
+                {:  :}
         ;
 
-DEF     ::=    DFUNCION DEF {::}
-        |      DECLARACION DEF {::}
+DEF     ::=    DFUNCION DEF {:  :}
+        |      DECLARACION DEF {:  :}
+        |      {:  :}
         ;
 
 PROG    ::=    FUNCION PUNTYCOMA PROG {::} 
         | DECLARACION PROG {::}
         | ID ASIGNACION PROG {::}
-        | WHILE LPAREN EXPRESION RPAREN LKEY PROG LKEY PROG {::}
-        | IF LPAREN EXPRESION RPAREN LKEY CUERPO RKEY PROG {::}
-        | OUT LPAREN EXPRESION RPAREN PUNTYCOMA PROG {::}
-        | {::}
+        | WHILE AUX LKEY PROG RKEY PROG {:  :}
+        | IF AUX LKEY CUERPO RKEY PROG {:  :}
+        | OUT AUX PUNTYCOMA PROG {: System.out.println( v.value ) :}
+        | {:  :}
         ;
 
-CUERPO  ::= RETRN EXPRESION PUNTYCOMA CUERPO {::}
-        | PROG CUERPO {::}
-        | {::}
+AUX     ::= LPAREN EXPRESION RPAREN {:  :}
         ;
 
-DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY CUERPO RKEY {::}
+CUERPO  ::= RETRN EXPRESION PUNTYCOMA CUERPO {:  :}
+        | PROG CUERPO {:  :}
+        | {:  :}
+        ;
+
+DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY CUERPO RKEY {:  :}
             ;
 
-RETURN      ::= TYPE {::}
-            | {::}
+RETURN      ::= TYPE {:  :}
+            | {:  :}
             ;
 
-PARAMETRO   ::= TYPE ID PARAMCONCAT {::}
-            | {::}
+PARAMETRO   ::= TYPE ID PARAMCONCAT {:  :}
+            | {:  :}
             ;
 
-PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {::}
-            | {::}
+PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {:  :}
+            | {:  :}
             ;
 
-DECLARACION ::= CONST TYPE ID DECLAREND {::}
-            | TYPE ID DECLAREND {::}
+DECLARACION ::= CONST TYPE ID DECLAREND {:  :}
+            | TYPE ID DECLAREND {:  :}
             ;
 
-DECLAREND   ::= ASIGNACION {::}
-            | PUNTYCOMA {::}
+DECLAREND   ::= ASIGNACION {:  :}
+            | PUNTYCOMA {:  :}
             ;
 
-TYPE        ::= INT {::}
-            | BOLEAN {::}
+TYPE        ::= INT {:  :}
+            | BOOL {:  :}
             ;
 
-ASIGNACION  ::= IGUAL EXPRESION {::}
+ASIGNACION  ::= IGUAL EXPRESION {:  :}
             ;
 
-EXPRESION   ::= VALOR OPERACION {::}
+EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion(v1, v2) :}
             | LPAREN EXPRESION RPAREN OPERACION {::}
             ;
 
-VALOR       ::= ID {::}
-            | NUMERO {::}
-            | BOLEANO {::}
-            | FUNCION {::}
+VALOR       ::= ID {:  :}
+            | NUMERO:v {: RESULT = v :}
+            | BOLEAN {:  :}
+            | FUNCION {:  :}
             ;
 
-OPERACION   ::= OP EXPRESION {::} 
-            | {::}
+OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2.value); :} 
+            | {: RESULT = new SymbolOperacion() :}
             ;
 
-OP          ::= MULT {::}
-            | DIV {::}
-            | SUMA {::}
-            | RESTA {::}
-            | MAYORQUE {::}
-            | MENORQUE {::}
-            | MAYORIGU {::}
-            | MENORIGU {::}
-            | IGUAL {::}
-            | OR {::}
-            | AND {::}
+OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
+            | DIV {: RESULT = "/" :}
+            | SUMA {: RESULT = ParserSym.SUMA :}
+            | RESTA {:  :}
+            | MAYORQUE {:  :}
+            | MENORQUE {:  :}
+            | MAYORIGU {:  :}
+            | MENORIGU {:  :}
+            | IGUAL {:  :}
+            | OR {:  :}
+            | AND {:  :}
             ;
 
-FUNCION     ::= IN LPAREN RPAREN {::}
-            | IDLPAREN INPARAM RPAREN {::}
+FUNCION     ::= IN LPAREN RPAREN {:  :}
+            | ID LPAREN INPARAM RPAREN {:  :}
             ;
 
-INPARAM     ::= EXPRESION INPARAMCONC {::}
-            | {::}
+INPARAM     ::= EXPRESION INPARAMCONC {: :}
+            | {:  :}
             ;
 
-INPARAMCONC ::= COMA EXPRESION INPARAMCONC {::}
-            | {::}
+INPARAMCONC ::= COMA EXPRESION INPARAMCONC {:  :}
+            | {:  :}
             ;
