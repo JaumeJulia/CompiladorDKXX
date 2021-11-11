@@ -116,9 +116,24 @@ non terminal    SymbolOperacion    OPERACION;
 non terminal    SymbolOp           OP;
 non terminal    SymbolFuncion      FUNCION;
 non terminal    SymbolInparam      INPARAM;
-non terminal    SymbolInparamconc  INPARAMCONC;
 
+non terminal SENTENCIA;
+non terminal SENTENCIAS;
+non terminal SENTENCIA_P;
+non terminal SENTENCIA_W;
+non terminal SENTENCIA_F;
+non terminal SENTENCIA_E;
+non terminal SENTENCIA_ID;
+
+/**
 non terminal AUX;
+non terminal PROG_FUNCS;
+non terminal PROG_DECL;
+non terminal PROG_IDS;
+non terminal PROG_WHILE;
+non terminal PROG_IFS;
+non terminal PROG_OUT;
+**/
 
 precedence right    IGUAL;
 precedence left     SUMA, RESTA;
@@ -135,21 +150,44 @@ DEF     ::=    DFUNCION DEF {:  :}
         |      {:  :}
         ;
 
-PROG    ::=    FUNCION PUNTYCOMA PROG {::} 
-        | DECLARACION PROG {::}
-        | ID ASIGNACION PROG {::}
-        | WHILE AUX LKEY PROG RKEY PROG {:  :}
-        | IF AUX LKEY CUERPO RKEY PROG {:  :}
-        | OUT AUX PUNTYCOMA PROG {: System.out.println( v.value ) :}
-        | {:  :}
+PROG    ::= SENTENCIAS {:  :}
+        |   {:  :}
         ;
 
-AUX     ::= LPAREN EXPRESION RPAREN {:  :}
-        ;
+SENTENCIAS  ::= SENTENCIA {:  :}
+            | SENTENCIA SENTENCIAS {:  :}
+            ;
 
-CUERPO  ::= RETRN EXPRESION PUNTYCOMA CUERPO {:  :}
-        | PROG CUERPO {:  :}
-        | {:  :}
+SENTENCIA   ::= SENTENCIA_P PUNTYCOMA {:  :}
+            | WHILE SENTENCIA_E SENTENCIA_W {:  :}
+            | IF SENTENCIA_E SENTENCIA_F {:  :}
+            | ID SENTENCIA_ID {:  :}
+            ;
+
+SENTENCIA_P ::= DECLARACION {:  :}
+            | IN LPAREN RPAREN {:  :}
+            | OUT SENTENCIA_E {: System.out.println( v.value ) :}
+            ;
+
+SENTENCIA_ID    ::= ASIGNACION {:  :}
+                | FUNCION {:  :}
+                ;
+
+SENTENCIA_E ::= LPAREN EXPRESION RPAREN LKEY {:  :}
+            ;
+
+SENTENCIA_W ::= SENTENCIAS RKEY {:  :}
+            | RKEY {:  :}
+            ;
+
+SENTENCIA_F ::= CUERPO RKEY {:  :}
+            | RKEY {:  :}
+            ;
+
+CUERPO  ::= RETRN EXPRESION PUNTYCOMA {:  :}
+        | RETRN EXPRESION PUNTYCOMA CUERPO {:  :}
+        | SENTENCIAS {:  :}
+        | SENTENCIAS CUERPO {:  :}
         ;
 
 DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY CUERPO RKEY {:  :}
@@ -172,7 +210,7 @@ DECLARACION ::= CONST TYPE ID DECLAREND {:  :}
             ;
 
 DECLAREND   ::= ASIGNACION {:  :}
-            | PUNTYCOMA {:  :}
+            | {:  :}
             ;
 
 TYPE        ::= INT {:  :}
@@ -183,13 +221,13 @@ ASIGNACION  ::= IGUAL EXPRESION {:  :}
             ;
 
 EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion(v1, v2) :}
-            | LPAREN EXPRESION RPAREN OPERACION {::}
+            | LPAREN EXPRESION RPAREN OPERACION {:  :}
             ;
 
 VALOR       ::= ID {:  :}
             | NUMERO:v {: RESULT = v :}
             | BOLEAN {:  :}
-            | FUNCION {:  :}
+            | ID FUNCION {:  :}
             ;
 
 OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2.value); :} 
@@ -204,19 +242,15 @@ OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
             | MENORQUE {:  :}
             | MAYORIGU {:  :}
             | MENORIGU {:  :}
-            | IGUAL {:  :}
+            | IGUALES {:  :}
             | OR {:  :}
             | AND {:  :}
             ;
 
-FUNCION     ::= IN LPAREN RPAREN {:  :}
-            | ID LPAREN INPARAM RPAREN {:  :}
+FUNCION     ::= LPAREN INPARAM RPAREN{:  :}
             ;
 
-INPARAM     ::= EXPRESION INPARAMCONC {: :}
-            | {:  :}
-            ;
-
-INPARAMCONC ::= COMA EXPRESION INPARAMCONC {:  :}
+INPARAM     ::= EXPRESION {:  :}
+            | EXPRESION COMA INPARAM {:  :}
             | {:  :}
             ;

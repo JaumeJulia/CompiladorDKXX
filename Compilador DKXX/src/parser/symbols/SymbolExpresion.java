@@ -5,6 +5,8 @@
  */
 package parser.symbols;
 
+import parser.ParserSym;
+
 /**
  *
  * @author pujol
@@ -20,7 +22,7 @@ public class SymbolExpresion extends SymbolBase{
         Double valor;
         
         if(Op.isEmpty()){
-            this.value = param;
+            valor = (double)param;
         } else {
             switch (Op.getOperacion()) {
                 case ParserSym.SUMA:
