@@ -1,0 +1,301 @@
+package parser;
+
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+
+import java_cup.runtime.*;
+
+import parser.symbols.*;
+
+/**import java.io.PrintStream;**/
+/**import java.util.HashMap;**/
+
+class Parser;
+
+/**
+parser code {:
+    Scanner s;
+    Parser(Scanner s){ this.s=s; }
+:}
+
+init with {: s.init(); :};
+scan with {: return s.next_token(); :};
+**/
+
+/**
+parser code {:
+
+    /private HashMap<String, Double>tsymbols = new HashMap<>();
+
+    public Double getSymbolValue(String id){
+        return tsymbols.get(id);
+    }
+
+    public void addSymbol(String id, Double value) {
+        if (tsymbols.get(id) == null) {
+            tsymbols.put(id, value);
+        } else {
+            tsymbols.replace(id, value);
+        }
+    }
+
+    public void printVars(PrintStream out) {
+        if (tsymbols.size() == 0) {
+            out.println("No hi ha variables declarades");
+        } else {
+            String fmt = "%-8s: %f";
+            tsymbols.forEach((k,v) -> out.println(String.format(fmt,k,v)));
+        }
+    }
+
+    private boolean errorSemantic = false;
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) throws Exception {
+        report_error("Error sintàctic catastròfic", cur_token);
+        done_parsing();        
+    }
+
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        report_error("de sintaxis", cur_token);
+    }
+
+    @Override
+    public void report_error(String message, Object info) {
+        StringBuilder msg = new StringBuilder("ERROR");
+        if (info instanceof Symbol) {
+            ComplexSymbol token = (ComplexSymbol)info;
+            Location l = token.getLeft();
+            
+            if (l != null) {
+                msg.append(" (fila: ")
+                   .append(l.getLine())
+                   .append(", columna: ")
+                   .append(l.getColumn())
+                   .append(")");
+            }
+        }
+        msg.append(": ").append(message);
+        
+        System.err.println(msg);
+    }
+
+    @Override
+    public void report_fatal_error(String message, Object info) throws Exception {
+        report_error("Error catastròfic ("+message+")", info);
+        done_parsing();
+    }
+
+:}
+**/
+
+terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
+                                   IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, 
+                                   OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
+terminal        String             ID;
+terminal        Integer            NUMERO;
+terminal        Boolean            BOLEAN;
+
+non terminal    SymbolInit         INIT;
+non terminal    SymbolDef          DEF;
+
+non terminal    SymbolProg         PROG;
+/*************
+ NO USAR ESTA VARIABLE
+non terminal    SymbolCuerpo       CUERPO;
+ *************/
+non terminal    SymbolDfuncion     DFUNCION;
+non terminal    SymbolReturn       RETURN;
+non terminal    SymbolParametro    PARAMETRO;
+non terminal    SymbolParamconcat  PARAMCONCAT;
+non terminal    SymbolDeclaracion  DECLARACION;
+non terminal    SymbolDeclarend    DECLAREND;
+non terminal    SymbolType         TYPE;
+non terminal    SymbolAsignacion   ASIGNACION;
+non terminal    SymbolExpresion    EXPRESION;
+non terminal    SymbolValor        VALOR;
+non terminal    SymbolOperacion    OPERACION;
+non terminal    SymbolOp           OP;
+non terminal    SymbolFuncion      FUNCION;
+non terminal    SymbolInparam      INPARAM;
+
+non terminal SENTENCIA;
+non terminal SENTENCIAS;
+/************
+ NO USAR ESTAS VARIABLES
+non terminal SENTENCIA_P;
+non terminal SENTENCIA_W;
+non terminal SENTENCIA_F;
+non terminal SENTENCIA_E;
+*************/
+non terminal SENTENCIA_ID;
+
+/**
+non terminal AUX;
+non terminal PROG_FUNCS;
+non terminal PROG_DECL;
+non terminal PROG_IDS;
+non terminal PROG_WHILE;
+non terminal PROG_IFS;
+non terminal PROG_OUT;
+**/
+
+precedence right    IGUAL;
+precedence left     SUMA, RESTA;
+precedence left     MULT, DIV;
+
+start with INIT;
+
+INIT    ::=     DECLARE LKEY DEF RKEY MAIN LKEY PROG RKEY 
+                {:  :}
+        ;
+
+DEF     ::=    DFUNCION DEF {:  :}
+        |      DECLARACION DEF {:  :}
+        |      {:  :}
+        ;
+
+/**********
+ Las siguientes producciones sustituyen a las originales
+ **********/
+
+PROG     ::= SENTENCIAS {:  :}
+		 ;
+
+SENTENCIAS ::= SENTENCIA SENTENCIAS {:  :}
+        |   {:  :}
+        ;
+
+SENTENCIA ::= DECLARACION  PUNTYCOMA                         {:  :}
+        | IN LPAREN RPAREN PUNTYCOMA                         {:  :}
+        | OUT LPAREN EXPRESION RPAREN PUNTYCOMA              {:  :}
+        | ID SENTENCIA_ID PUNTYCOMA                          {:  :}
+        | RETRN EXPRESION PUNTYCOMA                          {:  :}
+        | WHILE LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY {:  :}
+        | IF LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY    {:  :}
+        | error PUNTYCOMA                                    {: /* regla para recuperar un error en una instrucción */ :}
+        ;
+
+SENTENCIA_ID    ::= ASIGNACION {:  :}
+                | FUNCION {:  :}
+                ;
+
+
+DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY SENTENCIAS RKEY {:  :}
+            ;
+
+
+/**********
+ Las anteriores producciones sustituyen a las originales
+ **********/
+ 
+/****************************************
+ NO USAR ESTAS PRODUCCIONES. UTILIZAR LAS INDICADAS JUSTO ANTES
+PROG    ::= SENTENCIAS {:  :}
+        |   {:  :}
+        ;
+		
+SENTENCIAS  ::= SENTENCIA {:  :}
+            | SENTENCIA SENTENCIAS {:  :}
+            ;
+
+SENTENCIA   ::= SENTENCIA_P PUNTYCOMA {:  :}
+            | WHILE SENTENCIA_E SENTENCIA_W {:  :}
+            | IF SENTENCIA_E SENTENCIA_F {:  :}
+            | ID SENTENCIA_ID {:  :}
+            ;
+
+SENTENCIA_P ::= DECLARACION {:  :}
+            | IN LPAREN RPAREN {:  :}
+            | OUT SENTENCIA_E {: System.out.println( v.value ) :}
+            ;
+
+SENTENCIA_ID    ::= ASIGNACION {:  :}
+                | FUNCION {:  :}
+                ;
+
+SENTENCIA_E ::= LPAREN EXPRESION RPAREN LKEY {:  :}
+            ;
+
+SENTENCIA_W ::= SENTENCIAS RKEY {:  :}
+            | RKEY {:  :}
+            ;
+
+SENTENCIA_F ::= CUERPO RKEY {:  :}
+            | RKEY {:  :}
+            ;
+
+CUERPO  ::= RETRN EXPRESION PUNTYCOMA {:  :}
+        | RETRN EXPRESION PUNTYCOMA CUERPO {:  :}
+        | SENTENCIAS {:  :}
+        | SENTENCIAS CUERPO {:  :}
+        ;
+
+DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY CUERPO RKEY {:  :}
+            ;
+
+***************************************************/
+
+
+RETURN      ::= TYPE {:  :}
+            | {:  :}
+            ;
+
+PARAMETRO   ::= TYPE ID PARAMCONCAT {:  :}
+            | {:  :}
+            ;
+
+PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {:  :}
+            | {:  :}
+            ;
+
+DECLARACION ::= CONST TYPE ID DECLAREND {:  :}
+            | TYPE ID DECLAREND {:  :}
+            ;
+
+DECLAREND   ::= ASIGNACION {:  :}
+            | {:  :}
+            ;
+
+TYPE        ::= INT {:  :}
+            | BOOL {:  :}
+            ;
+
+ASIGNACION  ::= IGUAL EXPRESION {:  :}
+            ;
+
+EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion(v1, v2) :}
+            | LPAREN EXPRESION RPAREN OPERACION {:  :}
+            ;
+
+VALOR       ::= ID {:  :}
+            | NUMERO:v {: RESULT = v :}
+            | BOLEAN {:  :}
+            | ID FUNCION {:  :}
+            ;
+
+OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2.value); :} 
+            | {: RESULT = new SymbolOperacion() :}
+            ;
+
+OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
+            | DIV {: RESULT = "/" :}
+            | SUMA {: RESULT = ParserSym.SUMA :}
+            | RESTA {:  :}
+            | MAYORQUE {:  :}
+            | MENORQUE {:  :}
+            | MAYORIGU {:  :}
+            | MENORIGU {:  :}
+            | IGUALES {:  :}
+            | OR {:  :}
+            | AND {:  :}
+            ;
+
+FUNCION     ::= LPAREN INPARAM RPAREN{:  :}
+            ;
+
+INPARAM     ::= EXPRESION {:  :}
+            | EXPRESION COMA INPARAM {:  :}
+            | {:  :}
+            ;

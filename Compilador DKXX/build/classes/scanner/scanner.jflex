@@ -3,6 +3,7 @@ package scanner;
 import java.io.*;
 import java_cup.runtime.*;
 
+import java_cup.runtime.SymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import parser.ParserSym;
 
@@ -12,15 +13,24 @@ import parser.ParserSym;
 
 %public
 %class Scanner
-%int
-// %standalone
+
+%integer
+%line
+%column
+
+//%eofval{
+//    return symbol(ParserSym.EOF);
+//%eofval}
 
 // Declaraciones
 
 entero = [\-\+]?[1-9][0-9]* | [\-\+]?0
 variable = [A-Za-z_][A-Za-z_0-9]*
 
-WS = [ \t\r\n] // Separadores de tokens.
+ws           = [' '|'\t']+
+endline      = ['\r'|'\n'|"\r\n"]+
+
+//WS = [ \t\r\n] // Separadores de tokens.
 
 %{
 
@@ -32,7 +42,7 @@ WS = [ \t\r\n] // Separadores de tokens.
         return new ComplexSymbol(ParserSym.terminalNames[type], type, value);
     }
 
-}%
+%}
 
 %%
 // Reglas y Acciones
@@ -41,11 +51,10 @@ WS = [ \t\r\n] // Separadores de tokens.
 ";"         { return new symbol(ParserSym.PUNTYCOMA);}
 
 // aritmeticos
-"="         {System.out.println("asignacion");}
 "+"         { return new symbol(ParserSym.SUMA); }
-"-"         {System.out.println("resta");}
-"*"         {System.out.println("multiplicacion");}
-"/"         {System.out.println("division");}
+"-"         { return new symbol(ParserSym.RESTA); }
+"*"         { return new symbol(ParserSym.MULT); }
+"/"         { return new symbol(ParserSym.DIV); }
 
 // parentesis y brackets
 "("         { return new symbol(ParserSym.LPAREN); }
@@ -54,41 +63,44 @@ WS = [ \t\r\n] // Separadores de tokens.
 "}"         { return new symbol(ParserSym.RKEY); }
 
 // logicos
-"true"      {System.out.println("Verdadero");}
-"false"     {System.out.println("Falso");}
-">"         {System.out.println("Mayor");}
-"<"         {System.out.println("Menor");}
-"<="        {System.out.println("Menor o igual");}
-">="        {System.out.println("Mayor o igual");}
-"=="        {System.out.println("Iguales");}
-"!="        {System.out.println("no Iguales");}
-"!"         {System.out.println("no");}
-"&"         {System.out.println("and");}
-"|"         {System.out.println("or");}
+"true"      { return new symbol(ParserSym.BOLEAN, 1.0); }
+"false"     { return new symbol(ParserSym.BOLEAN, 0.0); }
+"<="        { return new symbol(ParserSym.MENORIGU); }
+">="        { return new symbol(ParserSym.MAYORIGU); }
+">"         { return new symbol(ParserSym.MAYORQUE); }
+"<"         { return new symbol(ParserSym.MENORQUE); }
+"=="        { return new symbol(ParserSym.IGUALES); }
+"!="        { return new symbol(ParserSym.NIGUALES); }
+"!"         { return new symbol(ParserSym.NOT); }
+"&"         { return new symbol(ParserSym.AND); }
+"|"         { return new symbol(ParserSym.OR); }
+
+"="         { return new symbol(ParserSym.IGUAL); }
 
 // separador del programa
 "main"      { return new symbol(ParserSym.MAIN); }
 "declare"   { return new symbol(ParserSym.DECLARE); }
 
 // condicional y bucle
-"if"        {System.out.println("SI");}
-"while"     {System.out.println("Mientras");}
+"if"        { return new symbol(ParserSym.IF); }
+"while"     { return new symbol(ParserSym.WHILE); }
 
 // variables y funciones
-"int"       {System.out.println("int");}
-"bool"      {System.out.println("bool");}
-"const"     {System.out.println("const");}
-"function"  {System.out.println("funcion");}
-"return"    {System.out.println("retorno");}
+"int"       { return new symbol(ParserSym.INT); }
+"bool"      { return new symbol(ParserSym.BOOL); }
+"const"     { return new symbol(ParserSym.CONST); }
+"function"  { return new symbol(ParserSym.FUNCTION); }
+"return"    { return new symbol(ParserSym.RETRN); }
 
 // entrada y salida
 "output"    { return new symbol(ParserSym.OUT); }
-"input"     { System.out.println("entrada"); }
+"input"     { return new symbol(ParserSym.IN); }
 
 // no terminales
 {entero}    { return new symbol(ParserSym.VALOR, this.yytext()); }
-{variable}  { System.out.println("variable " + yytext()); }
-{WS}        {}
+{variable}  { return new symbol(ParserSym.ID, this.yytext()); }
+{ws}        {}
+//{endline}   {}
 
 
 //Gestión de errores

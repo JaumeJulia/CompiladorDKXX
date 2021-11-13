@@ -91,7 +91,7 @@ parser code {:
 **/
 
 terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
-                                   IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, 
+                                   IGUALES, OR, AND, NOT, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
                                    OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
 terminal        String             ID;
 terminal        Integer            NUMERO;
@@ -100,26 +100,27 @@ terminal        Boolean            BOLEAN;
 non terminal    SymbolInit         INIT;
 non terminal    SymbolDef          DEF;
 
-non terminal    SymbolProg         PROG;
-non terminal    SymbolCuerpo       CUERPO;
-non terminal    SymbolDfuncion     DFUNCION;
-non terminal    SymbolReturn       RETURN;
-non terminal    SymbolParametro    PARAMETRO;
-non terminal    SymbolParamconcat  PARAMCONCAT;
-non terminal    SymbolDeclaracion  DECLARACION;
-non terminal    SymbolDeclarend    DECLAREND;
-non terminal    SymbolType         TYPE;
-non terminal    SymbolAsignacion   ASIGNACION;
+/** non terminal    SymbolProg         PROG; **/
+non terminal         DFUNCION;
+non terminal           RETURN;
+non terminal        PARAMETRO;
+non terminal      PARAMCONCAT;
+non terminal      DECLARACION;
+non terminal        DECLAREND;
+non terminal             TYPE;
+non terminal       ASIGNACION;
 non terminal    SymbolExpresion    EXPRESION;
-non terminal    SymbolValor        VALOR;
+non terminal            VALOR;
 non terminal    SymbolOperacion    OPERACION;
-non terminal    SymbolOp           OP;
-non terminal    SymbolFuncion      FUNCION;
-non terminal    SymbolInparam      INPARAM;
-non terminal    SymbolInparamconc  INPARAMCONC;
+non terminal               OP;
+non terminal          FUNCION;
+non terminal          INPARAM;
 
-non terminal SENTENCE;
-non terminal SENTENCEAUX;
+non terminal SENTENCIA;
+non terminal SENTENCIAS;
+non terminal SENTENCIA_ID;
+
+non terminal R_SENTENCIAS;
 
 precedence right    IGUAL;
 precedence left     SUMA, RESTA;
@@ -127,37 +128,47 @@ precedence left     MULT, DIV;
 
 start with INIT;
 
-INIT    ::=     DECLARE LKEY DEF RKEY MAIN LKEY PROG RKEY 
+INIT    ::=     DECLARE LKEY DEF RKEY MAIN LKEY SENTENCIAS RKEY
                 {:  :}
         ;
+
+/** sentencias por prog antes **/
 
 DEF     ::=    DFUNCION DEF {:  :}
         |      DECLARACION DEF {:  :}
         |      {:  :}
         ;
 
-PROG    ::= SENTENCE PROG RKEY PROG {:  :}
-	| SENTENCEAUX PROG {:  :}
-	| DECLARACION PROG {:  :}
-        | {:  :}
+/**
+PROG     ::= SENTENCIAS {:  :}
+		 ;
+**/
+
+SENTENCIAS ::= SENTENCIA SENTENCIAS {:  :}
+        |   {:  :}
         ;
 
-SENTENCE	::= IF LPAREN EXPRESION RPAREN LKEY {:  :}
-		| WHILE LPAREN EXPRESION RPAREN LKEY {:  :}
-		;
-
-SENTENCEAUX	::= OUT LPAREN EXPRESION RPAREN PUNTYCOMA {: System.out.println( v.value ) :}
-		| ID ASIGNACION {:  :}
-		| FUNCION PUNTYCOMA {:  :}
-		;
-
-CUERPO  ::= RETRN EXPRESION PUNTYCOMA CUERPO {:  :}
-        | PROG CUERPO {:  :}
-        | {:  :}
+SENTENCIA ::= DECLARACION  PUNTYCOMA                         {:  :}
+        | IN LPAREN RPAREN PUNTYCOMA                         {:  :}
+        | OUT LPAREN EXPRESION:v RPAREN PUNTYCOMA              {: System.out.println( v.value ) :}
+        | ID SENTENCIA_ID PUNTYCOMA                          {:  :}
+        | WHILE LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY {:  :}
+        | IF LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY    {:  :}
+        | error PUNTYCOMA                                    {: /* regla para recuperar un error en una instrucción */ :}
         ;
 
-DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY CUERPO RKEY {:  :}
+R_SENTENCIAS    ::= RETRN EXPRESION PUNTYCOMA R_SENTENCIAS {:  :}
+                | SENTENCIAS {:  :}
+                ;
+
+SENTENCIA_ID    ::= ASIGNACION {:  :}
+                | FUNCION {:  :}
+                ;
+
+
+DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY R_SENTENCIAS RKEY {:  :}
             ;
+
 
 RETURN      ::= TYPE {:  :}
             | {:  :}
@@ -176,7 +187,7 @@ DECLARACION ::= CONST TYPE ID DECLAREND {:  :}
             ;
 
 DECLAREND   ::= ASIGNACION {:  :}
-            | PUNTYCOMA {:  :}
+            | {:  :}
             ;
 
 TYPE        ::= INT {:  :}
@@ -186,41 +197,39 @@ TYPE        ::= INT {:  :}
 ASIGNACION  ::= IGUAL EXPRESION {:  :}
             ;
 
-EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion(v1, v2) :}
-            | LPAREN EXPRESION RPAREN OPERACION {::}
+EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion((int)v1, v2); :}
+            | LPAREN EXPRESION RPAREN OPERACION {:  :}
             ;
 
 VALOR       ::= ID {:  :}
-            | NUMERO:v {: RESULT = v :}
+            | NUMERO:v {: RESULT = v; :}
             | BOLEAN {:  :}
-            | FUNCION {:  :}
+            | ID FUNCION {:  :}
             ;
 
-OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2.value); :} 
-            | {: RESULT = new SymbolOperacion() :}
+OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2); :} 
+            | {: RESULT = new SymbolOperacion(); :}
             ;
 
 OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
-            | DIV {: RESULT = "/" :}
-            | SUMA {: RESULT = ParserSym.SUMA :}
+            | DIV {: RESULT = ParserSym.DIV; :}
+            | SUMA {: RESULT = ParserSym.SUMA; :}
             | RESTA {:  :}
             | MAYORQUE {:  :}
             | MENORQUE {:  :}
             | MAYORIGU {:  :}
             | MENORIGU {:  :}
             | IGUALES {:  :}
+            | NIGUALES {:  :}
             | OR {:  :}
             | AND {:  :}
+            | NOT {:  :}
             ;
 
-FUNCION     ::= IN LPAREN RPAREN {:  :}
-            | ID LPAREN INPARAM RPAREN {:  :}
+FUNCION     ::= LPAREN INPARAM RPAREN{:  :}
             ;
 
-INPARAM     ::= EXPRESION INPARAMCONC {: :}
-            | {:  :}
-            ;
-
-INPARAMCONC ::= COMA EXPRESION INPARAMCONC {:  :}
+INPARAM     ::= EXPRESION {:  :}
+            | EXPRESION COMA INPARAM {:  :}
             | {:  :}
             ;

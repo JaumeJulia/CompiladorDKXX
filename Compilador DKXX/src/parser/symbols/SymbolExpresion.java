@@ -17,19 +17,19 @@ public class SymbolExpresion extends SymbolBase{
         super("EXPRESION", 0.0);
     }
     
-    public SymbolExpresion(int param, SymbolOperacion Op){
+    public SymbolExpresion(Object param, SymbolOperacion Op){
         super("EXPRESION", 0.0);
         Double valor;
         
         if(Op.isEmpty()){
-            valor = (double)param;
+            valor = (Double)param;
         } else {
             switch (Op.getOperacion()) {
                 case ParserSym.SUMA:
-                    valor = param + (Double)Op.value;
+                    valor = (Double) param + (Double)Op.value;
                     break;
                 case ParserSym.RESTA:
-                    valor = param - (Double)Op.value;
+                    valor = (Double) param - (Double)Op.value;
                     break;
                 default:
                     valor = 0.0;
