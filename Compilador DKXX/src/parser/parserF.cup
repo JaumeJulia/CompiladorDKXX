@@ -139,25 +139,19 @@ DEF     ::=    DFUNCION DEF {:  :}
         |      {:  :}
         ;
 
-/**
-PROG     ::= SENTENCIAS {:  :}
-		 ;
-**/
-
 SENTENCIAS ::= SENTENCIA SENTENCIAS {:  :}
         |   {:  :}
         ;
 
 SENTENCIA ::= DECLARACION  PUNTYCOMA                         {:  :}
-        | IN LPAREN RPAREN PUNTYCOMA                         {:  :}
-        | OUT LPAREN EXPRESION:v RPAREN PUNTYCOMA              {: System.out.println( v.value ) :}
+        | OUT LPAREN EXPRESION RPAREN PUNTYCOMA              {: :}
         | ID SENTENCIA_ID PUNTYCOMA                          {:  :}
         | WHILE LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY {:  :}
         | IF LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY    {:  :}
         | error PUNTYCOMA                                    {: /* regla para recuperar un error en una instrucción */ :}
         ;
 
-R_SENTENCIAS    ::= RETRN EXPRESION PUNTYCOMA R_SENTENCIAS {:  :}
+R_SENTENCIAS    ::= RETRN EXPRESION:e PUNTYCOMA R_SENTENCIAS:s {: RETURN new Sentencias(new Return(e), s)}
                 | SENTENCIAS {:  :}
                 ;
 
@@ -197,23 +191,24 @@ TYPE        ::= INT {:  :}
 ASIGNACION  ::= IGUAL EXPRESION {:  :}
             ;
 
-EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion((int)v1, v2); :}
+EXPRESION   ::= VALOR OPERACION {:  :}
             | LPAREN EXPRESION RPAREN OPERACION {:  :}
             ;
 
 VALOR       ::= ID {:  :}
-            | NUMERO:v {: RESULT = v; :}
+            | NUMERO {: :}
             | BOLEAN {:  :}
+            | IN LPAREN RPAREN PUNTYCOMA{:  :}
             | ID FUNCION {:  :}
             ;
 
-OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2); :} 
-            | {: RESULT = new SymbolOperacion(); :}
+OPERACION   ::= OP EXPRESION {: :} 
+            | {: :}
             ;
 
-OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
-            | DIV {: RESULT = ParserSym.DIV; :}
-            | SUMA {: RESULT = ParserSym.SUMA; :}
+OP          ::= MULT {:  :}
+            | DIV {: :}
+            | SUMA {:  :}
             | RESTA {:  :}
             | MAYORQUE {:  :}
             | MENORQUE {:  :}
