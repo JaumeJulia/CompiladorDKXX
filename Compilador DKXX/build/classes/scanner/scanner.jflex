@@ -10,6 +10,12 @@ import parser.ParserSym;
 %%
 
 %cup
+%function next_token
+%type java_cup.runtime.Symbol
+%eofval{
+    return symbol(ParserSym.EOF);
+%eofval}
+%eofclose
 
 %public
 %class Scanner
@@ -17,29 +23,38 @@ import parser.ParserSym;
 %integer
 %line
 %column
-
-//%eofval{
-//    return symbol(ParserSym.EOF);
-//%eofval}
+%standalone
 
 // Declaraciones
 
 entero = [\-\+]?[1-9][0-9]* | [\-\+]?0
 variable = [A-Za-z_][A-Za-z_0-9]*
 
-ws           = [' '|'\t']+
-endline      = ['\r'|'\n'|"\r\n"]+
+//ws           = [' '|'\t']+
+//endline      = ['\r'|'\n'|"\r\n"]+
 
-//WS = [ \t\r\n] // Separadores de tokens.
+ws = [ \t\r\n] // Separadores de tokens.
+
+//%{
+//
+//    private ComplexSymbol symbol(int type) {
+//        return new ComplexSymbol(ParserSym.terminalNames[type],type,(Symbol)yyline,(Symbol)yycolumn);
+//    }
+//
+//    private Symbol symbol(int type, Object value) {
+//        return new ComplexSymbol(ParserSym.terminalNames[type],type,(Symbol)yyline,(Symbol)yycolumn,value);
+//    }
+//
+//%}
 
 %{
 
-    private Complex symbol(int type) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type);
+    private Symbol symbol(int type) {
+        return new Symbol(type,yyline,yycolumn);
     }
 
     private Symbol symbol(int type, Object value) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type, value);
+        return new Symbol(type,yyline,yycolumn,value);
     }
 
 %}
@@ -48,58 +63,60 @@ endline      = ['\r'|'\n'|"\r\n"]+
 // Reglas y Acciones
 
 // palabras resevadas
-";"         { return new symbol(ParserSym.PUNTYCOMA);}
+";"         { return symbol(ParserSym.PUNTYCOMA);}
 
 // aritmeticos
-"+"         { return new symbol(ParserSym.SUMA); }
-"-"         { return new symbol(ParserSym.RESTA); }
-"*"         { return new symbol(ParserSym.MULT); }
-"/"         { return new symbol(ParserSym.DIV); }
+"+"         { return symbol(ParserSym.SUMA); }
+"-"         { return symbol(ParserSym.RESTA); }
+"*"         { return symbol(ParserSym.MULT); }
+"/"         { return symbol(ParserSym.DIV); }
 
 // parentesis y brackets
-"("         { return new symbol(ParserSym.LPAREN); }
-")"         { return new symbol(ParserSym.RPAREN); }
-"{"         { return new symbol(ParserSym.LKEY); }
-"}"         { return new symbol(ParserSym.RKEY); }
+"("         { return symbol(ParserSym.LPAREN); }
+")"         { return symbol(ParserSym.RPAREN); }
+"{"         { return symbol(ParserSym.LKEY); }
+"}"         { return symbol(ParserSym.RKEY); }
 
 // logicos
-"true"      { return new symbol(ParserSym.BOLEAN, 1.0); }
-"false"     { return new symbol(ParserSym.BOLEAN, 0.0); }
-"<="        { return new symbol(ParserSym.MENORIGU); }
-">="        { return new symbol(ParserSym.MAYORIGU); }
-">"         { return new symbol(ParserSym.MAYORQUE); }
-"<"         { return new symbol(ParserSym.MENORQUE); }
-"=="        { return new symbol(ParserSym.IGUALES); }
-"!="        { return new symbol(ParserSym.NIGUALES); }
-"!"         { return new symbol(ParserSym.NOT); }
-"&"         { return new symbol(ParserSym.AND); }
-"|"         { return new symbol(ParserSym.OR); }
+"true"      { return symbol(ParserSym.BOLEAN, 1.0); }
+"false"     { return symbol(ParserSym.BOLEAN, 0.0); }
+"<="        { return symbol(ParserSym.MENORIGU); }
+">="        { return symbol(ParserSym.MAYORIGU); }
+">"         { return symbol(ParserSym.MAYORQUE); }
+"<"         { return symbol(ParserSym.MENORQUE); }
+"=="        { return symbol(ParserSym.IGUALES); }
+"!="        { return symbol(ParserSym.NIGUALES); }
+"!"         { return symbol(ParserSym.NOT); }
+"&"         { return symbol(ParserSym.AND); }
+"|"         { return symbol(ParserSym.OR); }
 
-"="         { return new symbol(ParserSym.IGUAL); }
+"="         { return symbol(ParserSym.IGUAL); }
 
 // separador del programa
-"main"      { return new symbol(ParserSym.MAIN); }
-"declare"   { return new symbol(ParserSym.DECLARE); }
+"main"      { return symbol(ParserSym.MAIN); }
+"declare"   { return symbol(ParserSym.DECLARE); }
 
 // condicional y bucle
-"if"        { return new symbol(ParserSym.IF); }
-"while"     { return new symbol(ParserSym.WHILE); }
+"if"        { return symbol(ParserSym.IF); }
+"while"     { return symbol(ParserSym.WHILE); }
 
 // variables y funciones
-"int"       { return new symbol(ParserSym.INT); }
-"bool"      { return new symbol(ParserSym.BOOL); }
-"const"     { return new symbol(ParserSym.CONST); }
-"function"  { return new symbol(ParserSym.FUNCTION); }
-"return"    { return new symbol(ParserSym.RETRN); }
+"int"       { return symbol(ParserSym.INT); }
+"bool"      { return symbol(ParserSym.BOOL); }
+"const"     { return symbol(ParserSym.CONST); }
+"function"  { return symbol(ParserSym.FUNCTION); }
+"return"    { return symbol(ParserSym.RETRN); }
 
 // entrada y salida
-"output"    { return new symbol(ParserSym.OUT); }
-"input"     { return new symbol(ParserSym.IN); }
+"output"    { return symbol(ParserSym.OUT); }
+"input"     { return symbol(ParserSym.IN); }
 
 // no terminales
-{entero}    { return new symbol(ParserSym.VALOR, this.yytext()); }
-{variable}  { return new symbol(ParserSym.ID, this.yytext()); }
+{entero}    { return symbol(ParserSym.NUMERO, this.yytext()); }
+{variable}  { return symbol(ParserSym.ID, this.yytext()); }
 {ws}        {}
+
+[^]                      { return symbol(ParserSym.error);  }
 //{endline}   {}
 
 

@@ -32,7 +32,11 @@ public class Main {
             Scanner scanner = new Scanner(in);
             SymbolFactory sf = new ComplexSymbolFactory();
             Parser parser = new Parser(scanner, sf);
-            parser.parse();
+            try {
+                parser.parse();
+            } catch (Exception ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
         } catch (FileNotFoundException e) {
             System.err.println("El fitxer d'entrada '" + args[0] + "' no existeix");
