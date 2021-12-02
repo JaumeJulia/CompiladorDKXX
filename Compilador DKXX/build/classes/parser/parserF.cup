@@ -1,94 +1,9 @@
 package parser;
 
-import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import java_cup.runtime.ComplexSymbolFactory.Location;
-
 import java_cup.runtime.*;
-
 import parser.symbols.*;
 
-/**import java.io.PrintStream;**/
-/**import java.util.HashMap;**/
-
 class Parser;
-
-/**
-parser code {:
-    Scanner s;
-    Parser(Scanner s){ this.s=s; }
-:}
-
-init with {: s.init(); :};
-scan with {: return s.next_token(); :};
-**/
-
-/**
-parser code {:
-
-    /private HashMap<String, Double>tsymbols = new HashMap<>();
-
-    public Double getSymbolValue(String id){
-        return tsymbols.get(id);
-    }
-
-    public void addSymbol(String id, Double value) {
-        if (tsymbols.get(id) == null) {
-            tsymbols.put(id, value);
-        } else {
-            tsymbols.replace(id, value);
-        }
-    }
-
-    public void printVars(PrintStream out) {
-        if (tsymbols.size() == 0) {
-            out.println("No hi ha variables declarades");
-        } else {
-            String fmt = "%-8s: %f";
-            tsymbols.forEach((k,v) -> out.println(String.format(fmt,k,v)));
-        }
-    }
-
-    private boolean errorSemantic = false;
-
-    @Override
-    public void unrecovered_syntax_error(Symbol cur_token) throws Exception {
-        report_error("Error sintàctic catastròfic", cur_token);
-        done_parsing();        
-    }
-
-    @Override
-    public void syntax_error(Symbol cur_token) {
-        report_error("de sintaxis", cur_token);
-    }
-
-    @Override
-    public void report_error(String message, Object info) {
-        StringBuilder msg = new StringBuilder("ERROR");
-        if (info instanceof Symbol) {
-            ComplexSymbol token = (ComplexSymbol)info;
-            Location l = token.getLeft();
-            
-            if (l != null) {
-                msg.append(" (fila: ")
-                   .append(l.getLine())
-                   .append(", columna: ")
-                   .append(l.getColumn())
-                   .append(")");
-            }
-        }
-        msg.append(": ").append(message);
-        
-        System.err.println(msg);
-    }
-
-    @Override
-    public void report_fatal_error(String message, Object info) throws Exception {
-        report_error("Error catastròfic ("+message+")", info);
-        done_parsing();
-    }
-
-:}
-**/
 
 terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
                                    IGUALES, OR, AND, NOT, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
@@ -139,25 +54,19 @@ DEF     ::=    DFUNCION DEF {:  :}
         |      {:  :}
         ;
 
-/**
-PROG     ::= SENTENCIAS {:  :}
-		 ;
-**/
-
 SENTENCIAS ::= SENTENCIA SENTENCIAS {:  :}
         |   {:  :}
         ;
 
 SENTENCIA ::= DECLARACION  PUNTYCOMA                         {:  :}
-        | IN LPAREN RPAREN PUNTYCOMA                         {:  :}
-        | OUT LPAREN EXPRESION:v RPAREN PUNTYCOMA              {: System.out.println( v.value ) :}
+        | OUT LPAREN EXPRESION RPAREN PUNTYCOMA              {: :}
         | ID SENTENCIA_ID PUNTYCOMA                          {:  :}
         | WHILE LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY {:  :}
         | IF LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY    {:  :}
         | error PUNTYCOMA                                    {: /* regla para recuperar un error en una instrucción */ :}
         ;
 
-R_SENTENCIAS    ::= RETRN EXPRESION PUNTYCOMA R_SENTENCIAS {:  :}
+R_SENTENCIAS    ::= RETRN EXPRESION:e PUNTYCOMA R_SENTENCIAS:s {:  :}
                 | SENTENCIAS {:  :}
                 ;
 
@@ -197,23 +106,24 @@ TYPE        ::= INT {:  :}
 ASIGNACION  ::= IGUAL EXPRESION {:  :}
             ;
 
-EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion((int)v1, v2); :}
+EXPRESION   ::= VALOR OPERACION {:  :}
             | LPAREN EXPRESION RPAREN OPERACION {:  :}
             ;
 
 VALOR       ::= ID {:  :}
-            | NUMERO:v {: RESULT = v; :}
+            | NUMERO {: :}
             | BOLEAN {:  :}
+            | IN LPAREN RPAREN PUNTYCOMA{:  :}
             | ID FUNCION {:  :}
             ;
 
-OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2); :} 
-            | {: RESULT = new SymbolOperacion(); :}
+OPERACION   ::= OP EXPRESION {: :} 
+            | {: :}
             ;
 
-OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
-            | DIV {: RESULT = ParserSym.DIV; :}
-            | SUMA {: RESULT = ParserSym.SUMA; :}
+OP          ::= MULT {:  :}
+            | DIV {: :}
+            | SUMA {:  :}
             | RESTA {:  :}
             | MAYORQUE {:  :}
             | MENORQUE {:  :}

@@ -166,7 +166,7 @@ SENTENCIA   ::= SENTENCIA_P PUNTYCOMA {:  :}
 
 SENTENCIA_P ::= DECLARACION {:  :}
             | IN LPAREN RPAREN {:  :}
-            | OUT SENTENCIA_E {: System.out.println( v.value ) :}
+            | OUT SENTENCIA_E {: :}
             ;
 
 SENTENCIA_ID    ::= ASIGNACION {:  :}
@@ -220,7 +220,7 @@ TYPE        ::= INT {:  :}
 ASIGNACION  ::= IGUAL EXPRESION {:  :}
             ;
 
-EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion(v1, v2) :}
+EXPRESION   ::= VALOR:v1 OPERACION:v2 {: :}
             | LPAREN EXPRESION RPAREN OPERACION {:  :}
             ;
 
@@ -230,13 +230,13 @@ VALOR       ::= ID {:  :}
             | ID FUNCION {:  :}
             ;
 
-OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2.value); :} 
+OPERACION   ::= OP:v1 EXPRESION:v2 {: :} 
             | {: RESULT = new SymbolOperacion() :}
             ;
 
-OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
-            | DIV {: RESULT = "/" :}
-            | SUMA {: RESULT = ParserSym.SUMA :}
+OP          ::= MULT {:  :}
+            | DIV {: :}
+            | SUMA {:  :}
             | RESTA {:  :}
             | MAYORQUE {:  :}
             | MENORQUE {:  :}
