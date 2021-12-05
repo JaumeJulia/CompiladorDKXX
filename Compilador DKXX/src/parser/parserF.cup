@@ -1,101 +1,16 @@
 package parser;
 
-import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import java_cup.runtime.ComplexSymbolFactory.Location;
-
 import java_cup.runtime.*;
-
 import parser.symbols.*;
 
-/**import java.io.PrintStream;**/
-/**import java.util.HashMap;**/
-
 class Parser;
-
-/**
-parser code {:
-    Scanner s;
-    Parser(Scanner s){ this.s=s; }
-:}
-
-init with {: s.init(); :};
-scan with {: return s.next_token(); :};
-**/
-
-/**
-parser code {:
-
-    /private HashMap<String, Double>tsymbols = new HashMap<>();
-
-    public Double getSymbolValue(String id){
-        return tsymbols.get(id);
-    }
-
-    public void addSymbol(String id, Double value) {
-        if (tsymbols.get(id) == null) {
-            tsymbols.put(id, value);
-        } else {
-            tsymbols.replace(id, value);
-        }
-    }
-
-    public void printVars(PrintStream out) {
-        if (tsymbols.size() == 0) {
-            out.println("No hi ha variables declarades");
-        } else {
-            String fmt = "%-8s: %f";
-            tsymbols.forEach((k,v) -> out.println(String.format(fmt,k,v)));
-        }
-    }
-
-    private boolean errorSemantic = false;
-
-    @Override
-    public void unrecovered_syntax_error(Symbol cur_token) throws Exception {
-        report_error("Error sintàctic catastròfic", cur_token);
-        done_parsing();        
-    }
-
-    @Override
-    public void syntax_error(Symbol cur_token) {
-        report_error("de sintaxis", cur_token);
-    }
-
-    @Override
-    public void report_error(String message, Object info) {
-        StringBuilder msg = new StringBuilder("ERROR");
-        if (info instanceof Symbol) {
-            ComplexSymbol token = (ComplexSymbol)info;
-            Location l = token.getLeft();
-            
-            if (l != null) {
-                msg.append(" (fila: ")
-                   .append(l.getLine())
-                   .append(", columna: ")
-                   .append(l.getColumn())
-                   .append(")");
-            }
-        }
-        msg.append(": ").append(message);
-        
-        System.err.println(msg);
-    }
-
-    @Override
-    public void report_fatal_error(String message, Object info) throws Exception {
-        report_error("Error catastròfic ("+message+")", info);
-        done_parsing();
-    }
-
-:}
-**/
 
 terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
                                    IGUALES, OR, AND, NOT, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
                                    OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
 terminal        String             ID;
-terminal        Integer            NUMERO;
-terminal        Boolean            BOLEAN;
+terminal        String            NUMERO;
+terminal        String            BOLEAN;
 
 non terminal    SymbolInit         INIT;
 non terminal    SymbolDef          DEF;
@@ -109,9 +24,9 @@ non terminal      DECLARACION;
 non terminal        DECLAREND;
 non terminal             TYPE;
 non terminal       ASIGNACION;
-non terminal    SymbolExpresion    EXPRESION;
+non terminal        EXPRESION;
 non terminal            VALOR;
-non terminal    SymbolOperacion    OPERACION;
+non terminal        OPERACION;
 non terminal               OP;
 non terminal          FUNCION;
 non terminal          INPARAM;
@@ -121,6 +36,7 @@ non terminal SENTENCIAS;
 non terminal SENTENCIA_ID;
 
 non terminal R_SENTENCIAS;
+non terminal R_SENTENCIA;
 
 precedence right    IGUAL;
 precedence left     SUMA, RESTA;
@@ -129,44 +45,47 @@ precedence left     MULT, DIV;
 start with INIT;
 
 INIT    ::=     DECLARE LKEY DEF RKEY MAIN LKEY SENTENCIAS RKEY
-                {:  :}
+                {: System.out.println("Inicio"); :}
         ;
 
 /** sentencias por prog antes **/
 
-DEF     ::=    DFUNCION DEF {:  :}
-        |      DECLARACION DEF {:  :}
-        |      {:  :}
+DEF     ::=    DFUNCION DEF {: System.out.println("DEF tipo 1"); :}
+        |      DECLARACION PUNTYCOMA DEF {: System.out.println("DEF tipo 2"); :}
+        |      {:  System.out.println(" No mas declaraciones "); :}
         ;
 
-/**
-PROG     ::= SENTENCIAS {:  :}
-		 ;
-**/
-
-SENTENCIAS ::= SENTENCIA SENTENCIAS {:  :}
-        |   {:  :}
+SENTENCIAS ::= SENTENCIA SENTENCIAS {: System.out.println("Sentancia"); :}
+        |   {: System.out.println("No mas sentencias"); :}
         ;
 
-SENTENCIA ::= DECLARACION  PUNTYCOMA                         {:  :}
-        | IN LPAREN RPAREN PUNTYCOMA                         {:  :}
-        | OUT LPAREN EXPRESION:v RPAREN PUNTYCOMA              {: System.out.println( v.value ) :}
-        | ID SENTENCIA_ID PUNTYCOMA                          {:  :}
-        | WHILE LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY {:  :}
-        | IF LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY    {:  :}
-        | error PUNTYCOMA                                    {: /* regla para recuperar un error en una instrucción */ :}
+SENTENCIA ::= DECLARACION  PUNTYCOMA                         {: System.out.println("Declaracion"); :}
+        | OUT LPAREN EXPRESION RPAREN PUNTYCOMA              {: System.out.println("Ouput"); :}
+        | ID SENTENCIA_ID PUNTYCOMA                          {: System.out.println("Sentencia_ID "); :}
+        | WHILE LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY {: System.out.println("bucle while "); :}
+        | IF LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY    {: System.out.println("Condicional "); :}
+        | error PUNTYCOMA                                    {:  :}
         ;
 
-R_SENTENCIAS    ::= RETRN EXPRESION PUNTYCOMA R_SENTENCIAS {:  :}
-                | SENTENCIAS {:  :}
+R_SENTENCIAS ::= R_SENTENCIA R_SENTENCIAS {: System.out.println("R_Sentancia"); :}
+        |   {: System.out.println("No mas R_sentencias"); :}
+        ;
+
+R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {:  System.out.println("retorno "); :}
+                | DECLARACION  PUNTYCOMA                         {: System.out.println("Declaracion"); :}
+                | OUT LPAREN EXPRESION RPAREN PUNTYCOMA              {: System.out.println("Ouput"); :}
+                | ID SENTENCIA_ID PUNTYCOMA                          {: System.out.println("Sentencia_ID "); :}
+                | WHILE LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY {: System.out.println("bucle while "); :}
+                | IF LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY    {: System.out.println("Condicional "); :}
+                | error PUNTYCOMA                                    {:  :}
                 ;
 
-SENTENCIA_ID    ::= ASIGNACION {:  :}
-                | FUNCION {:  :}
+SENTENCIA_ID    ::= ASIGNACION {: System.out.println("Asignacio - Sentancia_ID"); :}
+                | FUNCION {: System.out.println("Funcion Sentancia_id"); :}
                 ;
 
 
-DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY R_SENTENCIAS RKEY {:  :}
+DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY R_SENTENCIAS RKEY {: System.out.println("DECLARACION FUNCION "); :}
             ;
 
 
@@ -174,19 +93,19 @@ RETURN      ::= TYPE {:  :}
             | {:  :}
             ;
 
-PARAMETRO   ::= TYPE ID PARAMCONCAT {:  :}
+PARAMETRO   ::= TYPE ID PARAMCONCAT {: System.out.println("Parametro "); :}
             | {:  :}
             ;
 
-PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {:  :}
+PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {: System.out.println("Muchos parametros "); :}
             | {:  :}
             ;
 
-DECLARACION ::= CONST TYPE ID DECLAREND {:  :}
-            | TYPE ID DECLAREND {:  :}
+DECLARACION ::= CONST TYPE ID DECLAREND {: System.out.println("Constantes"); :}
+            | TYPE ID DECLAREND {: System.out.println("variable normal"); :}
             ;
 
-DECLAREND   ::= ASIGNACION {:  :}
+DECLAREND   ::= ASIGNACION {: System.out.println("asignamos"); :}
             | {:  :}
             ;
 
@@ -194,36 +113,37 @@ TYPE        ::= INT {:  :}
             | BOOL {:  :}
             ;
 
-ASIGNACION  ::= IGUAL EXPRESION {:  :}
+ASIGNACION  ::= IGUAL EXPRESION {: System.out.println(" Asignacion "); :}
             ;
 
-EXPRESION   ::= VALOR:v1 OPERACION:v2 {: RESULT = new SymbolExpresion((int)v1, v2); :}
-            | LPAREN EXPRESION RPAREN OPERACION {:  :}
+EXPRESION   ::= VALOR:v OPERACION {:System.out.println("Valor operacion : " + v); :}
+            | LPAREN EXPRESION RPAREN OPERACION {: System.out.println("Parentesis expresion "); :}
             ;
 
-VALOR       ::= ID {:  :}
-            | NUMERO:v {: RESULT = v; :}
-            | BOLEAN {:  :}
-            | ID FUNCION {:  :}
+VALOR       ::= ID:id {: System.out.println("Nombre: " + id); :}
+            | NUMERO:n {: RESULT = n; :}
+            | BOLEAN:b {: RESULT =b; :}
+            | IN LPAREN RPAREN {: System.out.println("In"); :}
+            | ID:id FUNCION {: System.out.println("Funcion:" + id); :}
             ;
 
-OPERACION   ::= OP:v1 EXPRESION:v2 {: RESULT = new SymbolOperacion(v1, v2); :} 
-            | {: RESULT = new SymbolOperacion(); :}
+OPERACION   ::= OP EXPRESION {: System.out.println("operacion y expresion");:} 
+            | {:System.out.println("Operacion=null");:}
             ;
 
-OP          ::= MULT {: RESULT =  ParserSym.MULT; :}
-            | DIV {: RESULT = ParserSym.DIV; :}
-            | SUMA {: RESULT = ParserSym.SUMA; :}
-            | RESTA {:  :}
-            | MAYORQUE {:  :}
-            | MENORQUE {:  :}
-            | MAYORIGU {:  :}
-            | MENORIGU {:  :}
-            | IGUALES {:  :}
-            | NIGUALES {:  :}
-            | OR {:  :}
-            | AND {:  :}
-            | NOT {:  :}
+OP          ::= MULT {: System.out.println("Mult "); :}
+            | DIV {:System.out.println("Div "); :}
+            | SUMA {: System.out.println("suma"); :}
+            | RESTA {: System.out.println("resta "); :}
+            | MAYORQUE {: System.out.println("Mayorque "); :}
+            | MENORQUE {:  System.out.println("Menorque ");:}
+            | MAYORIGU {: System.out.println("MayorIgual "); :}
+            | MENORIGU {: System.out.println("Menorigual "); :}
+            | IGUALES {: System.out.println("Iguales "); :}
+            | NIGUALES {: System.out.println("No iguales "); :}
+            | OR {: System.out.println("or "); :}
+            | AND {: System.out.println("and "); :}
+            | NOT {: System.out.println("not "); :}
             ;
 
 FUNCION     ::= LPAREN INPARAM RPAREN{:  :}

@@ -23,7 +23,7 @@ public class SymbolExpresion extends SymbolBase{
         
         if(Op.isEmpty()){
             valor = (Double)param;
-        } else {
+        } /**else {
             switch (Op.getOperacion()) {
                 case ParserSym.SUMA:
                     valor = (Double) param + (Double)Op.value;
@@ -36,7 +36,7 @@ public class SymbolExpresion extends SymbolBase{
             }
         }
         
-        this.value = valor;
+        this.value = valor;*/
     }
     
 }

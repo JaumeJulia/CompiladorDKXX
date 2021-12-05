@@ -10,20 +10,22 @@ package parser.symbols;
  * @author pujol
  */
 public class SymbolOperacion extends SymbolBase{
-    private int operacion;
+    private String operacion;
     private boolean empty;
     
     public SymbolOperacion(){
         super();
     }
+            
     
-    public SymbolOperacion(int operacion, SymbolExpresion valorE){
+    public SymbolOperacion(String operacion, SymbolExpresion valorE){
         super("OPERACION", 0.0);
         this.operacion = operacion;
         this.value = valorE.value;  
+        
     }
     
-    public int getOperacion() {
+    public String getOperacion() {
         return this.operacion;
     }
 }
