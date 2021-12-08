@@ -4,7 +4,9 @@
 
 package scanner;
 
+import java.io.*;
 import java_cup.runtime.*;
+
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import parser.ParserSym;
 
@@ -750,7 +752,8 @@ public class Scanner implements java_cup.runtime.Scanner {
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
             zzDoEOF();
-          { return new java_cup.runtime.Symbol(ParserSym.EOF); }
+          {     return symbol(ParserSym.EOF);
+ }
       }
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
@@ -885,7 +888,7 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 61: break;
           case 27:
-            { return symbol(ParserSym.BOLEAN, 1.0);
+            { return symbol(ParserSym.BOLEAN, "true");
             }
             // fall through
           case 62: break;
@@ -895,7 +898,7 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 63: break;
           case 29:
-            { return symbol(ParserSym.BOLEAN, 0.0);
+            { return symbol(ParserSym.BOLEAN, "false");
             }
             // fall through
           case 64: break;

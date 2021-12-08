@@ -12,227 +12,226 @@ import ArbolSintactico.CodigoTresDirecciones.Operador;
  * @author felix
  */
 public class ArbolSintactico {
-    
-    public Init raiz;
-    public CodigoTresDirecciones ctd;
 
-    public ArbolSintactico(Init raiz) {
+    public Init raiz;
+    public static CodigoTresDirecciones ctd;
+
+    public ArbolSintactico() {
+
+    }
+
+    public void setRaiz(Init raiz) {
         this.raiz = raiz;
     }
-    
-    public void GenerarCTD(){
+
+    public void GenerarCTD() {
         raiz.codigoIntermedio();
     }
-    
 
     public enum Operaciones {
         MULT, DIV, SUMA, RESTA, MAYORQUE, MENORQUE, MAYORIGU,
         MENORIGU, IGUALES, NIGUALES, OR, AND, NOT
     }
 
-    public class Init {
+    public static class Init {
 
         Def decl;
         Sentencias main;
 
-        public Init(Def decl, Sentencias main) {
-            this.decl = decl;
-            this.main = main;
+        public Init(Object d, Object m) {
+            this.decl = (Def) d;
+            this.main = (Sentencias) m;
         }
-        
-        public void codigoIntermedio(){
+
+        public void codigoIntermedio() {
             ctd.generar(Operador.GOTO, null, null, "run");
             // Añadir constantes.
             decl.codigoIntermedio();
             ctd.generar(Operador.SKIP, null, null, "run");
-            main.codigoIntermedio();
+            //   main.codigoIntermedio();
         }
+
     }
 
-    public class Def {
+    public static class Def {
 
         Object elem;
         Def def;
 
-        public Def(Object elem, Def def) {
-            this.elem = elem;
-            this.def = def;
+        public Def(Object f, Object d) {
+            this.elem = f;
+            this.def = (Def) d;
         }
-        
-        public void codigoIntermedio(){
-            elem.codigoIntermedio();
+
+        public void codigoIntermedio() {
+            //      elem.codigoIntermedio();
             def.codigoIntermedio();
         }
+
     }
 
-    public class Dfuncion {
+    public static class Dfuncion {
 
         String id;
         Tipo ret;
         Dparam dparam;
         Sentencias sent;
 
-        public Dfuncion(String id, Tipo ret, Dparam dparam, Sentencias sent) {
-            this.id = id;
-            this.ret = ret;
-            this.dparam = dparam;
-            this.sent = sent;
+        public Dfuncion(String i, Object r, Object p, Object s) {
+            this.id = i;
+            this.ret = (Tipo) r;
+            this.dparam = (Dparam) p;
+            this.sent = (Sentencias) s;
         }
-        
-        public void codigoIntermedio(){
-            
+
+        public void codigoIntermedio() {
+
             // Nueva intro en proc tabla.
-            
             ctd.generar(Operador.SKIP, null, null, id);
-            sent.codigoIntermedio();
+            //  sent.codigoIntermedio();
         }
     }
 
-    public class Dparam {
+    public static class Dparam {
 
         Tipo tipo;
         String id;
         Dparam dparam;
 
-        public Dparam(Tipo tipo, String id, Dparam dparam) {
-            this.tipo = tipo;
-            this.id = id;
-            this.dparam = dparam;
+        public Dparam(Object t, String i, Object d) {
+            this.tipo = (Tipo) t;
+            this.id = i;
+            this.dparam = (Dparam) d;
         }
     }
 
-    public class Return {
+    public static class Return {
 
         Expresion expr;
 
-        public Return(Expresion expr) {
-            this.expr = expr;
+        public Return(Object e) {
+            this.expr = (Expresion) e;
         }
     }
 
-    public class Sentencias {
+    public static class Sentencias {
 
         Object elem;
         Sentencias sentencias;
 
-        public Sentencias(Object elem, Sentencias sentencias) {
-            this.elem = elem;
-            this.sentencias = sentencias;
+        public Sentencias(Object e, Object s) {
+            this.elem = e;
+            this.sentencias = (Sentencias) s;
         }
     }
 
-    public class Declaracion {
+    public static class Declaracion {
 
         Tipo tipo;
         String id;
         Expresion expr;
 
-        public Declaracion(Tipo tipo, String id, Expresion expr) {
-            this.tipo = tipo;
-            this.id = id;
-            this.expr = expr;
+        public Declaracion(Object t, String i, Object d) {
+            this.tipo = (Tipo) t;
+            this.id = i;
+            this.expr = (Expresion) d;
         }
     }
 
-    public class Out {
+    public static class Out {
 
         Expresion expr;
 
-        public Out(Expresion expr) {
-            this.expr = expr;
+        public Out(Object e) {
+            this.expr = (Expresion) e;
         }
     }
 
-    public class In {
+    public static class In {
 
         public In() {
         }
-        
+
     }
 
-    public class SentenciaID {
+    public static class SentenciaID {
 
         Object elem;
         String id;
 
-        public SentenciaID(String id, Expresion expr) {
-            this.elem = expr;
-            this.id = id;
-        }
-
-        public SentenciaID(String id, Param param) {
-            this.elem = param;
-            this.id = id;
+        public SentenciaID(String i, Object d) {
+            this.elem = d;
+            this.id = i;
         }
     }
 
-    public class While {
+    public static class While {
 
         Expresion cond;
         Sentencias sent;
 
-        public While(Expresion cond, Sentencias sent) {
-            this.cond = cond;
-            this.sent = sent;
+        public While(Object e, Object s) {
+            this.cond = (Expresion) e;
+            this.sent = (Sentencias) s;
         }
     }
 
-    public class If {
+    public static class If {
 
         Expresion cond;
         Sentencias sent;
 
-        public If(Expresion cond, Sentencias sent) {
-            this.cond = cond;
-            this.sent = sent;
+        public If(Object e, Object s) {
+            this.cond = (Expresion) e;
+            this.sent = (Sentencias) s;
         }
     }
 
-    public class Funcion {
+    public static class Funcion {
 
         String id;
         Param param;
 
-        public Funcion(String id, Param param) {
-            this.id = id;
-            this.param = param;
+        public Funcion(String i, Object f) {
+            this.id = i;
+            this.param = (Param) f;
         }
     }
 
-    public class Param {
+    public static class Param {
 
         Expresion expr;
         Param param;
 
-        public Param(Expresion e, Param param) {
-            this.expr = e;
-            this.param = param;
+        public Param(Object e, Object p) {
+            this.expr = (Expresion) e;
+            this.param = (Param) p;
         }
     }
 
-    public class Expresion {
+    public static class Expresion {
 
         Object elem;
         Operacion oper;
 
-        public Expresion(Object elem, Operacion oper) {
-            this.elem = elem;
-            this.oper = oper;
+        public Expresion(Object e, Object o) {
+            this.elem = e;
+            this.oper = (Operacion) o;
         }
     }
 
-    public class Operacion {
+    public static class Operacion {
 
         Operaciones oper;
         Expresion expr;
 
-        public Operacion(Operaciones oper, Expresion expr) {
-            this.oper = oper;
-            this.expr = expr;
+        public Operacion(Object o, Object e) {
+            this.oper = (Operaciones) o;
+            this.expr = (Expresion) e;
         }
     }
 
-    public class Valor {
+    public static class Valor {
 
         Object elem;
 

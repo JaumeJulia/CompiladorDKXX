@@ -3,7 +3,6 @@ package scanner;
 import java.io.*;
 import java_cup.runtime.*;
 
-import java_cup.runtime.SymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import parser.ParserSym;
 
@@ -18,17 +17,15 @@ import parser.ParserSym;
 %line
 %column
 
-//%eofval{
-//    return symbol(ParserSym.EOF);
-//%eofval}
+%eofval{
+    return symbol(ParserSym.EOF);
+%eofval}
 
-// Declaraciones
 
 entero = [\-\+]?[1-9][0-9]* | [\-\+]?0
 variable = [A-Za-z_][A-Za-z_0-9]*
 
-//ws           = [' '|'\t']+
-//endline      = ['\r'|'\n'|"\r\n"]+
+
 
 WS = [ \t\r\n] // Separadores de tokens.
 
@@ -38,7 +35,7 @@ WS = [ \t\r\n] // Separadores de tokens.
         return new ComplexSymbol(ParserSym.terminalNames[type], type);
     }
 
-    private Symbol symbol(int type, Object value) {
+    private ComplexSymbol symbol(int type, Object value) {
         return new ComplexSymbol(ParserSym.terminalNames[type], type, value);
     }
 
@@ -63,8 +60,8 @@ WS = [ \t\r\n] // Separadores de tokens.
 "}"         { return symbol(ParserSym.RKEY); }
 
 // logicos
-"true"      { return symbol(ParserSym.BOLEAN, 1.0); }
-"false"     { return symbol(ParserSym.BOLEAN, 0.0); }
+"true"      { return symbol(ParserSym.BOLEAN, "true"); }
+"false"     { return symbol(ParserSym.BOLEAN, "false"); }
 "<="        { return symbol(ParserSym.MENORIGU); }
 ">="        { return symbol(ParserSym.MAYORIGU); }
 ">"         { return symbol(ParserSym.MAYORQUE); }
@@ -100,7 +97,7 @@ WS = [ \t\r\n] // Separadores de tokens.
 {entero}    { return symbol(ParserSym.NUMERO, this.yytext()); }
 {variable}  { return symbol(ParserSym.ID, this.yytext()); }
 {WS}        {}
-//{endline}   {}
+
 
 
 //Gestión de errores

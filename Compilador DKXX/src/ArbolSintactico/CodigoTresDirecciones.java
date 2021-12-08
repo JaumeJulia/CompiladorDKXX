@@ -52,32 +52,40 @@ public class CodigoTresDirecciones {
     }
 
     public String newVariable(Tipo tipo, String nombre) {
-        int anp;
-        if (np < 0) {
-            anp = np + 1;
-        } else {
-            anp = np;
-        }
+
         if (nombre == null) {
             nv++;
-            nombre = "t" + nv;
-            Variable var = new Variable(nombre, tipo, anp);
-            tv.add(var);
+            tv.add(new Variable("t" + nv, tipo, npa));
+            return "t" + nv;
         } else {
+            boolean encontrado = false;
             int i = 0;
-            boolean same = false;
-            while (i < tv.size() && !same) {
-                if (tv.get(i).getID().equals(nombre) && tv.get(i).getID().equals(anp)) {
-                    same = true;
+            while (!encontrado && i < tv.size()) {
+                Variable v = tv.get(i);
+                if (v.id.equals(nombre) && v.procedimiento == npa) {
+                    encontrado = true;
+                } else {
+                    i++;
                 }
-                i++;
             }
-            if (!same) {
-                Variable var = new Variable(nombre, tipo, anp);
-                tv.add(var);
+            if (!encontrado) {
+                tv.add(new Variable(nombre, tipo, npa));
             }
+
+            return nombre;
         }
-        return nombre;
+    }
+
+    public void newProcedimiento(String nombre, Tipo retorno, ArrayList<Parametro> parametros) {
+        np++;
+        npa = np;
+
+        tp.add(new Procedimiento(nombre, npa, retorno, parametros));
+
+    }
+
+    public void closeProcedimiento() {
+        npa = 0;
     }
 
     public void generar(Operador a, String op1, String op2, String dest) {

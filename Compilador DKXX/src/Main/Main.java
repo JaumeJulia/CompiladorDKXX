@@ -1,12 +1,13 @@
 package Main;
 
+import ArbolSintactico.ArbolSintactico;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.SymbolFactory;
 import scanner.Scanner;
-import parser.Parser;
+import parser.parser;
 
 /**
  *
@@ -27,8 +28,12 @@ public class Main {
 
             Scanner scanner = new Scanner(in);
             SymbolFactory sf = new ComplexSymbolFactory();
-            Parser parser = new Parser(scanner, sf);
-            parser.parse();
+            parser parser = new parser(scanner, sf);
+             parser.parse();
+            ArbolSintactico arbol = parser.getArbol();
+            System.out.println("Hola");
+            //arbol.raiz.saludar();
+            
 
         } catch (FileNotFoundException e) {
             System.err.println("El fitxer d'entrada '" + args[0] + "' no existeix");

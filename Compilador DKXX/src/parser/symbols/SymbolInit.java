@@ -5,10 +5,11 @@
  */
 package parser.symbols;
 
+
 /**
  *
  * @author felix
  */
-public class SymbolInit{
+public class SymbolInit {
     
 }
