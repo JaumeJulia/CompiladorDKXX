@@ -6,7 +6,7 @@
 package parser;
 
 /** CUP generated class containing symbol constants. */
-public class ParserSym {
+public class sym {
   /* terminals */
   public static final int NUMERO = 34;
   public static final int FUNCTION = 27;
