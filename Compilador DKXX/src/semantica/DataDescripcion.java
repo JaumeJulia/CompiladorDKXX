@@ -3,27 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package parser;
+package semantica;
 
 /**
  *
  * @author pujol
  */
 public class DataDescripcion {
-    private String descripcion;
+    
+    private Descripcion desc;
     private int nivel;
     
-    public DataDescripcion(String desc, int nivel){
-        this.descripcion = desc;
+    public DataDescripcion(Descripcion d, int nivel){
+        this.desc = d;
         this.nivel = nivel;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
     }
 
     public int getNivel() {
@@ -34,5 +27,7 @@ public class DataDescripcion {
         this.nivel = nivel;
     }
     
-    
+    public Descripcion getDescripcion(){
+        return this.desc;
+    }
 }

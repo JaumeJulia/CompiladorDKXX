@@ -3,12 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/parser.cup</file>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/scanner/scanner.jflex</file>
+            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/ArbolSintactico/ArbolSintactico.java</file>
+            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/DataDescripcion.java</file>
             <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/Main/Main.java</file>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/symbols/SymbolBase.java</file>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/symbols/SymbolOperacion.java</file>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/symbols/SymbolExpresion.java</file>
+            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/DataExpansion.java</file>
+            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/parserF.cup</file>
+            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/TablaSimbols.java</file>
         </group>
     </open-files>
 </project-private>

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package parser;
+package semantica;
 
 /**
  *
@@ -12,9 +12,9 @@ package parser;
 public class DataExpansion {
     private int nivel;
     private String id;
-    private String descripcion;
+    private Descripcion descripcion;
     
-    public DataExpansion(String id, int nivel, String desc){
+    public DataExpansion(String id, int nivel, Descripcion desc){
         this.nivel = nivel;
         this.id = id;
         this.descripcion = desc;
@@ -36,11 +36,11 @@ public class DataExpansion {
         this.id = id;
     }
 
-    public String getDescripcion() {
+    public Descripcion getDescripcion() {
         return descripcion;
     }
 
-    public void setDescripcion(String descripcion) {
+    public void setDescripcion(Descripcion descripcion) {
         this.descripcion = descripcion;
     }
     
