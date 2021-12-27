@@ -13,11 +13,23 @@ public class DataExpansion {
     private int nivel;
     private String id;
     private Descripcion descripcion;
+    private int next;
+    private String idCamp;
     
     public DataExpansion(String id, int nivel, Descripcion desc){
         this.nivel = nivel;
         this.id = id;
         this.descripcion = desc;
+        this.next = 0;
+        this.idCamp = null;
+    }
+    
+    public DataExpansion(String id, String idCamp, int nivel, Descripcion desc, int next){
+        this.nivel = nivel;
+        this.id = id;
+        this.idCamp = idCamp;
+        this.descripcion = desc;
+        this.next = next;
     }
 
     public int getNivel() {
@@ -26,6 +38,14 @@ public class DataExpansion {
 
     public void setNivel(int nivel) {
         this.nivel = nivel;
+    }
+    
+    public int getNext() {
+        return next;
+    }
+
+    public void setNext(int next) {
+        this.next = next;
     }
 
     public String getId() {
@@ -36,6 +56,14 @@ public class DataExpansion {
         this.id = id;
     }
 
+    public String getIdCamp() {
+        return idCamp;
+    }
+
+    public void setIdCamp(String idCamp) {
+        this.idCamp = idCamp;
+    }
+    
     public Descripcion getDescripcion() {
         return descripcion;
     }

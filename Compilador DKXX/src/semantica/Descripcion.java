@@ -5,16 +5,15 @@
  */
 package semantica;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  *
  * @author pujol
  */
 public class Descripcion {
-    
-    public enum tipo_descripcion{
+
+    public enum tipo_descripcion {
         dnull,
         dvar,
         dconst,
@@ -24,19 +23,41 @@ public class Descripcion {
         darg,
         dindex
     }
-    
+
+    public enum nom_atributo {
+        nv,
+        tipo,
+        valor,
+        dt,
+        np,
+        modo,
+        nombre
+    }
+
+    public enum valor_atributo {
+        integer,
+        bool,
+        tprog,
+        tparam,
+        targ
+    }
+
     private tipo_descripcion tipo_desc;
-    private List<AtributoDescripcion> lista_atributo;
-    
-    public Descripcion(String d){
+    private HashMap<nom_atributo, valor_atributo> lista_atributo;
+
+    public Descripcion(String d) {
         this.tipo_desc = tipo_descripcion.valueOf(d);
-        this.lista_atributo = new ArrayList<AtributoDescripcion>();
+        this.lista_atributo = new HashMap<nom_atributo, valor_atributo>();
     }
-    
-    public void add_atributo(AtributoDescripcion atrib){
-        lista_atributo.add(atrib);
+
+    private void add_atributo(String nom_atrib, String tipo_atrib) {
+        lista_atributo.put(nom_atributo.valueOf(nom_atrib), valor_atributo.valueOf(tipo_atrib));
     }
-    
+
+    public String getTipoAtributo(String nom_atrib) {
+        return lista_atributo.get(nom_atributo.valueOf(nom_atrib)).toString();
+    }
+
     public String getTipoDescripcion() {
         return tipo_desc.toString();
     }

@@ -13,10 +13,17 @@ public class DataDescripcion {
     
     private Descripcion desc;
     private int nivel;
+    private int first;
     
     public DataDescripcion(Descripcion d, int nivel){
         this.desc = d;
         this.nivel = nivel;
+    }
+    
+    public DataDescripcion(Descripcion d, int nivel, int first){
+        this.desc = d;
+        this.nivel = nivel;
+        this.first = first;
     }
 
     public int getNivel() {
@@ -25,6 +32,14 @@ public class DataDescripcion {
 
     public void setNivel(int nivel) {
         this.nivel = nivel;
+    }
+    
+    public int getFirst() {
+        return first;
+    }
+
+    public void setFirst(int first) {
+        this.first = first;
     }
     
     public Descripcion getDescripcion(){

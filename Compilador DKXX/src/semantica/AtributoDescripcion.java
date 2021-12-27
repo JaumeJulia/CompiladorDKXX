@@ -9,7 +9,7 @@ package semantica;
  *
  * @author pujol
  */
-public class AtributoDescripcion {
+public class AtributoDescripcion { //quizás sobra
     
         public enum nom_atributo{
             nv,
