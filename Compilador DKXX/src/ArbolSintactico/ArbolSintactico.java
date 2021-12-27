@@ -5,7 +5,8 @@
  */
 package ArbolSintactico;
 
-import ArbolSintactico.CodigoTresDirecciones.Operador;
+import CodigoIntermedio.CodigoTresDirecciones;
+import CodigoIntermedio.Operador;
 
 /**
  *
@@ -24,10 +25,10 @@ public class ArbolSintactico {
         this.raiz = raiz;
     }
 
-    public void GenerarCTD() {
+    public CodigoTresDirecciones GenerarCTD() {
         ctd = new CodigoTresDirecciones();
         raiz.codigoIntermedio();
-        System.out.println(ctd.toString());
+        return ctd;
     }
 
     public enum Operaciones {
@@ -74,7 +75,7 @@ public class ArbolSintactico {
             this.idx = 1;
         }
 
-        public void codigoIntermedio() {
+        public String codigoIntermedio() {
             switch (idx) {
                 case 0:
                     fun.codigoIntermedio();
@@ -86,6 +87,7 @@ public class ArbolSintactico {
             if (def != null) {
                 def.codigoIntermedio();
             }
+            return null;
         }
     }
 
@@ -103,19 +105,20 @@ public class ArbolSintactico {
             this.sent = s;
         }
 
-        public void codigoIntermedio() {
-            String id = this.id.codigoIntermedio();
+        public String codigoIntermedio() {
+            String i = this.id.codigoIntermedio();
+            ctd.newProcedimiento(i, ret);
             if (dparam != null) {
                 ctd.newListaParametros();
                 dparam.codigoIntermedio();
-                ctd.newProcedimiento(id, ret, ctd.closeListaParametros());
-            } else {
-                ctd.newProcedimiento(id, ret, null);
+                ctd.newProcedimientoadd(ctd.closeListaParametros());
             }
-            ctd.generar(Operador.SKIP, null, null, id);
-            ctd.generar(Operador.PMB, null, null, id);
+            ctd.generar(Operador.SKIP, null, null, i);
+            ctd.generar(Operador.PMB, null, null, i);
             sent.codigoIntermedio();
             ctd.generar(Operador.RTN, null, null, null);
+            ctd.closeProcedimiento();
+            return null;
         }
     }
 
@@ -295,20 +298,20 @@ public class ArbolSintactico {
         }
 
         public String codigoIntermedio() {
-            String id = this.id.codigoIntermedio();
+            String i = this.id.codigoIntermedio();
             String e = sid.codigoIntermedio();
             if (e == null) {
-                Tipo t = ctd.getReturnProcedimiento(id);
+                Tipo t = ctd.getReturnProcedimiento(i);
                 if (t != null) {
                     String v = ctd.newVariable(t, null);
-                    ctd.generar(Operador.CALL, v, null, id);
+                    ctd.generar(Operador.CALL, v, null, i);
                     return v;
                 } else {
-                    ctd.generar(Operador.CALL, null, null, id);
+                    ctd.generar(Operador.CALL, null, null, i);
                     return null;
                 }
             } else {
-                ctd.generar(Operador.ASIG, e, null, id);
+                ctd.generar(Operador.ASIG, e, null, i);
                 return null;
             }
         }
@@ -360,7 +363,7 @@ public class ArbolSintactico {
             String c = cond.codigoIntermedio();
             String e2 = ctd.newEtiqueta();
             String e3 = ctd.newEtiqueta();
-            ctd.generar(Operador.IGUALES, c, Integer.toString(0), e2);
+            ctd.generar(Operador.IGUALES, c, Integer.toString(-1), e2);
             ctd.generar(Operador.GOTO, null, null, e3);
             ctd.generar(Operador.SKIP, null, null, e2);
             sent.codigoIntermedio();
@@ -384,7 +387,7 @@ public class ArbolSintactico {
             String c = cond.codigoIntermedio();
             String e1 = ctd.newEtiqueta();
             String e2 = ctd.newEtiqueta();
-            ctd.generar(Operador.IGUALES, c, Integer.toString(0), e1);
+            ctd.generar(Operador.IGUALES, c, Integer.toString(-1), e1);
             ctd.generar(Operador.GOTO, null, null, e2);
             ctd.generar(Operador.SKIP, null, null, e1);
             sent.codigoIntermedio();
@@ -442,10 +445,10 @@ public class ArbolSintactico {
                     ctd.generar(op, op1, op2, e1);
                     ctd.generar(Operador.GOTO, null, null, e2);
                     ctd.generar(Operador.SKIP, null, null, e1);
-                    ctd.generar(Operador.ASIG, Integer.toString(0), null, dest);
+                    ctd.generar(Operador.ASIG, Integer.toString(-1), null, dest);
                     ctd.generar(Operador.GOTO, null, null, e3);
                     ctd.generar(Operador.SKIP, null, null, e2);
-                    ctd.generar(Operador.ASIG, Integer.toString(-1), null, dest);
+                    ctd.generar(Operador.ASIG, Integer.toString(0), null, dest);
                     ctd.generar(Operador.SKIP, null, null, e3);
                     return dest;
                 } else {

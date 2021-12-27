@@ -130,6 +130,7 @@ ASIGNACION  ::= IGUAL EXPRESION:e {: RESULT= e; :}
 
 EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= new Expresion(v, o); :}
             | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
+            | NOT EXPRESION:e {: RESULT= new Éxpresion(e, new Operacion(Operaciones.NOT, null)) :}
             ;
 
 VALOR       ::= ID:id {:  RESULT= new Valor(new Id(id)); :}
@@ -155,7 +156,6 @@ OP          ::= MULT {:  RESULT= Operaciones.MULT; :}
             | NIGUALES {: RESULT= Operaciones.NIGUALES; :}
             | OR {: RESULT= Operaciones.OR; :}
             | AND {: RESULT= Operaciones.AND; :}
-            | NOT {: RESULT= Operaciones.NOT; :}
             ;
 
 FUNCION     ::= LPAREN INPARAM:i RPAREN{: RESULT= i;  :}
