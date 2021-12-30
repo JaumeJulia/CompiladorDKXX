@@ -36,6 +36,116 @@ public class ArbolSintactico {
         MENORIGU, IGUALES, NIGUALES, OR, AND, NOT
     }
 
+    public void gest_init(Init p) {
+        gest_definicion(p.decl);
+        gest_sentencias(p.main);
+    }
+
+    public void gest_def(Def p) {
+        if (p.idx == 0) {
+            gest_dfuncion(p.fun);
+        } else {
+            gest_declaracion(p.dec);
+        }
+
+        if (p.def != null) {
+            gest_def(p.def);
+        }
+    }
+    
+    public void gest_definicion(Def p){
+        switch (p.idx){
+            case 0:
+                if(p.fun != null) gest_dfuncion(p.fun);
+                if(p.def != null) gest_definicion(p.def);
+                break;
+            case 1:
+                if(p.dec != null) gest_declaracion(p.dec);
+                if(p.def != null) gest_definicion(p.def);
+                break;
+        }
+    }
+
+    public void gest_dfuncion(Dfuncion p) {
+//        gest_id(p.ret, p.id);
+//        gest_dparam(p.id, p.dparam);
+//        entrarBloque();
+//        gest_sentencias(p.sent);
+        
+    }
+    
+    public void gest_declaracion(Declaracion p) {
+
+    }
+
+    public void gest_dparam(Dparam p) {
+        //gestionar el tipo y el id en ts
+        
+        if(p.dparam != null) gest_dparam(p.dparam);
+    }
+
+    public void gest_return(Return p) {
+        gest_expresion(p.expr);
+    }
+
+    public void gest_sentencias(Sentencias p) {
+        if(p.sentencia != null) gest_sentencia(p.sentencia);
+        if(p.sentencias != null) gest_sentencias(p.sentencias);
+    }
+    
+    public void gest_sentencia(Sentencia p){
+        //estudiar si valdría con solo hacer 'gest_expresion()' o si se pierde info así
+        switch (p.idx) {
+                case 0:
+                   gest_return(p.ret); 
+                case 1:
+                    gest_declaracion(p.dec);
+                case 2:
+                    gest_out(p.out);
+                case 3:
+                    gest_idsentencia(p.ids);
+                case 4:
+                    gest_while(p.whi);
+                case 5:
+                    gest_if(p.sif);
+            }  
+    }
+
+    public void gest_out(Out p) {
+        gest_expresion(p.expr);
+    }
+
+    public void gest_idsentencia(IdSentencia p) {
+        
+    }
+
+    public void gest_sentenciaid(SentenciaId p) {
+
+    }
+
+    public void gest_while(While p) {
+        gest_expresion(p.cond);
+        gest_sentencias(p.sent);
+    }
+
+    public void gest_if(If p) {
+        gest_expresion(p.cond);
+        gest_sentencias(p.sent);
+    }
+
+    public void gest_param(Param p) {
+        gest_expresion(p.expr);
+        if(p.param != null) gest_param(p.param);
+    }
+
+    public void gest_expresion(Expresion p) {
+
+    }
+
+    public void gest_operacion(Operacion p) {
+        gest_expresion(p.expr);
+    }
+
     public static class Init {
 
         Def decl;
@@ -145,7 +255,7 @@ public class ArbolSintactico {
     }
 
     public static class Return {
-
+        
         Expresion expr;
 
         public Return(Expresion e) {
