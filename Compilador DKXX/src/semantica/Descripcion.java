@@ -12,57 +12,67 @@ import java.util.HashMap;
  * @author pujol
  */
 public class Descripcion {
-
     public enum tipo_descripcion {
         dnull,
         dvar,
         dconst,
-        dtipus,
-        dproc,
-        darg_in,
-        darg,
-        dindex
+        dtipo,
+        dprog,
+        dparam,
+        darg
+    }
+    
+    public enum tipo_atributo {
+        INT,
+        BOOLEAN
     }
 
-    public enum nom_atributo {
-        nv,
-        tipo,
-        valor,
-        dt,
-        np,
-        modo,
-        nombre
+    private tipo_descripcion td;
+    private int num;
+    private tipo_atributo tipo;
+    private String id;
+    private Object valor;
+
+    public Descripcion(tipo_descripcion d) {
+        this.td = d;
+    }
+    
+    public Descripcion(tipo_descripcion d, int num, String tipo){
+        this.num = num;
+        this.tipo = tipo_atributo.valueOf(tipo);
+        this.td = d;
+    }
+    
+    public Descripcion(tipo_descripcion d, String id, String tipo){
+        this.id = id;
+        this.tipo = tipo_atributo.valueOf(tipo);
+        this.td = d;
+    }
+    
+    public Descripcion(tipo_descripcion d, Object valor, String tipo){
+        this.valor = valor;
+        this.td = d;
+        this.tipo = tipo_atributo.valueOf(tipo);
     }
 
-    public enum valor_atributo {
-        integer,
-        bool,
-        tprog,
-        tparam,
-        targ
+    public tipo_descripcion getTd() {
+        return td;
     }
 
-    private tipo_descripcion tipo_desc;
-    private HashMap<nom_atributo, valor_atributo> lista_atributo;
-
-    public Descripcion(String d) {
-        this.tipo_desc = tipo_descripcion.valueOf(d);
-        this.lista_atributo = new HashMap<nom_atributo, valor_atributo>();
+    public int getNum() {
+        return num;
     }
 
-    private void add_atributo(String nom_atrib, String tipo_atrib) {
-        lista_atributo.put(nom_atributo.valueOf(nom_atrib), valor_atributo.valueOf(tipo_atrib));
+    public tipo_atributo getTipo() {
+        return tipo;
     }
 
-    public String getTipoAtributo(String nom_atrib) {
-        return lista_atributo.get(nom_atributo.valueOf(nom_atrib)).toString();
+    public String getId() {
+        return id;
     }
 
-    public String getTipoDescripcion() {
-        return tipo_desc.toString();
+    public Object getValor() {
+        return valor;
     }
-
-    public void setTipoDescripcion(String descripcion) {
-        this.tipo_desc = tipo_descripcion.valueOf(descripcion);
-    }
+    
 }

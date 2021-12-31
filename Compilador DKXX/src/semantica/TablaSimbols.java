@@ -5,8 +5,8 @@
  */
 package semantica;
 
-import java.util.HashMap;
 import semantica.Descripcion.*;
+import java.util.HashMap;
 
 /**
  *
@@ -115,9 +115,9 @@ public class TablaSimbols {
         }
     }
 
-    public void ponerParam(String idprog, String idparam, Descripcion d) {
+    public void poner_param(String idprog, String idparam, Descripcion d) {
         d = tDescripcion.get(idprog).getDescripcion();
-        if (d.getTipoDescripcion().equals(tipo_descripcion.dproc)) {
+        if (!d.getTd().equals(tipo_descripcion.dprog)) {
             System.out.println(idprog + " no es un procedimiento");
             System.exit(0);
         }
@@ -143,16 +143,16 @@ public class TablaSimbols {
         }
     }
     
-    public int first_param(String id){
+    public int first_arg(String id){
         Descripcion d = tDescripcion.get(id).getDescripcion();
-        if(!d.getTipoDescripcion().equals("dtipus") || d.getTipoAtributo("targ").equals("targ")){
+        if(d.getTd() != tipo_descripcion.darg || !d.getId().equals(id)){
             System.out.println(id+" no tiene parámetros");
             System.exit(1);
         }
         return tDescripcion.get(id).getFirst();
     }
     
-    public int next_param(int idx){
+    public int next_arg(int idx){
         if(tExpansion.get(idx).getNext() == 0){
             System.out.println("El índice "+idx+" no apunta aningún argumento");
             System.exit(idx);
@@ -160,11 +160,11 @@ public class TablaSimbols {
         return tExpansion.get(idx).getNext();
     }
     
-    public boolean last_param(int idx){
+    public boolean last_arg(int idx){
         return tExpansion.get(idx).getNext() == 0;
     }
     
-    public Descripcion consulta_param(int idx){
+    public Descripcion consulta_arg(int idx){
         return tExpansion.get(idx).getDescripcion();
     }    
 }

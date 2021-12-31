@@ -5,11 +5,13 @@ import parser.symbols.*;
 import ArbolSintactico.ArbolSintactico;
 import ArbolSintactico.ArbolSintactico.*;
 import ArbolSintactico.Tipo;
+import semantica.TablaSimbols;
 
 
 
 parser code {:
-    ArbolSintactico arbol= new ArbolSintactico();
+    TablaSimbols ts = new TablaSimbols();
+    ArbolSintactico arbol= new ArbolSintactico(ts);
 
 public ArbolSintactico getArbol(){
     return arbol;
@@ -113,8 +115,8 @@ PARAMCONCAT ::= COMA TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i
             | {:  :}
             ;
 
-DECLARACION ::= CONST TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
-            | TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
+DECLARACION ::= CONST TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d, 0); :}
+            | TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d, 1); :}
             ;
 
 DECLAREND   ::= ASIGNACION:a {: RESULT= a; :}
@@ -130,7 +132,7 @@ ASIGNACION  ::= IGUAL EXPRESION:e {: RESULT= e; :}
 
 EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= new Expresion(v, o); :}
             | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
-            | NOT EXPRESION:e {: RESULT= new Éxpresion(e, new Operacion(Operaciones.NOT, null)) :}
+            | NOT EXPRESION:e {: RESULT= new Expresion(e, new Operacion(Operaciones.NOT, null)) :}
             ;
 
 VALOR       ::= ID:id {:  RESULT= new Valor(new Id(id)); :}

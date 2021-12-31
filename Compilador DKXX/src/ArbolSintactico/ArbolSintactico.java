@@ -7,6 +7,7 @@ package ArbolSintactico;
 
 import CodigoIntermedio.CodigoTresDirecciones;
 import CodigoIntermedio.Operador;
+import semantica.*;
 
 /**
  *
@@ -16,9 +17,10 @@ public class ArbolSintactico {
 
     public Init raiz;
     public static CodigoTresDirecciones ctd;
+    public TablaSimbols ts;
 
-    public ArbolSintactico() {
-
+    public ArbolSintactico(TablaSimbols ts) {
+        this.ts = ts;
     }
 
     public void setRaiz(Init raiz) {
@@ -75,7 +77,16 @@ public class ArbolSintactico {
     }
     
     public void gest_declaracion(Declaracion p) {
-
+        Descripcion d = ts.consulta(p.id.elem);
+        if(d != null && !d.getTipo().toString().equals(p.tipo.toString())){
+            System.out.println("Declaracion repetida para el id "+p.id.elem);
+        }
+        if(p.constant == 0){
+            d = new Descripcion(Descripcion.tipo_descripcion.dconst, p.expr, p.tipo.toString());
+            ts.poner_simbolo(p.id.elem, d);
+        } else {
+            
+        }
     }
 
     public void gest_dparam(Dparam p) {
@@ -116,7 +127,8 @@ public class ArbolSintactico {
     }
 
     public void gest_idsentencia(IdSentencia p) {
-        
+        // p.id = id de asignacion o de funcion y el p.sid es = algo o los params
+        //gest_sentenciaid(p.id,p.sid);
     }
 
     public void gest_sentenciaid(SentenciaId p) {
@@ -352,11 +364,13 @@ public class ArbolSintactico {
         Tipo tipo;
         Id id;
         Expresion expr;
+        int constant;
 
-        public Declaracion(Tipo t, Id i, Expresion d) {
+        public Declaracion(Tipo t, Id i, Expresion d, int c) {
             this.tipo = t;
             this.id = i;
             this.expr = d;
+            this.constant = c;
         }
 
         public String codigoIntermedio() {
