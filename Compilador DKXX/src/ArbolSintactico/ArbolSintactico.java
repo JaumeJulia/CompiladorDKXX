@@ -8,6 +8,7 @@ package ArbolSintactico;
 import CodigoIntermedio.CodigoTresDirecciones;
 import CodigoIntermedio.Operador;
 import semantica.*;
+import semantica.Descripcion.*;
 
 /**
  *
@@ -18,6 +19,9 @@ public class ArbolSintactico {
     public Init raiz;
     public static CodigoTresDirecciones ctd;
     public TablaSimbols ts;
+    
+    private int nv = 0;
+    private int np = 0;
 
     public ArbolSintactico(TablaSimbols ts) {
         this.ts = ts;
@@ -69,11 +73,13 @@ public class ArbolSintactico {
     }
 
     public void gest_dfuncion(Dfuncion p) {
-//        gest_id(p.ret, p.id);
-//        gest_dparam(p.id, p.dparam);
-//        entrarBloque();
-//        gest_sentencias(p.sent);
-        
+        np++;
+        Descripcion d = new Descripcion(tipo_descripcion.dprog, np, p.id.elem, p.ret.toString());
+        ts.poner_simbolo(p.id.elem, d);
+        if(p.dparam != null) gest_dparam(p.id.elem, p.dparam);
+        ts.entrarBloque();
+        if(p.sent != null) gest_sentencias(p.sent);
+        ts.salirBloque();
     }
     
     public void gest_declaracion(Declaracion p) {
@@ -82,17 +88,26 @@ public class ArbolSintactico {
             System.out.println("Declaracion repetida para el id "+p.id.elem);
         }
         if(p.constant == 0){
-            d = new Descripcion(Descripcion.tipo_descripcion.dconst, p.expr, p.tipo.toString());
+            d = new Descripcion(tipo_descripcion.dconst, p.expr, p.tipo.toString()); 
             ts.poner_simbolo(p.id.elem, d);
         } else {
-            
+            nv++;
+            //id redundante?
+            d = new Descripcion(tipo_descripcion.dvar, nv, p.id.elem, p.tipo.toString());
+            ts.poner_simbolo(p.id.elem, d);
         }
     }
 
-    public void gest_dparam(Dparam p) {
+    public void gest_dparam(String idprog, Dparam p) {
         //gestionar el tipo y el id en ts
-        
-        if(p.dparam != null) gest_dparam(p.dparam);
+        Descripcion d = new Descripcion(tipo_descripcion.dparam, p.id.elem, p.tipo.toString());
+        ts.poner_param(idprog, p.id.elem, d);
+        if(p.dparam != null) gest_dparam(idprog, p.dparam);
+    }
+    
+    public void gest_param(Param p) {
+        gest_expresion(p.expr);
+        if(p.param != null) gest_param(p.param);
     }
 
     public void gest_return(Return p) {
@@ -129,6 +144,7 @@ public class ArbolSintactico {
     public void gest_idsentencia(IdSentencia p) {
         // p.id = id de asignacion o de funcion y el p.sid es = algo o los params
         //gest_sentenciaid(p.id,p.sid);
+        
     }
 
     public void gest_sentenciaid(SentenciaId p) {
@@ -145,16 +161,13 @@ public class ArbolSintactico {
         gest_sentencias(p.sent);
     }
 
-    public void gest_param(Param p) {
-        gest_expresion(p.expr);
-        if(p.param != null) gest_param(p.param);
-    }
-
     public void gest_expresion(Expresion p) {
-
+        // creo que esto debería devolver un valor calculado mientras verifica 
+        //la correctitud de los tipos y de los operando y las operaciones
     }
 
     public void gest_operacion(Operacion p) {
+        //hacer algo similar a gest_expresion(); 
         gest_expresion(p.expr);
     }
 

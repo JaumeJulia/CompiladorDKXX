@@ -16,7 +16,7 @@ public class Descripcion {
         dnull,
         dvar,
         dconst,
-        dtipo,
+        dtipo, //dudoso
         dprog,
         dparam,
         darg
@@ -28,27 +28,32 @@ public class Descripcion {
     }
 
     private tipo_descripcion td;
-    private int num;
+    private int idx;
     private tipo_atributo tipo;
     private String id;
     private Object valor;
 
+    //nulls
     public Descripcion(tipo_descripcion d) {
         this.td = d;
     }
     
-    public Descripcion(tipo_descripcion d, int num, String tipo){
-        this.num = num;
+    //argumento o variable o procedimiento
+    public Descripcion(tipo_descripcion d, int nv, String id, String tipo){
+        this.idx = nv; //autoincrement
         this.tipo = tipo_atributo.valueOf(tipo);
         this.td = d;
+        this.id = id;
     }
     
+    //parametros
     public Descripcion(tipo_descripcion d, String id, String tipo){
         this.id = id;
         this.tipo = tipo_atributo.valueOf(tipo);
         this.td = d;
     }
     
+    //constantes
     public Descripcion(tipo_descripcion d, Object valor, String tipo){
         this.valor = valor;
         this.td = d;
@@ -58,9 +63,9 @@ public class Descripcion {
     public tipo_descripcion getTd() {
         return td;
     }
-
-    public int getNum() {
-        return num;
+    
+    public int getIdx(){
+        return idx;
     }
 
     public tipo_atributo getTipo() {
