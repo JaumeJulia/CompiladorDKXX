@@ -21,7 +21,7 @@ public ArbolSintactico getArbol(){
 
 
 terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
-                                   IGUALES, OR, AND, NOT, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
+                                   IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
                                    OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
 terminal        String             ID;
 terminal        String            NUMERO;
@@ -91,7 +91,7 @@ R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {: RESULT= new Sentencia(new Ret
         | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
         | WHILE LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
         | IF LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
-                | error PUNTYCOMA                                    {:  :}
+        | error PUNTYCOMA                                    {:  :}
                 ;
 
 SENTENCIA_ID    ::= ASIGNACION:a {: RESULT= new SentenciaId(a); :}
@@ -132,7 +132,6 @@ ASIGNACION  ::= IGUAL EXPRESION:e {: RESULT= e; :}
 
 EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= new Expresion(v, o); :}
             | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
-            | NOT EXPRESION:e {: RESULT= new Expresion(e, new Operacion(Operaciones.NOT, null)) :}
             ;
 
 VALOR       ::= ID:id {:  RESULT= new Valor(new Id(id)); :}

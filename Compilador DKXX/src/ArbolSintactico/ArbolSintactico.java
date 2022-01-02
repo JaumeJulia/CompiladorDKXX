@@ -39,7 +39,7 @@ public class ArbolSintactico {
 
     public enum Operaciones {
         MULT, DIV, SUMA, RESTA, MAYORQUE, MENORQUE, MAYORIGU,
-        MENORIGU, IGUALES, NIGUALES, OR, AND, NOT
+        MENORIGU, IGUALES, NIGUALES, OR, AND
     }
 
     public void gest_init(Init p) {
@@ -73,13 +73,17 @@ public class ArbolSintactico {
     }
 
     public void gest_dfuncion(Dfuncion p) {
+        //verificar antes si null
         np++;
         Descripcion d = new Descripcion(tipo_descripcion.dprog, np, p.id.elem, p.ret.toString());
+        //verificar si está antes
         ts.poner_simbolo(p.id.elem, d);
         if(p.dparam != null) gest_dparam(p.id.elem, p.dparam);
         ts.entrarBloque();
-        if(p.sent != null) gest_sentencias(p.sent);
+        if(p.sent != null) gest_sentencias(p.sent); 
+        // cundiría pasar la descripcion de idprog para return o se tendria que acceder a TS por diprog?
         ts.salirBloque();
+        //return
     }
     
     public void gest_declaracion(Declaracion p) {
