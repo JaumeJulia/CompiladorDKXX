@@ -33,7 +33,7 @@ public class ArbolSintactico {
 
     public enum Operaciones {
         MULT, DIV, SUMA, RESTA, MAYORQUE, MENORQUE, MAYORIGU,
-        MENORIGU, IGUALES, NIGUALES, OR, AND, NOT
+        MENORIGU, IGUALES, NIGUALES, OR, AND
     }
 
     public static class Init {
@@ -47,9 +47,11 @@ public class ArbolSintactico {
         }
 
         public String codigoIntermedio() {
-            ctd.generar(Operador.GOTO, null, null, "run");
-            this.decl.codigoIntermedio();
-            ctd.generar(Operador.SKIP, null, null, "run");
+            if (decl != null) {
+                ctd.generar(Operador.GOTO, null, null, "run");
+                this.decl.codigoIntermedio();
+                ctd.generar(Operador.SKIP, null, null, "run");
+            }
             this.main.codigoIntermedio();
             return null;
         }
@@ -418,6 +420,7 @@ public class ArbolSintactico {
 
     public static class Expresion {
 
+        int idx;
         Valor v;
         Expresion e;
         Operacion oper;
@@ -425,15 +428,25 @@ public class ArbolSintactico {
         public Expresion(Valor v, Operacion oper) {
             this.v = v;
             this.oper = oper;
+            this.idx = 0;
         }
 
         public Expresion(Expresion e, Operacion oper) {
             this.e = e;
             this.oper = oper;
+            this.idx = 1;
         }
 
         public String codigoIntermedio() {
-            String op1 = v.codigoIntermedio();
+            String op1 = null;
+            switch (idx) {
+                case 0:
+                    op1 = v.codigoIntermedio();
+                    break;
+                case 1:
+                    op1 = e.codigoIntermedio();
+                    break;
+            }
             if (oper != null) {
                 Operador op = ctd.traductorOperacion(oper.getOper());
                 String op2 = oper.codigoIntermedio();

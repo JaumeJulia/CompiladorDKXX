@@ -125,8 +125,6 @@ public class CodigoTresDirecciones {
                 return Operador.OR;
             case AND:
                 return Operador.AND;
-            case NOT:
-                return Operador.NOT;
             default:
                 return null;
         }

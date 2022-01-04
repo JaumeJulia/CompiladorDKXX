@@ -39,13 +39,13 @@ public class Codigo68k {
         codigo.add("\torg $1000");
         codigo.add("START:");
         codigo.add("\tJSR SCREENSIZE");
-        
+
         ArrayList<Instruccion> codigointermedio = ctd.getCodigo();
         for (int i = 0; i < codigointermedio.size(); i++) {
             codigo.add("* -->" + codigointermedio.get(i).toString());
             traduccion(codigointermedio.get(i));
         }
-        
+
         codigo.add("\tSIMHALT");
         codigo.add(" ");
         memoria(ctd.getTv());
@@ -98,10 +98,6 @@ public class Codigo68k {
                 break;
             case AND:
                 and(i);
-                break;
-            case NOT:
-                //Revisar Not en la gramatica y en todos los pasos, es erroneo
-                not(i);
                 break;
             case GOTO:
                 codigo.add("\tJMP " + i.getDest());
@@ -198,11 +194,10 @@ public class Codigo68k {
     }
 
     private void or(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
         codigo.add("\tMOVE.B " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tMOVE.B " + getOp(i.getOp2()) + ",D1");
         codigo.add("\tOR.B D0,D1");
-        codigo.add("\tMOVE.B D1," + identificador(d));
+        codigo.add("\tBMI" +  i.getDest());
     }
 
     private void and(Instruccion i) {
@@ -210,11 +205,7 @@ public class Codigo68k {
         codigo.add("\tMOVE.B " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tMOVE.B " + getOp(i.getOp2()) + ",D1");
         codigo.add("\tAND.B D0,D1");
-        codigo.add("\tMOVE.B D1," + identificador(d));
-    }
-
-    private void not(Instruccion i) {
-
+        codigo.add("\tBMI " +  i.getDest());
     }
 
     private void asigna(Instruccion i) {
@@ -281,23 +272,25 @@ public class Codigo68k {
         capasiguiente++;
         Procedimiento p = ctd.getPro(i.getDest());
         ArrayList<Parametro> param = p.getParametros();
-        int ind = param.size() - 1;
         int k = 4;
         if (p.getRetorno() != null) {
             k += 2;
         }
-        while (ind >= 0) {
-            Parametro aux = param.get(ind);
-            Variable v = ctd.getVar(aux.getNombre(), capa);
-            if (v.getTipo() == Tipo.BOOLEAN) {
-                codigo.add("\tMOVE.W " + k + "(A7),D0");
-                codigo.add("\tMOVE.B D0," + identificador(v));
-                k += 2;
-            } else {
-                codigo.add("\tMOVE.W " + k + "(A7)," + identificador(v));
-                k += 2;
+        if (param != null) {
+            int ind = param.size() - 1;
+            while (ind >= 0) {
+                Parametro aux = param.get(ind);
+                Variable v = ctd.getVar(aux.getNombre(), capa);
+                if (v.getTipo() == Tipo.BOOLEAN) {
+                    codigo.add("\tMOVE.W " + k + "(A7),D0");
+                    codigo.add("\tMOVE.B D0," + identificador(v));
+                    k += 2;
+                } else {
+                    codigo.add("\tMOVE.W " + k + "(A7)," + identificador(v));
+                    k += 2;
+                }
+                ind--;
             }
-            ind--;
         }
         //codigo.add("\tADDA.L #" + k + ",A7");
     }
@@ -309,13 +302,16 @@ public class Codigo68k {
         }
         codigo.add("\tJSR " + i.getDest());
         if (p.getRetorno() != null) {
-            if(p.getRetorno() == Tipo.INT){
-                
+            if (p.getRetorno() == Tipo.INT) {
+
             } else {
-                
+
             }
         }
-        int k = 2 * p.getParametros().size();
+        int k = 0;
+        if (p.getParametros() != null) {
+            k = 2 * p.getParametros().size();
+        }
         if (k > 0) {
             if (p.getRetorno() != null) {
                 Variable v = ctd.getVar(i.getOp1(), capa);
@@ -451,7 +447,7 @@ public class Codigo68k {
         codigo.add("\tAND.W #$00FF,D1");
         codigo.add("\tTRAP #15");
         codigo.add("\tRTS");
-        
+
         codigo.add("IPRINT:");
         codigo.add("\tCLR.L D1");
         codigo.add("\tMOVE.W 4(A7),D1");

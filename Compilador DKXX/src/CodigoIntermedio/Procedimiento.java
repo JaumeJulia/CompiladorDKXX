@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author felix
  */
 public class Procedimiento {
-    
+
     String nombre;
     int numeroProcedimiento;
     Tipo retorno;
@@ -27,14 +27,16 @@ public class Procedimiento {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String s = "\n";
-        for (int i = 0; i < parametros.size(); i++) {
-            s += "\t" + parametros.get(i).toString() + "\n";
+        if (parametros != null) {
+            for (int i = 0; i < parametros.size(); i++) {
+                s += "\t" + parametros.get(i).toString() + "\n";
+            }
         }
         return nombre + " " + numeroProcedimiento + " " + retorno + " " + s;
     }
-   
+
     public String getNombre() {
         return nombre;
     }
