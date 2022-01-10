@@ -1,0 +1,191 @@
+package parser;
+
+import java_cup.runtime.*;
+import parser.symbols.*;
+import ArbolSintactico.ArbolSintactico;
+import ArbolSintactico.ArbolSintactico.*;
+import ArbolSintactico.Tipo;
+
+
+
+parser code {:
+    ArbolSintactico arbol= new ArbolSintactico();
+
+    public ArbolSintactico getArbol(){
+        return arbol;
+    }
+
+    // Semantico Prioridad de operaciones.
+    public Expresion PrioridadOperacion(Expresion e) {
+        // Se verifica que haya dos operaciones.
+        if (e.getOper() != null && e.getOper().getExpr().getOper() != null) {
+            Operaciones OpActual = e.getOper().getOper();
+            Operaciones OpAnterior = e.getOper().getExpr().getOper().getOper();
+            // Se mira el orden de prioridad para reorganizar los valores.
+            if (OpActual.compareTo(OpAnterior) < 0) {
+                Operacion op = e.getOper().getExpr().getOper();
+                e.getOper().getExpr().setOper(null);
+
+                // Si hay una expresion vacia esta se elimina para evitar problemas.
+                if(e.getOper().getExpr().getOper() == null && e.getOper().getExpr().isExpr()){
+                    Expresion a = e.getOper().getExpr().getExpr();
+                    e.getOper().setExpr(a);
+                }
+                // Se llama de forma recursiva con la nueva expresion para organizar las operaciones en ella.
+                Expresion new_e = new Expresion(PrioridadOperacion(e), op);
+                return new_e;
+            }
+        }
+        return e;
+    }
+:};
+
+
+
+terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
+                                   IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
+                                   OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
+terminal        String             ID;
+terminal        String            NUMERO;
+terminal        String            BOLEAN;
+
+non terminal Init        INIT;
+non terminal Def          DEF;
+
+non terminal Dfuncion       DFUNCION;
+non terminal Tipo           RETURN;
+non terminal Dparam         PARAMETRO;
+non terminal Dparam         PARAMCONCAT;
+non terminal Declaracion    DECLARACION;
+non terminal Expresion      DECLAREND;
+non terminal Tipo           TYPE;
+non terminal Expresion      ASIGNACION;
+non terminal Expresion      EXPRESION;
+non terminal Valor          VALOR;
+non terminal Operacion      OPERACION;
+non terminal Operaciones    OP;
+non terminal Param          FUNCION;
+non terminal Param          INPARAM;
+
+non terminal Sentencia      SENTENCIA;
+non terminal Sentencias     SENTENCIAS;
+non terminal SentenciaId    SENTENCIA_ID;
+
+non terminal Sentencias     R_SENTENCIAS;
+non terminal Sentencia      R_SENTENCIA;
+
+precedence right    IGUAL;
+precedence right     SUMA, RESTA;
+precedence right    MULT, DIV;
+
+
+start with INIT;
+
+INIT    ::=     DECLARE LKEY DEF:d RKEY MAIN LKEY SENTENCIAS:m RKEY
+                {: arbol.setRaiz(new Init(d, m)); :}
+        ;
+
+/** sentencias por prog antes **/
+
+DEF     ::=    DFUNCION:f DEF:d {:RESULT = new Def(f,d); :}
+        |      DECLARACION:f PUNTYCOMA DEF:d {: RESULT = new Def(f, d); :}
+        |      {:   :}
+        ;
+
+SENTENCIAS ::= SENTENCIA:e SENTENCIAS:s {: RESULT = new Sentencias(e, s); :}
+        |   {: :}
+        ;
+
+SENTENCIA ::= DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
+        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
+        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
+        | error PUNTYCOMA                                    {:  :}
+        ;
+
+R_SENTENCIAS ::= R_SENTENCIA:e R_SENTENCIAS:s {: RESULT= new Sentencias(e,s); :}
+        |   {:  :}
+        ;
+
+R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {: RESULT= new Sentencia(new Return(e)); :}
+        | DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
+        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
+        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
+        | error PUNTYCOMA                                    {:  :}
+        ;
+
+SENTENCIA_ID    ::= ASIGNACION:a {: RESULT= new SentenciaId(a); :}
+                | FUNCION:f {: RESULT= new SentenciaId(f); :}
+                ;
+
+
+DFUNCION    ::= FUNCTION RETURN:r ID:i LPAREN PARAMETRO:p RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Dfuncion(new Id(i), r, p, s); :}
+            ;
+
+
+RETURN      ::= TYPE:t {: RESULT= t; :}
+            | {:  :}
+            ;
+
+PARAMETRO   ::= TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
+            | {:  :}
+            ;
+
+PARAMCONCAT ::= COMA TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
+            | {:  :}
+            ;
+
+DECLARACION ::= CONST TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
+            | TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
+            ;
+
+DECLAREND   ::= ASIGNACION:a {: RESULT= a; :}
+            | {:  :}
+            ;
+
+TYPE        ::= INT {: RESULT= Tipo.INT; :}
+            | BOOL {: RESULT= Tipo.BOOLEAN; :}
+            ;
+
+ASIGNACION  ::= IGUAL EXPRESION:e {: RESULT= e; :}
+            ;
+
+EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= PrioridadOperacion(new Expresion(v, o)); :}
+            | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
+            ;
+
+VALOR       ::= ID:id {:  RESULT= new Valor(new Id(id)); :}
+            | NUMERO:n {: RESULT = new Valor(new Numero(n)); :}
+            | BOLEAN:b {: RESULT = new Valor(new Boleano(b)); :}
+            | IN LPAREN RPAREN {:  RESULT= new Valor(new In()); :}
+            | ID:i FUNCION:f {:  RESULT= new Valor(new IdSentencia(new Id(i), new SentenciaId(f))); :}
+            ;
+
+OPERACION   ::= OP:o EXPRESION:e {:  RESULT= new Operacion(o,e); :} 
+            | {: :}
+            ;
+
+OP          ::= MULT {:  RESULT= Operaciones.MULT; :}
+            | DIV {: RESULT= Operaciones.DIV; :}
+            | SUMA {: RESULT= Operaciones.SUMA; :}
+            | RESTA {: RESULT= Operaciones.RESTA; :}
+            | MAYORQUE {: RESULT= Operaciones.MAYORQUE; :}
+            | MENORQUE {:  RESULT= Operaciones.MENORQUE; :}
+            | MAYORIGU {: RESULT= Operaciones.MAYORIGU; :}
+            | MENORIGU {: RESULT= Operaciones.MENORIGU; :}
+            | IGUALES {: RESULT= Operaciones.IGUALES; :}
+            | NIGUALES {: RESULT= Operaciones.NIGUALES; :}
+            | OR {: RESULT= Operaciones.OR; :}
+            | AND {: RESULT= Operaciones.AND; :}
+            ;
+
+FUNCION     ::= LPAREN INPARAM:i RPAREN{: RESULT= i;  :}
+            ;
+
+INPARAM     ::= EXPRESION:e {: RESULT= new Param(e, null);  :}
+            | EXPRESION:e COMA INPARAM:p {: RESULT= new Param(e, p);  :}
+            | {:  :}
+            ;
