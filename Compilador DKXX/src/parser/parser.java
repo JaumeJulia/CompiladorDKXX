@@ -6,10 +6,12 @@
 package parser;
 
 import java_cup.runtime.*;
-import parser.symbols.*;
 import ArbolSintactico.ArbolSintactico;
 import ArbolSintactico.ArbolSintactico.*;
 import ArbolSintactico.Tipo;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ArrayList;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -296,10 +298,77 @@ public class parser extends java_cup.runtime.lr_parser {
 
 
     ArbolSintactico arbol= new ArbolSintactico();
+    ArrayList<String> errores = new ArrayList<>();
 
-public ArbolSintactico getArbol(){
-    return arbol;
-}
+    public ArbolSintactico getArbol(){
+        return arbol;
+    }
+
+    // Semantico Prioridad de operaciones.
+    public Expresion PrioridadOperacion(Expresion e) {
+        // Se verifica que haya dos operaciones.
+        if (e.getOper() != null && e.getOper().getExpr().getOper() != null) {
+            Operaciones OpActual = e.getOper().getOper();
+            Operaciones OpAnterior = e.getOper().getExpr().getOper().getOper();
+            // Se mira el orden de prioridad para reorganizar los valores.
+            if (OpActual.compareTo(OpAnterior) < 0) {
+                Operacion op = e.getOper().getExpr().getOper();
+                e.getOper().getExpr().setOper(null);
+
+                // Si hay una expresion vacia esta se elimina para evitar problemas.
+                if(e.getOper().getExpr().getOper() == null && e.getOper().getExpr().isExpr()){
+                    Expresion a = e.getOper().getExpr().getExpr();
+                    e.getOper().setExpr(a);
+                }
+                // Se llama de forma recursiva con la nueva expresion para organizar las operaciones en ella.
+                Expresion new_e = new Expresion(PrioridadOperacion(e), op);
+                return new_e;
+            }
+        }
+        return e;
+    }
+
+    //Tratamiento errores.
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        String mensaje = "\t - " + cur_token.toString() + "." + this.showExpectedTokenIds() + " en linea " + cur_token.left + " en columna " + cur_token.right;
+        this.report_error(mensaje, cur_token);
+    }
+
+    @Override
+    public void report_fatal_error(String mensaje, Object info) {
+        //report_error(mensaje, null);
+    }
+
+    @Override
+    public void report_error(String mensaje, Object info) {
+        errores.add(mensaje);
+    }
+
+    private String showExpectedTokenIds() {
+        List<Integer> ids = this.expected_token_ids();
+        LinkedList<String> list = new LinkedList<>();
+        for (Integer expected : ids) {
+            list.add(this.symbl_name_from_id(expected.intValue()));
+        }
+        if (list.size() > 0) {
+            return " Se esperaba: " + list.toString();
+        } else {
+            return "";
+        }
+    }
+
+    public boolean hayErrores(){
+        return !errores.isEmpty();
+    }
+
+    public String toStringErrores(){
+        String s = "";
+        for(String e : errores){
+            s += e + "\n";
+        }
+        return s;
+    }
 
 
 /** Cup generated class to encapsulate user supplied action code.*/
@@ -491,7 +560,7 @@ class CUP$parser$actions {
           case 12: // SENTENCIA ::= error PUNTYCOMA 
             {
               Sentencia RESULT =null;
-		  
+		 parser.report_error("sentencia", "WRONG"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("SENTENCIA",16, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -827,7 +896,7 @@ class CUP$parser$actions {
 		int oleft = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left;
 		int oright = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).right;
 		Operacion o = (Operacion)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
-		 RESULT= new Expresion(v, o); 
+		 RESULT= PrioridadOperacion(new Expresion(v, o)); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("EXPRESION",10, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
