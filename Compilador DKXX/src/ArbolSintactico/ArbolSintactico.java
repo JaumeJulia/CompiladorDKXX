@@ -436,6 +436,22 @@ public class ArbolSintactico {
             this.oper = oper;
             this.idx = 1;
         }
+        
+        public Operacion getOper(){
+            return oper;
+        }
+        
+        public void setOper(Operacion oper){
+            this.oper = oper;
+        }
+        
+        public boolean isExpr(){
+            return idx == 1;
+        }
+        
+        public Expresion getExpr(){
+            return e;
+        }
 
         public String codigoIntermedio() {
             String op1 = null;
@@ -486,6 +502,14 @@ public class ArbolSintactico {
 
         public Operaciones getOper() {
             return oper;
+        }
+        
+        public Expresion getExpr(){
+            return expr;
+        }
+        
+        public void setExpr(Expresion expr){
+            this.expr = expr;
         }
 
         public String codigoIntermedio() {

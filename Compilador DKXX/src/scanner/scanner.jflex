@@ -1,10 +1,8 @@
 package scanner;
 
-import java.io.*;
-import java_cup.runtime.*;
-
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import parser.sym;
+import java.util.ArrayList;
 
 %%
 
@@ -25,20 +23,54 @@ import parser.sym;
 entero = [\-\+]?[1-9][0-9]* | [\-\+]?0
 variable = [A-Za-z_][A-Za-z_0-9]*
 
-
+coment = "#" [^\r\n]* [\r\n]?
 
 WS = [ \t\r\n] // Separadores de tokens.
 
 %{
+    private ArrayList<Token> tokens = new ArrayList<>();
+    private ArrayList<ErrorLexico> errores = new ArrayList<>();
 
     private ComplexSymbol symbol(int type) {
-        return new ComplexSymbol(sym.terminalNames[type], type);
+        ComplexSymbol s = new ComplexSymbol(sym.terminalNames[type], type);
+        s.left = yyline;
+        s.right = yycolumn;
+        tokens.add(new Token(s));
+        return s;
     }
 
     private ComplexSymbol symbol(int type, Object value) {
-        return new ComplexSymbol(sym.terminalNames[type], type, value);
+        ComplexSymbol s = new ComplexSymbol(sym.terminalNames[type], type, value);
+        s.left = yyline;
+        s.right = yycolumn;
+        tokens.add(new Token(s, (String) value));
+        return s;
+    }
+    
+    public String toStringTokens() {
+        String s = "";
+        for (Token t : tokens) {
+            s += t.toString() + "\n";
+        }
+        return s;
     }
 
+    //Gestion de Errores.
+    private void addError(String token, int linea, int col) {
+       errores.add(new ErrorLexico(token, linea, col));
+    }
+
+    public boolean hayErrores(){
+        return !errores.isEmpty();
+    }
+    
+    public String toStringErrores(){
+        String s = "";
+        for(ErrorLexico e : errores){
+            s += e.toString() + "\n";
+        }
+        return s;
+    }
 %}
 
 %%
@@ -96,11 +128,9 @@ WS = [ \t\r\n] // Separadores de tokens.
 // no terminales
 {entero}    { return symbol(sym.NUMERO, this.yytext()); }
 {variable}  { return symbol(sym.ID, this.yytext()); }
+
+{coment}    {}
 {WS}        {}
 
-
-
-
-//Gestión de errores
-//Acciones post identificación
-//Gestión de comentarios
+/* Gestion Errores */
+[^]         {addError(yytext(), yyline, yycolumn); }

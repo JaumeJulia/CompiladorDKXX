@@ -64,22 +64,21 @@ public class Instruccion {
 
     }
 
-     public boolean esCondicional(){
-        return   operacion==Operador.MENORQUE || operacion==Operador.MAYORQUE ||
-                operacion==Operador.MENORIGU || operacion==Operador.MAYORIGU ||
-                operacion==Operador.IGUALES || operacion==Operador.NIGUALES;
+    public boolean esCondicional() {
+        return operacion == Operador.MENORQUE || operacion == Operador.MAYORQUE
+                || operacion == Operador.MENORIGU || operacion == Operador.MAYORIGU
+                || operacion == Operador.IGUALES || operacion == Operador.NIGUALES;
     }
 
-    public boolean esArtim(){
-        return operacion==Operador.SUMA || operacion==Operador.RESTA || operacion==Operador.MULT ||
-                operacion==Operador.DIV  || operacion==Operador.AND || operacion==Operador.OR;
-    }
-    
-    public boolean esParam(){
-       return operacion == Operador.PARAM;
+    public boolean esArtim() {
+        return operacion == Operador.SUMA || operacion == Operador.RESTA || operacion == Operador.MULT
+                || operacion == Operador.DIV || operacion == Operador.AND || operacion == Operador.OR;
     }
 
-    
+    public boolean esParam() {
+        return operacion == Operador.PARAM;
+    }
+
     @Override
     public String toString() {
         return "[" + operacion.toString() + ", " + op1 + ", " + op2 + ", " + dest + "]";

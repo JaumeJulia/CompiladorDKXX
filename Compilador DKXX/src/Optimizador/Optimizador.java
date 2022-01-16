@@ -47,16 +47,25 @@ public class Optimizador {
             act = instrucciones.get(i);
             sig = instrucciones.get(i + 1);
 
-            if (AsignacionDiferida(i, act, sig)) {
+            if (RbrancamentsAdjacents(i, act, sig)) {
+            } else if (SaltoSobreSalto(i, act, sig)) {
+            } else if (AsignacionDiferida(i, act, sig)) {
+            }
+// else if (CodigoInaccesible(i, act, sig)) {
+//             i++;
+//            } 
+            else if (OperacionesConstantes(i, act)) {
+            } else if (ReducciondeFuerza(i, act)) {
             } else {
                 i++;
             }
+
         }
 
     }
 
     //ELIMINA ASIGCIONES QUE SEAN CONSECUTIVAS
-    private boolean AsignacionDiferida(int i, Instruccion act, Instruccion sig) {
+    private boolean AsignacionDiferida(int i, Instruccion act, Instruccion sig) { //falta un caso nuevo de los asigna con los in y outs con variables temporales
 
         if (act.getOperacion() == Operador.ASIG && sig.getOperacion() == Operador.ASIG) {
 
@@ -75,25 +84,27 @@ public class Optimizador {
             }
 
             //CASO PARA OPERACIONES ENTRE 2 VARIABLES ASIGDAS ANTERIORMENTE
-            Instruccion ant = instrucciones.get(i - 1);
-            if (!ant.esArtim()) {
-                Instruccion ter = instrucciones.get(i + 2);
-                if (ter.esArtim() || ter.esCondicional()) {
-                    boolean retorno = false;
-                    if (esTemporal(sig.getDest()) && ter.getOp2().equals(sig.getDest())) {
-                        ctd.borrarVariable(sig.getDest());
-                        instrucciones.remove(i + 1);
-                        ter.modificarIntruccion(ter.getOperacion(), ter.getOp1(), sig.getOp1(), ter.getDest());
-                        retorno = true;
-                    }
-                    if (esTemporal(act.getDest()) && ter.getOp1().equals(act.getDest())) {
-                        ctd.borrarVariable(act.getDest());
-                        instrucciones.remove(i);
-                        ter.modificarIntruccion(ter.getOperacion(), act.getOp1(), ter.getOp2(), ter.getDest());
-                        retorno = true;
-                    }
-                    if (retorno) {
-                        return true;
+            if (i != 0) {
+                Instruccion ant = instrucciones.get(i - 1);
+                if (!ant.esArtim()) {
+                    Instruccion ter = instrucciones.get(i + 2);
+                    if (ter.esArtim() || ter.esCondicional()) {
+                        boolean retorno = false;
+                        if (esTemporal(sig.getDest()) && ter.getOp2().equals(sig.getDest())) {
+                            ctd.borrarVariable(sig.getDest());
+                            instrucciones.remove(i + 1);
+                            ter.modificarIntruccion(ter.getOperacion(), ter.getOp1(), sig.getOp1(), ter.getDest());
+                            retorno = true;
+                        }
+                        if (esTemporal(act.getDest()) && ter.getOp1().equals(act.getDest())) {
+                            ctd.borrarVariable(act.getDest());
+                            instrucciones.remove(i);
+                            ter.modificarIntruccion(ter.getOperacion(), act.getOp1(), ter.getOp2(), ter.getDest());
+                            retorno = true;
+                        }
+                        if (retorno) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -129,8 +140,7 @@ public class Optimizador {
     //ELIMINA CODIGO QUE NO SE EJECUTA (TODO CODIGO QUE ESTE DEPUES DE UN GOTO Y NO TENGA UNA EITUETA DE SALTO ATRAS ES CODIGO INACCESIBLE)
     private boolean CodigoInaccesible(int i, Instruccion act, Instruccion sig) {
         int aux;
-        if ((act.getOperacion() == Operador.GOTO && !act.getDest().equals("run")) || act.getOperacion() == Operador.RTN) {
-
+        if ((act.getOperacion() == Operador.GOTO && !act.getDest().equals("run")) ) {
             aux = i + 1;
             boolean salir = true;
             while (salir) {//MIRAMOS LAS LINIAS DE CODIGO QUE ESTAN DEPUESD EL GOTO PARA VER SI SE ACCEDE O NO 
@@ -177,7 +187,7 @@ public class Optimizador {
 
         if (act.esCondicional() && sig.getOperacion() == Operador.GOTO) {
 
-            if (act.getOp1() != null && act.getOp2() != null) {//NO ME ACUERDO DE PORQUE ESTA EST IF CREO QUE SE PUEDE QUITAR PERO NO LO SE EXACTAMENTE
+            if (act.getOp1() != null && act.getOp2() != null) {//NO ME ACUERDO DE PORQUE ESTA EST IF CREO QUE SE PUEDE QUITAR PERO NO LO SE EXACTAMENTE, puede que para que no pete
                 String op1 = act.getOp1();
                 String op2 = act.getOp2();
                 String dest = sig.getDest();
@@ -215,7 +225,7 @@ public class Optimizador {
         return false;
     }
 
-    //NO SE COMO FUNCIONA CON PRECISION ESTO EN JAVA
+    //NO SE COMO FUNCIONA 
     private boolean ReducciondeFuerza(int i, Instruccion act) {
 
         if (act.getOperacion().equals(Operador.MULT)) {
