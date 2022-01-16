@@ -1,0 +1,14 @@
+declare{  
+}
+main{
+    int a;
+    int b;
+    int resultado;
+
+    b=100;
+    a=3;
+    a=4;
+    b=1;
+
+    resultado=10-10;  
+}

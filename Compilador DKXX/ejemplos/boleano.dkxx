@@ -1,0 +1,11 @@
+declare{
+    function int resto (int n, int m){
+        return n-((n/m)*m);
+    }
+}
+main{
+    int i = input();
+    if((i >= 0) & resto(i, 2) == 0){
+        output(-1);
+    }
+}
