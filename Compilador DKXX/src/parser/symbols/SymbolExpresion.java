@@ -5,7 +5,7 @@
  */
 package parser.symbols;
 
-import parser.ParserSym;
+import parser.sym;
 
 /**
  *

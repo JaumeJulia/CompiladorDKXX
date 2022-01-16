@@ -1,256 +1,167 @@
 package parser;
 
-import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import java_cup.runtime.ComplexSymbolFactory.Location;
-
 import java_cup.runtime.*;
-
 import parser.symbols.*;
+import ArbolSintactico.ArbolSintactico;
+import ArbolSintactico.ArbolSintactico.*;
+import ArbolSintactico.Tipo;
 
-/**import java.io.PrintStream;**/
-/**import java.util.HashMap;**/
 
-class Parser;
 
-/**
 parser code {:
-    Scanner s;
-    Parser(Scanner s){ this.s=s; }
-:}
+    ArbolSintactico arbol= new ArbolSintactico();
 
-init with {: s.init(); :};
-scan with {: return s.next_token(); :};
-**/
+public ArbolSintactico getArbol(){
+    return arbol;
+}
+:};
 
-/**
-parser code {:
 
-    /private HashMap<String, Double>tsymbols = new HashMap<>();
-
-    public Double getSymbolValue(String id){
-        return tsymbols.get(id);
-    }
-
-    public void addSymbol(String id, Double value) {
-        if (tsymbols.get(id) == null) {
-            tsymbols.put(id, value);
-        } else {
-            tsymbols.replace(id, value);
-        }
-    }
-
-    public void printVars(PrintStream out) {
-        if (tsymbols.size() == 0) {
-            out.println("No hi ha variables declarades");
-        } else {
-            String fmt = "%-8s: %f";
-            tsymbols.forEach((k,v) -> out.println(String.format(fmt,k,v)));
-        }
-    }
-
-    private boolean errorSemantic = false;
-
-    @Override
-    public void unrecovered_syntax_error(Symbol cur_token) throws Exception {
-        report_error("Error sintàctic catastròfic", cur_token);
-        done_parsing();        
-    }
-
-    @Override
-    public void syntax_error(Symbol cur_token) {
-        report_error("de sintaxis", cur_token);
-    }
-
-    @Override
-    public void report_error(String message, Object info) {
-        StringBuilder msg = new StringBuilder("ERROR");
-        if (info instanceof Symbol) {
-            ComplexSymbol token = (ComplexSymbol)info;
-            Location l = token.getLeft();
-            
-            if (l != null) {
-                msg.append(" (fila: ")
-                   .append(l.getLine())
-                   .append(", columna: ")
-                   .append(l.getColumn())
-                   .append(")");
-            }
-        }
-        msg.append(": ").append(message);
-        
-        System.err.println(msg);
-    }
-
-    @Override
-    public void report_fatal_error(String message, Object info) throws Exception {
-        report_error("Error catastròfic ("+message+")", info);
-        done_parsing();
-    }
-
-:}
-**/
 
 terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
-                                   IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, 
+                                   IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
                                    OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
 terminal        String             ID;
-terminal        Integer            NUMERO;
-terminal        Boolean            BOLEAN;
+terminal        String            NUMERO;
+terminal        String            BOLEAN;
 
-non terminal    SymbolInit         INIT;
-non terminal    SymbolDef          DEF;
+non terminal Init        INIT;
+non terminal Def          DEF;
 
-non terminal    SymbolProg         PROG;
-non terminal    SymbolCuerpo       CUERPO;
-non terminal    SymbolDfuncion     DFUNCION;
-non terminal    SymbolReturn       RETURN;
-non terminal    SymbolParametro    PARAMETRO;
-non terminal    SymbolParamconcat  PARAMCONCAT;
-non terminal    SymbolDeclaracion  DECLARACION;
-non terminal    SymbolDeclarend    DECLAREND;
-non terminal    SymbolType         TYPE;
-non terminal    SymbolAsignacion   ASIGNACION;
-non terminal    SymbolExpresion    EXPRESION;
-non terminal    SymbolValor        VALOR;
-non terminal    SymbolOperacion    OPERACION;
-non terminal    SymbolOp           OP;
-non terminal    SymbolFuncion      FUNCION;
-non terminal    SymbolInparam      INPARAM;
+non terminal Dfuncion       DFUNCION;
+non terminal Tipo           RETURN;
+non terminal Dparam         PARAMETRO;
+non terminal Dparam         PARAMCONCAT;
+non terminal Declaracion    DECLARACION;
+non terminal Expresion      DECLAREND;
+non terminal Tipo           TYPE;
+non terminal Expresion      ASIGNACION;
+non terminal Expresion      EXPRESION;
+non terminal Valor          VALOR;
+non terminal Operacion      OPERACION;
+non terminal Operaciones    OP;
+non terminal Param          FUNCION;
+non terminal Param          INPARAM;
 
-non terminal SENTENCIA;
-non terminal SENTENCIAS;
-non terminal SENTENCIA_P;
-non terminal SENTENCIA_W;
-non terminal SENTENCIA_F;
-non terminal SENTENCIA_E;
-non terminal SENTENCIA_ID;
+non terminal Sentencia      SENTENCIA;
+non terminal Sentencias     SENTENCIAS;
+non terminal SentenciaId    SENTENCIA_ID;
 
-/**
-non terminal AUX;
-non terminal PROG_FUNCS;
-non terminal PROG_DECL;
-non terminal PROG_IDS;
-non terminal PROG_WHILE;
-non terminal PROG_IFS;
-non terminal PROG_OUT;
-**/
+non terminal Sentencias     R_SENTENCIAS;
+non terminal Sentencia      R_SENTENCIA;
 
 precedence right    IGUAL;
-precedence left     SUMA, RESTA;
-precedence left     MULT, DIV;
+precedence right     SUMA, RESTA;
+precedence right    MULT, DIV;
+
 
 start with INIT;
 
-INIT    ::=     DECLARE LKEY DEF RKEY MAIN LKEY PROG RKEY 
-                {:  :}
+INIT    ::=     DECLARE LKEY DEF:d RKEY MAIN LKEY SENTENCIAS:m RKEY
+                {: arbol.setRaiz(new Init(d, m)); :}
         ;
 
-DEF     ::=    DFUNCION DEF {:  :}
-        |      DECLARACION DEF {:  :}
-        |      {:  :}
+/** sentencias por prog antes **/
+
+DEF     ::=    DFUNCION:f DEF:d {:RESULT = new Def(f,d); :}
+        |      DECLARACION:f PUNTYCOMA DEF:d {: RESULT = new Def(f, d); :}
+        |      {:   :}
         ;
 
-PROG    ::= SENTENCIAS {:  :}
+SENTENCIAS ::= SENTENCIA:e SENTENCIAS:s {: RESULT = new Sentencias(e, s); :}
+        |   {: :}
+        ;
+
+SENTENCIA ::= DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
+        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
+        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
+        | error PUNTYCOMA                                    {:  :}
+        ;
+
+R_SENTENCIAS ::= R_SENTENCIA:e R_SENTENCIAS:s {: RESULT= new Sentencias(e,s); :}
         |   {:  :}
         ;
 
-SENTENCIAS  ::= SENTENCIA {:  :}
-            | SENTENCIA SENTENCIAS {:  :}
-            ;
-
-SENTENCIA   ::= SENTENCIA_P PUNTYCOMA {:  :}
-            | WHILE SENTENCIA_E SENTENCIA_W {:  :}
-            | IF SENTENCIA_E SENTENCIA_F {:  :}
-            | ID SENTENCIA_ID {:  :}
-            ;
-
-SENTENCIA_P ::= DECLARACION {:  :}
-            | IN LPAREN RPAREN {:  :}
-            | OUT SENTENCIA_E {: :}
-            ;
-
-SENTENCIA_ID    ::= ASIGNACION {:  :}
-                | FUNCION {:  :}
-                ;
-
-SENTENCIA_E ::= LPAREN EXPRESION RPAREN LKEY {:  :}
-            ;
-
-SENTENCIA_W ::= SENTENCIAS RKEY {:  :}
-            | RKEY {:  :}
-            ;
-
-SENTENCIA_F ::= CUERPO RKEY {:  :}
-            | RKEY {:  :}
-            ;
-
-CUERPO  ::= RETRN EXPRESION PUNTYCOMA {:  :}
-        | RETRN EXPRESION PUNTYCOMA CUERPO {:  :}
-        | SENTENCIAS {:  :}
-        | SENTENCIAS CUERPO {:  :}
+R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {: RESULT= new Sentencia(new Return(e)); :}
+        | DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
+        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
+        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
+        | error PUNTYCOMA                                    {:  :}
         ;
 
-DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY CUERPO RKEY {:  :}
+SENTENCIA_ID    ::= ASIGNACION:a {: RESULT= new SentenciaId(a); :}
+                | FUNCION:f {: RESULT= new SentenciaId(f); :}
+                ;
+
+
+DFUNCION    ::= FUNCTION RETURN:r ID:i LPAREN PARAMETRO:p RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Dfuncion(new Id(i), r, p, s); :}
             ;
 
-RETURN      ::= TYPE {:  :}
+
+RETURN      ::= TYPE:t {: RESULT= t; :}
             | {:  :}
             ;
 
-PARAMETRO   ::= TYPE ID PARAMCONCAT {:  :}
+PARAMETRO   ::= TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
             | {:  :}
             ;
 
-PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {:  :}
+PARAMCONCAT ::= COMA TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
             | {:  :}
             ;
 
-DECLARACION ::= CONST TYPE ID DECLAREND {:  :}
-            | TYPE ID DECLAREND {:  :}
+DECLARACION ::= CONST TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
+            | TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
             ;
 
-DECLAREND   ::= ASIGNACION {:  :}
+DECLAREND   ::= ASIGNACION:a {: RESULT= a; :}
             | {:  :}
             ;
 
-TYPE        ::= INT {:  :}
-            | BOOL {:  :}
+TYPE        ::= INT {: RESULT= Tipo.INT; :}
+            | BOOL {: RESULT= Tipo.BOOLEAN; :}
             ;
 
-ASIGNACION  ::= IGUAL EXPRESION {:  :}
+ASIGNACION  ::= IGUAL EXPRESION:e {: RESULT= e; :}
             ;
 
-EXPRESION   ::= VALOR:v1 OPERACION:v2 {: :}
-            | LPAREN EXPRESION RPAREN OPERACION {:  :}
+EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= new Expresion(v, o); :}
+            | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
             ;
 
-VALOR       ::= ID {:  :}
-            | NUMERO:v {: RESULT = v :}
-            | BOLEAN {:  :}
-            | ID FUNCION {:  :}
+VALOR       ::= ID:id {:  RESULT= new Valor(new Id(id)); :}
+            | NUMERO:n {: RESULT = new Valor(new Numero(n)); :}
+            | BOLEAN:b {: RESULT = new Valor(new Boleano(b)); :}
+            | IN LPAREN RPAREN {:  RESULT= new Valor(new In()); :}
+            | ID:i FUNCION:f {:  RESULT= new Valor(new IdSentencia(new Id(i), new SentenciaId(f))); :}
             ;
 
-OPERACION   ::= OP:v1 EXPRESION:v2 {: :} 
-            | {: RESULT = new SymbolOperacion() :}
+OPERACION   ::= OP:o EXPRESION:e {:  RESULT= new Operacion(o,e); :} 
+            | {: :}
             ;
 
-OP          ::= MULT {:  :}
-            | DIV {: :}
-            | SUMA {:  :}
-            | RESTA {:  :}
-            | MAYORQUE {:  :}
-            | MENORQUE {:  :}
-            | MAYORIGU {:  :}
-            | MENORIGU {:  :}
-            | IGUALES {:  :}
-            | OR {:  :}
-            | AND {:  :}
+OP          ::= MULT {:  RESULT= Operaciones.MULT; :}
+            | DIV {: RESULT= Operaciones.DIV; :}
+            | SUMA {: RESULT= Operaciones.SUMA; :}
+            | RESTA {: RESULT= Operaciones.RESTA; :}
+            | MAYORQUE {: RESULT= Operaciones.MAYORQUE; :}
+            | MENORQUE {:  RESULT= Operaciones.MENORQUE; :}
+            | MAYORIGU {: RESULT= Operaciones.MAYORIGU; :}
+            | MENORIGU {: RESULT= Operaciones.MENORIGU; :}
+            | IGUALES {: RESULT= Operaciones.IGUALES; :}
+            | NIGUALES {: RESULT= Operaciones.NIGUALES; :}
+            | OR {: RESULT= Operaciones.OR; :}
+            | AND {: RESULT= Operaciones.AND; :}
             ;
 
-FUNCION     ::= LPAREN INPARAM RPAREN{:  :}
+FUNCION     ::= LPAREN INPARAM:i RPAREN{: RESULT= i;  :}
             ;
 
-INPARAM     ::= EXPRESION {:  :}
-            | EXPRESION COMA INPARAM {:  :}
+INPARAM     ::= EXPRESION:e {: RESULT= new Param(e, null);  :}
+            | EXPRESION:e COMA INPARAM:p {: RESULT= new Param(e, p);  :}
             | {:  :}
             ;

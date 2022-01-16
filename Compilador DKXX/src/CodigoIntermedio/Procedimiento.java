@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ArbolSintactico;
+package CodigoIntermedio;
 
+import ArbolSintactico.Tipo;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  * @author felix
  */
 public class Procedimiento {
-    
+
     String nombre;
     int numeroProcedimiento;
     Tipo retorno;
@@ -25,8 +26,17 @@ public class Procedimiento {
         this.parametros = parametros;
     }
 
-    
-   
+    @Override
+    public String toString() {
+        String s = "\n";
+        if (parametros != null) {
+            for (int i = 0; i < parametros.size(); i++) {
+                s += "\t" + parametros.get(i).toString() + "\n";
+            }
+        }
+        return nombre + " " + numeroProcedimiento + " " + retorno + " " + s;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -58,7 +68,4 @@ public class Procedimiento {
     public void setParametros(ArrayList<Parametro> parametros) {
         this.parametros = parametros;
     }
-    
-    
-    
 }

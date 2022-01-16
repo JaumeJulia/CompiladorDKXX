@@ -2,8 +2,21 @@ package parser;
 
 import java_cup.runtime.*;
 import parser.symbols.*;
+import ArbolSintactico.ArbolSintactico;
+import ArbolSintactico.ArbolSintactico.*;
+import ArbolSintactico.Tipo;
 
-class Parser;
+
+
+parser code {:
+    ArbolSintactico arbol= new ArbolSintactico();
+
+public ArbolSintactico getArbol(){
+    return arbol;
+}
+:};
+
+
 
 terminal                           MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
                                    IGUALES, OR, AND, NOT, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
@@ -12,31 +25,30 @@ terminal        String             ID;
 terminal        String            NUMERO;
 terminal        String            BOLEAN;
 
-non terminal    SymbolInit         INIT;
-non terminal    SymbolDef          DEF;
+non terminal Init        INIT;
+non terminal Def          DEF;
 
-/** non terminal    SymbolProg         PROG; **/
-non terminal         DFUNCION;
-non terminal           RETURN;
-non terminal        PARAMETRO;
-non terminal      PARAMCONCAT;
-non terminal      DECLARACION;
-non terminal        DECLAREND;
-non terminal             TYPE;
-non terminal       ASIGNACION;
-non terminal        EXPRESION;
-non terminal            VALOR;
-non terminal        OPERACION;
-non terminal               OP;
-non terminal          FUNCION;
-non terminal          INPARAM;
+non terminal Dfuncion       DFUNCION;
+non terminal Tipo           RETURN;
+non terminal Dparam         PARAMETRO;
+non terminal Dparam         PARAMCONCAT;
+non terminal Declaracion    DECLARACION;
+non terminal Expresion      DECLAREND;
+non terminal Tipo           TYPE;
+non terminal Expresion      ASIGNACION;
+non terminal Expresion      EXPRESION;
+non terminal Valor          VALOR;
+non terminal Operacion      OPERACION;
+non terminal Operaciones    OP;
+non terminal Param          FUNCION;
+non terminal Param          INPARAM;
 
-non terminal SENTENCIA;
-non terminal SENTENCIAS;
-non terminal SENTENCIA_ID;
+non terminal Sentencia      SENTENCIA;
+non terminal Sentencias     SENTENCIAS;
+non terminal SentenciaId    SENTENCIA_ID;
 
-non terminal R_SENTENCIAS;
-non terminal R_SENTENCIA;
+non terminal Sentencias     R_SENTENCIAS;
+non terminal Sentencia      R_SENTENCIA;
 
 precedence right    IGUAL;
 precedence left     SUMA, RESTA;
@@ -44,112 +56,112 @@ precedence left     MULT, DIV;
 
 start with INIT;
 
-INIT    ::=     DECLARE LKEY DEF RKEY MAIN LKEY SENTENCIAS RKEY
-                {: System.out.println("Inicio"); :}
+INIT    ::=     DECLARE LKEY DEF:d RKEY MAIN LKEY SENTENCIAS:m RKEY
+                {: arbol.setRaiz(new Init(d, m)); :}
         ;
 
 /** sentencias por prog antes **/
 
-DEF     ::=    DFUNCION DEF {: System.out.println("DEF tipo 1"); :}
-        |      DECLARACION PUNTYCOMA DEF {: System.out.println("DEF tipo 2"); :}
-        |      {:  System.out.println(" No mas declaraciones "); :}
+DEF     ::=    DFUNCION:f DEF:d {:RESULT = new Def(f,d); :}
+        |      DECLARACION:f PUNTYCOMA DEF:d {: RESULT = new Def(f, d); :}
+        |      {:   :}
         ;
 
-SENTENCIAS ::= SENTENCIA SENTENCIAS {: System.out.println("Sentancia"); :}
-        |   {: System.out.println("No mas sentencias"); :}
+SENTENCIAS ::= SENTENCIA:e SENTENCIAS:s {: RESULT = new Sentencias(e, s); :}
+        |   {: :}
         ;
 
-SENTENCIA ::= DECLARACION  PUNTYCOMA                         {: System.out.println("Declaracion"); :}
-        | OUT LPAREN EXPRESION RPAREN PUNTYCOMA              {: System.out.println("Ouput"); :}
-        | ID SENTENCIA_ID PUNTYCOMA                          {: System.out.println("Sentencia_ID "); :}
-        | WHILE LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY {: System.out.println("bucle while "); :}
-        | IF LPAREN EXPRESION RPAREN LKEY SENTENCIAS RKEY    {: System.out.println("Condicional "); :}
+SENTENCIA ::= DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
+        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
+        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
         | error PUNTYCOMA                                    {:  :}
         ;
 
-R_SENTENCIAS ::= R_SENTENCIA R_SENTENCIAS {: System.out.println("R_Sentancia"); :}
-        |   {: System.out.println("No mas R_sentencias"); :}
+R_SENTENCIAS ::= R_SENTENCIA:e R_SENTENCIAS:s {: RESULT= new Sentencias(e,s); :}
+        |   {:  :}
         ;
 
-R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {:  System.out.println("retorno "); :}
-                | DECLARACION  PUNTYCOMA                         {: System.out.println("Declaracion"); :}
-                | OUT LPAREN EXPRESION RPAREN PUNTYCOMA              {: System.out.println("Ouput"); :}
-                | ID SENTENCIA_ID PUNTYCOMA                          {: System.out.println("Sentencia_ID "); :}
-                | WHILE LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY {: System.out.println("bucle while "); :}
-                | IF LPAREN EXPRESION RPAREN LKEY R_SENTENCIAS RKEY    {: System.out.println("Condicional "); :}
+R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {: RESULT= new Sentencia(new Return(e)); :}
+        | DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
+        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
+        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
                 | error PUNTYCOMA                                    {:  :}
                 ;
 
-SENTENCIA_ID    ::= ASIGNACION {: System.out.println("Asignacio - Sentancia_ID"); :}
-                | FUNCION {: System.out.println("Funcion Sentancia_id"); :}
+SENTENCIA_ID    ::= ASIGNACION:a {: RESULT= new SentenciaId(a); :}
+                | FUNCION:f {: RESULT= new SentenciaId(f); :}
                 ;
 
 
-DFUNCION    ::= FUNCTION RETURN ID LPAREN PARAMETRO RPAREN LKEY R_SENTENCIAS RKEY {: System.out.println("DECLARACION FUNCION "); :}
+DFUNCION    ::= FUNCTION RETURN:r ID:i LPAREN PARAMETRO:p RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Dfuncion(new Id(i), r, p, s); :}
             ;
 
 
-RETURN      ::= TYPE {:  :}
+RETURN      ::= TYPE:t {: RESULT= t; :}
             | {:  :}
             ;
 
-PARAMETRO   ::= TYPE ID PARAMCONCAT {: System.out.println("Parametro "); :}
+PARAMETRO   ::= TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
             | {:  :}
             ;
 
-PARAMCONCAT ::= COMA TYPE ID PARAMCONCAT {: System.out.println("Muchos parametros "); :}
+PARAMCONCAT ::= COMA TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
             | {:  :}
             ;
 
-DECLARACION ::= CONST TYPE ID DECLAREND {: System.out.println("Constantes"); :}
-            | TYPE ID DECLAREND {: System.out.println("variable normal"); :}
+DECLARACION ::= CONST TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
+            | TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
             ;
 
-DECLAREND   ::= ASIGNACION {: System.out.println("asignamos"); :}
+DECLAREND   ::= ASIGNACION:a {: RESULT= a; :}
             | {:  :}
             ;
 
-TYPE        ::= INT {:  :}
-            | BOOL {:  :}
+TYPE        ::= INT {: RESULT= Tipo.INT; :}
+            | BOOL {: RESULT= Tipo.BOOLEAN; :}
             ;
 
-ASIGNACION  ::= IGUAL EXPRESION {: System.out.println(" Asignacion "); :}
+ASIGNACION  ::= IGUAL EXPRESION:e {: RESULT= e; :}
             ;
 
-EXPRESION   ::= VALOR:v OPERACION {:System.out.println("Valor operacion : " + v); :}
-            | LPAREN EXPRESION RPAREN OPERACION {: System.out.println("Parentesis expresion "); :}
+EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= new Expresion(v, o); :}
+            | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
+            | NOT EXPRESION:e {: RESULT= new Éxpresion(e, new Operacion(Operaciones.NOT, null)) :}
             ;
 
-VALOR       ::= ID:id {: System.out.println("Nombre: " + id); :}
-            | NUMERO:n {: RESULT = n; :}
-            | BOLEAN:b {: RESULT =b; :}
-            | IN LPAREN RPAREN {: System.out.println("In"); :}
-            | ID:id FUNCION {: System.out.println("Funcion:" + id); :}
+VALOR       ::= ID:id {:  RESULT= new Valor(new Id(id)); :}
+            | NUMERO:n {: RESULT = new Valor(new Numero(n)); :}
+            | BOLEAN:b {: RESULT = new Valor(new Boleano(b)); :}
+            | IN LPAREN RPAREN {:  RESULT= new Valor(new In()); :}
+            | ID:i FUNCION:f {:  RESULT= new Valor(new IdSentencia(new Id(i), new SentenciaId(f))); :}
             ;
 
-OPERACION   ::= OP EXPRESION {: System.out.println("operacion y expresion");:} 
-            | {:System.out.println("Operacion=null");:}
+OPERACION   ::= OP:o EXPRESION:e {:  RESULT= new Operacion(o,e); :} 
+            | {: :}
             ;
 
-OP          ::= MULT {: System.out.println("Mult "); :}
-            | DIV {:System.out.println("Div "); :}
-            | SUMA {: System.out.println("suma"); :}
-            | RESTA {: System.out.println("resta "); :}
-            | MAYORQUE {: System.out.println("Mayorque "); :}
-            | MENORQUE {:  System.out.println("Menorque ");:}
-            | MAYORIGU {: System.out.println("MayorIgual "); :}
-            | MENORIGU {: System.out.println("Menorigual "); :}
-            | IGUALES {: System.out.println("Iguales "); :}
-            | NIGUALES {: System.out.println("No iguales "); :}
-            | OR {: System.out.println("or "); :}
-            | AND {: System.out.println("and "); :}
-            | NOT {: System.out.println("not "); :}
+OP          ::= MULT {:  RESULT= Operaciones.MULT; :}
+            | DIV {: RESULT= Operaciones.DIV; :}
+            | SUMA {: RESULT= Operaciones.SUMA; :}
+            | RESTA {: RESULT= Operaciones.RESTA; :}
+            | MAYORQUE {: RESULT= Operaciones.MAYORQUE; :}
+            | MENORQUE {:  RESULT= Operaciones.MENORQUE; :}
+            | MAYORIGU {: RESULT= Operaciones.MAYORIGU; :}
+            | MENORIGU {: RESULT= Operaciones.MENORIGU; :}
+            | IGUALES {: RESULT= Operaciones.IGUALES; :}
+            | NIGUALES {: RESULT= Operaciones.NIGUALES; :}
+            | OR {: RESULT= Operaciones.OR; :}
+            | AND {: RESULT= Operaciones.AND; :}
             ;
 
-FUNCION     ::= LPAREN INPARAM RPAREN{:  :}
+FUNCION     ::= LPAREN INPARAM:i RPAREN{: RESULT= i;  :}
             ;
 
-INPARAM     ::= EXPRESION {:  :}
-            | EXPRESION COMA INPARAM {:  :}
+INPARAM     ::= EXPRESION:e {: RESULT= new Param(e, null);  :}
+            | EXPRESION:e COMA INPARAM:p {: RESULT= new Param(e, p);  :}
             | {:  :}
             ;

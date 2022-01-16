@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ArbolSintactico;
+package CodigoIntermedio;
 
 import ArbolSintactico.ArbolSintactico.Operaciones;
+import ArbolSintactico.Tipo;
 import java.util.ArrayList;
 
 /**
@@ -14,10 +15,7 @@ import java.util.ArrayList;
  */
 public class CodigoTresDirecciones {
 
-    public enum Operador {
-        MULT, DIV, SUMA, RESTA, MAYORQUE, MENORQUE, MAYORIGU,
-        MENORIGU, IGUALES, NIGUALES, OR, AND, NOT, GOTO, SKIP, ASIG, IN, OUT, RTN, PMB, CALL, PARAM
-    };
+ 
     private ArrayList<Instruccion> codigo = new ArrayList<>();
     private ArrayList<Variable> tv = new ArrayList<>();
     private ArrayList<Procedimiento> tp = new ArrayList<>();
@@ -27,26 +25,6 @@ public class CodigoTresDirecciones {
     private int nv = 0; // Numero de variable.
     private int np = 0; // Numero de procedimentos.
     private int npa = 0; // numero de procedimiento activo.
-
-    private class Instruccion {
-
-        private Operador operacion;
-        private String op1;
-        private String op2;
-        private String dest;
-
-        public Instruccion(Operador operacion, String op1, String op2, String dest) {
-            this.operacion = operacion;
-            this.op1 = op1;
-            this.op2 = op2;
-            this.dest = dest;
-        }
-
-        @Override
-        public String toString() {
-            return "[" + operacion.toString() + ", " + op1 + ", " + op2 + ", " + dest + "]";
-        }
-    }
 
     public String newEtiqueta() {
         ne++;
@@ -78,24 +56,30 @@ public class CodigoTresDirecciones {
         }
     }
 
-    public void newProcedimiento(String nombre, Tipo retorno, ArrayList<Parametro> parametros) {
+    public void newProcedimiento(String nombre, Tipo retorno) {
         np++;
         npa = np;
 
-        tp.add(new Procedimiento(nombre, npa, retorno, parametros));
+        tp.add(new Procedimiento(nombre, npa, retorno, null));
 
     }
     
-    public void newListaParametros(){
+    public void newProcedimientoadd (ArrayList<Parametro> parametros){
+        Procedimiento p = tp.get(tp.size() - 1);
+        p.parametros = parametros;
+    }
+
+    public void newListaParametros() {
         param = new ArrayList<>();
     }
-    
-    public void addParametro(Tipo t, String id){
+
+    public void addParametro(Tipo t, String id) {
         Parametro p = new Parametro(t, id);
+        newVariable(t, id);
         param.add(p);
     }
-    
-    public ArrayList<Parametro> closeListaParametros(){
+
+    public ArrayList<Parametro> closeListaParametros() {
         return param;
     }
 
@@ -103,15 +87,15 @@ public class CodigoTresDirecciones {
         npa = 0;
     }
 
-    public Tipo getReturnProcedimiento(String id){
+    public Tipo getReturnProcedimiento(String id) {
         for (int i = 0; i < tp.size(); i++) {
-            if(tp.get(i).getNombre().equals(id)){
+            if (tp.get(i).getNombre().equals(id)) {
                 return tp.get(i).getRetorno();
             }
         }
         return null;
     }
-    
+
     public void generar(Operador a, String op1, String op2, String dest) {
         codigo.add(new Instruccion(a, op1, op2, dest));
     }
@@ -154,13 +138,80 @@ public class CodigoTresDirecciones {
             return Tipo.BOOLEAN;
         }
     }
-    
-    @Override
-    public String toString(){
+
+    public ArrayList<Variable> getTv() {
+        return tv;
+    }
+
+    public String printTv() {
         String s = "";
-        for(int i = 0; i < codigo.size(); i++){
+        for (int i = 0; i < tv.size(); i++) {
+            s += tv.get(i).toString() + "\n";
+        }
+        return s;
+    }
+
+    public String printTp() {
+        String s = "";
+        for (int i = 0; i < tp.size(); i++) {
+            s += tp.get(i).toString() + "\n";
+        }
+        return s;
+    }
+
+    public ArrayList<Instruccion> getCodigo() {
+        return codigo;
+    }
+
+    public Variable getVar(String id, int procedimiento) {
+        for (int i = 0; i < tv.size(); i++) {
+            if (tv.get(i).id.equals(id) && tv.get(i).procedimiento == procedimiento) {
+                return tv.get(i);
+            }
+        }
+        return null;
+    }
+    
+    public Variable getVariable(String id) {
+        for (int i = 0; i < tv.size(); i++) {
+            if (tv.get(i).id.equals(id)) {
+                return tv.get(i);
+            }
+        }
+        return null;
+    }
+    
+    public Procedimiento getPro(String id) {
+        for (int i = 0; i < tp.size(); i++) {
+            if (tp.get(i).getNombre().equals(id)) {
+                return tp.get(i);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        String s = "";
+        for (int i = 0; i < codigo.size(); i++) {
             s += codigo.get(i).toString() + "\n";
         }
         return s;
     }
+    
+       public void setCodigo(ArrayList<Instruccion> codigo) {
+        this.codigo = codigo;
+    }
+       
+    public void borrarVariable(String nombre){
+
+        for(int i=0;i<tv.size();i++){
+            if(tv.get(i).getID().equals(nombre)){
+                tv.remove(i);
+                break;
+            }
+
+        }
+    }
+
 }

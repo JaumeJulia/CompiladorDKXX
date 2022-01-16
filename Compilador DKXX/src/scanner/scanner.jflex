@@ -4,7 +4,7 @@ import java.io.*;
 import java_cup.runtime.*;
 
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import parser.ParserSym;
+import parser.sym;
 
 %%
 
@@ -18,7 +18,7 @@ import parser.ParserSym;
 %column
 
 %eofval{
-    return symbol(ParserSym.EOF);
+    return symbol(sym.EOF);
 %eofval}
 
 
@@ -32,11 +32,11 @@ WS = [ \t\r\n] // Separadores de tokens.
 %{
 
     private ComplexSymbol symbol(int type) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type);
+        return new ComplexSymbol(sym.terminalNames[type], type);
     }
 
     private ComplexSymbol symbol(int type, Object value) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type, value);
+        return new ComplexSymbol(sym.terminalNames[type], type, value);
     }
 
 %}
@@ -45,58 +45,59 @@ WS = [ \t\r\n] // Separadores de tokens.
 // Reglas y Acciones
 
 // palabras resevadas
-";"         { return symbol(ParserSym.PUNTYCOMA);}
+";"         { return symbol(sym.PUNTYCOMA);}
+","         { return symbol(sym.COMA); }
 
 // aritmeticos
-"+"         { return symbol(ParserSym.SUMA); }
-"-"         { return symbol(ParserSym.RESTA); }
-"*"         { return symbol(ParserSym.MULT); }
-"/"         { return symbol(ParserSym.DIV); }
+"+"         { return symbol(sym.SUMA); }
+"-"         { return symbol(sym.RESTA); }
+"*"         { return symbol(sym.MULT); }
+"/"         { return symbol(sym.DIV); }
 
 // parentesis y brackets
-"("         { return symbol(ParserSym.LPAREN); }
-")"         { return symbol(ParserSym.RPAREN); }
-"{"         { return symbol(ParserSym.LKEY); }
-"}"         { return symbol(ParserSym.RKEY); }
+"("         { return symbol(sym.LPAREN); }
+")"         { return symbol(sym.RPAREN); }
+"{"         { return symbol(sym.LKEY); }
+"}"         { return symbol(sym.RKEY); }
 
 // logicos
-"true"      { return symbol(ParserSym.BOLEAN, "true"); }
-"false"     { return symbol(ParserSym.BOLEAN, "false"); }
-"<="        { return symbol(ParserSym.MENORIGU); }
-">="        { return symbol(ParserSym.MAYORIGU); }
-">"         { return symbol(ParserSym.MAYORQUE); }
-"<"         { return symbol(ParserSym.MENORQUE); }
-"=="        { return symbol(ParserSym.IGUALES); }
-"!="        { return symbol(ParserSym.NIGUALES); }
-"!"         { return symbol(ParserSym.NOT); }
-"&"         { return symbol(ParserSym.AND); }
-"|"         { return symbol(ParserSym.OR); }
+"true"      { return symbol(sym.BOLEAN, "true"); }
+"false"     { return symbol(sym.BOLEAN, "false"); }
+"<="        { return symbol(sym.MENORIGU); }
+">="        { return symbol(sym.MAYORIGU); }
+">"         { return symbol(sym.MAYORQUE); }
+"<"         { return symbol(sym.MENORQUE); }
+"=="        { return symbol(sym.IGUALES); }
+"!="        { return symbol(sym.NIGUALES); }
+"&"         { return symbol(sym.AND); }
+"|"         { return symbol(sym.OR); }
 
-"="         { return symbol(ParserSym.IGUAL); }
+"="         { return symbol(sym.IGUAL); }
 
 // separador del programa
-"main"      { return symbol(ParserSym.MAIN); }
-"declare"   { return symbol(ParserSym.DECLARE); }
+"main"      { return symbol(sym.MAIN); }
+"declare"   { return symbol(sym.DECLARE); }
 
 // condicional y bucle
-"if"        { return symbol(ParserSym.IF); }
-"while"     { return symbol(ParserSym.WHILE); }
+"if"        { return symbol(sym.IF); }
+"while"     { return symbol(sym.WHILE); }
 
 // variables y funciones
-"int"       { return symbol(ParserSym.INT); }
-"bool"      { return symbol(ParserSym.BOOL); }
-"const"     { return symbol(ParserSym.CONST); }
-"function"  { return symbol(ParserSym.FUNCTION); }
-"return"    { return symbol(ParserSym.RETRN); }
+"int"       { return symbol(sym.INT); }
+"bool"      { return symbol(sym.BOOL); }
+"const"     { return symbol(sym.CONST); }
+"function"  { return symbol(sym.FUNCTION); }
+"return"    { return symbol(sym.RETRN); }
 
 // entrada y salida
-"output"    { return symbol(ParserSym.OUT); }
-"input"     { return symbol(ParserSym.IN); }
+"output"    { return symbol(sym.OUT); }
+"input"     { return symbol(sym.IN); }
 
 // no terminales
-{entero}    { return symbol(ParserSym.NUMERO, this.yytext()); }
-{variable}  { return symbol(ParserSym.ID, this.yytext()); }
+{entero}    { return symbol(sym.NUMERO, this.yytext()); }
+{variable}  { return symbol(sym.ID, this.yytext()); }
 {WS}        {}
+
 
 
 

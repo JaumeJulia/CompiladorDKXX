@@ -5,11 +5,12 @@
  */
 package parser.symbols;
 
+import ArbolSintactico.ArbolSintactico.Def;
 /**
  *
  * @author felix
  */
-public class SymbolDef{
+public class SymbolDef {
     
     
 }
