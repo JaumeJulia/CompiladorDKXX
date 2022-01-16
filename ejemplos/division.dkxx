@@ -1,0 +1,21 @@
+declare {
+
+    function int resto (int n, int m){
+        return n-((n/m)*m);
+    }
+
+    function division (){
+        int n = input();
+        int m = input();
+        if(m != 0){
+            output(resto(n, m));
+        }
+        if(m == 0){
+            output(-1);
+        } 
+    }
+
+}
+main{
+    division();
+}
