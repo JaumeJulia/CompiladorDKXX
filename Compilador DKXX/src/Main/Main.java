@@ -3,6 +3,7 @@ package Main;
 import ArbolSintactico.ArbolSintactico;
 import CodigoIntermedio.CodigoTresDirecciones;
 import Ensamblador.Codigo68k;
+import Semantico.TablaSimbolos;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -54,7 +55,12 @@ public class Main {
             } catch (Exception ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if (scanner.hayErrores() || parser.hayErrores()) {
+            ArbolSintactico arbol = parser.getArbol(); // Arbol Sintactico.
+            
+            //Sintactico.
+            TablaSimbolos semantico = parser.getTablaSimbolos();
+            
+            if (scanner.hayErrores() || parser.hayErrores() || semantico.hayErrores()) {
                 String s = "";
                 if (scanner.hayErrores()) {
                     s += "\tErrores lexico:\n" + scanner.toStringErrores();
@@ -62,26 +68,31 @@ public class Main {
                 if (parser.hayErrores()) {
                     s += "\tErrores sintactico:\n" + parser.toStringErrores();
                 }
+                if (semantico.hayErrores()){
+                    s += "\tErrores semantico:\n" + semantico.toStringErrores();
+                }
                 s += "-> No se pudo proseguir con la compilacion";
                 WriteFile(out + nombre + ".error", s);
                 System.out.println(s);
                 System.exit(0);
             }
-            WriteFile("out/" + nombre + ".token", scanner.toStringTokens());
-            ArbolSintactico arbol = parser.getArbol(); // Arbol Sintactico.
+            
+            WriteFile(out + nombre + ".token", scanner.toStringTokens());
+            WriteFile(out + nombre + ".ts", semantico.toString());
+
 
             System.out.println("\tOK");
 
             //Codigo Intermedio.
             CodigoTresDirecciones ctd = arbol.GenerarCTD();
-            WriteFile("out/" + nombre + ".ctd", ctd.toString());
-            WriteFile("out/" + nombre + ".tv", ctd.printTv());
-            WriteFile("out/" + nombre + ".tp", ctd.printTp());
+            WriteFile(out + nombre + ".ctd", ctd.toString());
+            WriteFile(out + nombre + ".tv", ctd.printTv());
+            WriteFile(out + nombre + ".tp", ctd.printTp());
 
             // Codigo Ensamblador.
             Codigo68k c68k = new Codigo68k();
             c68k.generar(ctd);
-            WriteFile("out/" + nombre + ".X68", c68k.toString());
+            WriteFile(out + nombre + ".X68", c68k.toString());
 
             // Codigo Ensamblador Optimizado.
             System.out.println("-> Compilación completada");

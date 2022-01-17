@@ -7,17 +7,121 @@ import ArbolSintactico.Tipo;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
+import Semantico.TablaSimbolos;
+import Semantico.Simbolo;
+import Semantico.TipoSub;
+import java.util.Stack;
 
 parser code {:
     ArbolSintactico arbol= new ArbolSintactico();
     ArrayList<String> errores = new ArrayList<>();
+    TablaSimbolos ts = new TablaSimbolos();
 
     public ArbolSintactico getArbol(){
         return arbol;
     }
 
-    // Semantico Prioridad de operaciones.
-    public Expresion PrioridadOperacion(Expresion e) {
+    public TablaSimbolos getTablaSimbolos(){
+        return ts;
+    }
+
+    public void newBloque(Symbol sym){
+        ts.addLoc(sym.left, sym.right);
+        ts.addnivel();
+    }
+
+    public void newValor (Symbol sym){
+        ts.addLoc(sym.left, sym.right);
+    }
+
+    //Analisis Semantico #######################################################
+
+    //Puntero de posiciones
+    Stack<int[]> posicion = new Stack<>();
+
+    private void put(Symbol cur_Token){
+        int[] i = {cur_Token.left, cur_Token.right};
+        posicion.push(i);
+    }
+
+    //Verificar si es funcion o asignacion.
+    public void seleccionID(String id, SentenciaId sid){
+        if(sid.expr != null){
+            verificaAsig(id, sid.expr);
+        } else {
+            verificaFunc(id, sid.par);
+        }
+    }
+
+    //Verifica que exista el id
+    public boolean verificaID(String id){
+        int[] pos = posicion.pop();
+        Simbolo s = ts.getSimbolo(id);
+        if(s == null){
+            ts.addError(1, pos[0], pos[1], id);
+            return false;
+        }
+        return true;
+    }
+
+    //Verifica Asignacion Const
+    public void verificaAsigConst(String id, Expresion e) {
+        int[] pos = posicion.pop();
+        Simbolo s = ts.getSimbolo(id);
+        if (s != null) {
+            if (e == null){
+                ts.addError(8, pos[0], pos[1], id);
+            } else {
+                if(!verificarExpr(e, s.getTipo())){
+                    ts.addError(0, pos[0], pos[1], s.getTipo().toString());
+                }
+            } 
+        }else {
+            ts.addError(1, pos[0], pos[1], id);
+        }
+    }
+
+    //Verifica Asignacion
+    public boolean verificaAsig(String id, Expresion e){
+        int[] pos = posicion.pop();
+        Simbolo s = ts.getSimbolo(id);
+        if(s != null){
+            switch (s.getTipoSub()) {
+                case PARAMETRO:
+                case VARIABLE:
+                    if(e != null && !verificarExpr(e, s.getTipo())){
+                        ts.addError(0, pos[0], pos [1], s.getTipo().toString());
+                    }   break;
+                case FUNCION:
+                    ts.addError(5, pos[0], pos [1], id);
+                    break;
+                default:
+                    ts.addError(2, pos[0], pos[1], id);
+                    break;
+            }
+        } else {
+            ts.addError(1, pos[0], pos[1], id);
+        }
+        return false;   
+    }
+
+    //Verifica Funcion
+    public boolean verificaFunc(String id, Param par){
+        return false;
+    }
+
+    //Verifica RTN
+    public boolean verificarRtn(String id, Sentencias s){
+        return false;
+    }
+
+    //Verifica Expresion
+    public boolean verificarExpr(Expresion e, Tipo t) {
+        return true;
+    }
+
+    //Prioridad de operaciones.
+    private Expresion PrioridadOperacion(Expresion e) {
         // Se verifica que haya dos operaciones.
         if (e.getOper() != null && e.getOper().getExpr().getOper() != null) {
             Operaciones OpActual = e.getOper().getOper();
@@ -118,10 +222,9 @@ non terminal SentenciaId    SENTENCIA_ID;
 non terminal Sentencias     R_SENTENCIAS;
 non terminal Sentencia      R_SENTENCIA;
 
-precedence right    IGUAL;
-precedence right    SUMA, RESTA;
-precedence right    MULT, DIV;
-
+non terminal                MF;
+non terminal                MV;
+non terminal                M;
 
 start with INIT;
 
@@ -141,10 +244,10 @@ SENTENCIAS ::= SENTENCIA:e SENTENCIAS:s {: RESULT = new Sentencias(e, s); :}
         ;
 
 SENTENCIA ::= DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
-        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
-        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
-        | WHILE LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
-        | IF LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
+        | OUT LPAREN M EXPRESION:e RPAREN PUNTYCOMA              {: verificarExpr(e, Tipo.INT); RESULT= new Sentencia(new Out(e)); :}
+        | M ID:i SENTENCIA_ID:d PUNTYCOMA                          {: seleccionID(i, d); RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN M EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY {: verificarExpr(e, Tipo.BOOLEAN); RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN M EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY    {: verificarExpr(e, Tipo.BOOLEAN); RESULT= new Sentencia(new If(e, s)); :}
         | error PUNTYCOMA                                    {: parser.report_error("sentencia", "WRONG"); :}
         ;
 
@@ -154,11 +257,11 @@ R_SENTENCIAS ::= R_SENTENCIA:e R_SENTENCIAS:s {: RESULT= new Sentencias(e,s); :}
 
 R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {: RESULT= new Sentencia(new Return(e)); :}
         | DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
-        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: RESULT= new Sentencia(new Out(e)); :}
-        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
-        | WHILE LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Sentencia(new While(e, s));  :}
-        | IF LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: RESULT= new Sentencia(new If(e, s)); :}
-        | error PUNTYCOMA                                    {:  :}
+        | OUT LPAREN M EXPRESION:e RPAREN PUNTYCOMA              {: verificarExpr(e, Tipo.INT); RESULT= new Sentencia(new Out(e)); :}
+        | M ID:i SENTENCIA_ID:d PUNTYCOMA                          {: seleccionID(i, d); RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
+        | WHILE LPAREN M EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: verificarExpr(e, Tipo.BOOLEAN); RESULT= new Sentencia(new While(e, s));  :}
+        | IF LPAREN M EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: verificarExpr(e, Tipo.BOOLEAN); RESULT= new Sentencia(new If(e, s)); :}
+        | error PUNTYCOMA                                    {: parser.report_error("sentencia", "WRONG"); :}
         ;
 
 SENTENCIA_ID    ::= ASIGNACION:a {: RESULT= new SentenciaId(a); :}
@@ -166,24 +269,23 @@ SENTENCIA_ID    ::= ASIGNACION:a {: RESULT= new SentenciaId(a); :}
                 ;
 
 
-DFUNCION    ::= FUNCTION RETURN:r ID:i LPAREN PARAMETRO:p RPAREN LKEY R_SENTENCIAS:s RKEY {: RESULT= new Dfuncion(new Id(i), r, p, s); :}
+DFUNCION    ::= FUNCTION M RETURN:r MF ID:i LPAREN PARAMETRO:p RPAREN LKEY R_SENTENCIAS:s RKEY {: ts.addSimbolo(i, r, TipoSub.FUNCION); verificarRtn(i, s); RESULT= new Dfuncion(new Id(i), r, p, s); :}
             ;
-
 
 RETURN      ::= TYPE:t {: RESULT= t; :}
             | {:  :}
             ;
 
-PARAMETRO   ::= TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
+PARAMETRO   ::= TYPE:t MV ID:i PARAMCONCAT:d {: ts.addSimbolo(i, t, TipoSub.PARAMETRO); RESULT= new Dparam(t, new Id(i), d); :}
             | {:  :}
             ;
 
-PARAMCONCAT ::= COMA TYPE:t ID:i PARAMCONCAT:d {: RESULT= new Dparam(t, new Id(i), d); :}
+PARAMCONCAT ::= COMA TYPE:t MV ID:i PARAMCONCAT:d {: ts.addSimbolo(i, t, TipoSub.PARAMETRO); RESULT= new Dparam(t, new Id(i), d); :}
             | {:  :}
             ;
 
-DECLARACION ::= CONST TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
-            | TYPE:t ID:i DECLAREND:d {: RESULT= new Declaracion(t, new Id(i), d); :}
+DECLARACION ::= CONST M TYPE:t MV ID:i DECLAREND:d {: if(ts.addSimbolo(i, t, TipoSub.CONSTANTE)){verificaAsigConst(i, d);;} RESULT= new Declaracion(t, new Id(i), d); :}
+            | M TYPE:t MV ID:i DECLAREND:d {: if(ts.addSimbolo(i, t, TipoSub.VARIABLE)){verificaAsig(i, d);} RESULT= new Declaracion(t, new Id(i), d); :}
             ;
 
 DECLAREND   ::= ASIGNACION:a {: RESULT= a; :}
@@ -201,11 +303,11 @@ EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= PrioridadOperacion(new Expresion(
             | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
             ;
 
-VALOR       ::= ID:id {:  RESULT= new Valor(new Id(id)); :}
+VALOR       ::= M ID:id {: verificaID(id); RESULT= new Valor(new Id(id)); :}
             | NUMERO:n {: RESULT = new Valor(new Numero(n)); :}
             | BOLEAN:b {: RESULT = new Valor(new Boleano(b)); :}
-            | IN LPAREN RPAREN {:  RESULT= new Valor(new In()); :}
-            | ID:i FUNCION:f {:  RESULT= new Valor(new IdSentencia(new Id(i), new SentenciaId(f))); :}
+            | IN LPAREN RPAREN {: RESULT= new Valor(new In()); :}
+            | M ID:i FUNCION:f {: seleccionID(i, new SentenciaId(f)); RESULT= new Valor(new IdSentencia(new Id(i), new SentenciaId(f))); :}
             ;
 
 OPERACION   ::= OP:o EXPRESION:e {:  RESULT= new Operacion(o,e); :} 
@@ -232,4 +334,13 @@ FUNCION     ::= LPAREN INPARAM:i RPAREN{: RESULT= i;  :}
 INPARAM     ::= EXPRESION:e {: RESULT= new Param(e, null);  :}
             | EXPRESION:e COMA INPARAM:p {: RESULT= new Param(e, p);  :}
             | {:  :}
+            ;
+
+MF          ::= {: newBloque(cur_token); :}
+            ;
+
+MV          ::= {: newValor(cur_token); :}
+            ;
+
+M           ::= {: put(cur_token); :}
             ;

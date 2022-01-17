@@ -16,10 +16,8 @@ public class ArbolSintactico {
 
     public Init raiz;
     public static CodigoTresDirecciones ctd;
-
-    public ArbolSintactico() {
-
-    }
+    
+    public ArbolSintactico() {}
 
     public void setRaiz(Init raiz) {
         this.raiz = raiz;
@@ -60,10 +58,10 @@ public class ArbolSintactico {
 
     public static class Def {
 
-        int idx;
-        Dfuncion fun;
-        Declaracion dec;
-        Def def;
+        public int idx;
+        public Dfuncion fun;
+        public Declaracion dec;
+        public Def def;
 
         public Def(Dfuncion f, Def d) {
             this.fun = f;
@@ -95,10 +93,10 @@ public class ArbolSintactico {
 
     public static class Dfuncion {
 
-        Id id;
-        Tipo ret;
-        Dparam dparam;
-        Sentencias sent;
+        public Id id;
+        public Tipo ret;
+        public Dparam dparam;
+        public Sentencias sent;
 
         public Dfuncion(Id i, Tipo r, Dparam p, Sentencias s) {
             this.id = i;
@@ -126,9 +124,9 @@ public class ArbolSintactico {
 
     public static class Dparam {
 
-        Tipo tipo;
-        Id id;
-        Dparam dparam;
+        public Tipo tipo;
+        public Id id;
+        public Dparam dparam;
 
         public Dparam(Tipo t, Id i, Dparam d) {
             this.tipo = t;
@@ -148,7 +146,7 @@ public class ArbolSintactico {
 
     public static class Return {
 
-        Expresion expr;
+        public Expresion expr;
 
         public Return(Expresion e) {
             this.expr = e;
@@ -163,9 +161,10 @@ public class ArbolSintactico {
 
     public static class Sentencias {
 
-        Sentencia sentencia;
-        Sentencias sentencias;
+        public Sentencia sentencia;
+        public Sentencias sentencias;
 
+        
         public Sentencias(Sentencia s, Sentencias ss) {
             this.sentencia = s;
             this.sentencias = ss;
@@ -182,13 +181,13 @@ public class ArbolSintactico {
 
     public static class Sentencia {
 
-        int idx;
-        Return ret;
-        Declaracion dec;
-        Out out;
-        IdSentencia ids;
-        While whi;
-        If sif;
+        public int idx;
+        public Return ret;
+        public Declaracion dec;
+        public Out out;
+        public IdSentencia ids;
+        public While whi;
+        public If sif;
 
         public Sentencia(Return e) {
             this.ret = e;
@@ -241,9 +240,9 @@ public class ArbolSintactico {
 
     public static class Declaracion {
 
-        Tipo tipo;
-        Id id;
-        Expresion expr;
+        public Tipo tipo;
+        public Id id;
+        public Expresion expr;
 
         public Declaracion(Tipo t, Id i, Expresion d) {
             this.tipo = t;
@@ -264,7 +263,7 @@ public class ArbolSintactico {
 
     public static class Out {
 
-        Expresion expr;
+        public Expresion expr;
 
         public Out(Expresion e) {
             this.expr = e;
@@ -291,8 +290,8 @@ public class ArbolSintactico {
 
     public static class IdSentencia {
 
-        SentenciaId sid;
-        Id id;
+        public SentenciaId sid;
+        public Id id;
 
         public IdSentencia(Id i, SentenciaId e) {
             this.sid = e;
@@ -321,9 +320,9 @@ public class ArbolSintactico {
 
     public static class SentenciaId {
 
-        Param par;
-        Expresion expr;
-        int idx;
+        public Param par;
+        public Expresion expr;
+        public int idx;
 
         public SentenciaId(Param f) {
             this.par = f;
@@ -351,8 +350,8 @@ public class ArbolSintactico {
 
     public static class While {
 
-        Expresion cond;
-        Sentencias sent;
+        public Expresion cond;
+        public Sentencias sent;
 
         public While(Expresion e, Sentencias s) {
             this.cond = e;
@@ -377,8 +376,8 @@ public class ArbolSintactico {
 
     public static class If {
 
-        Expresion cond;
-        Sentencias sent;
+        public Expresion cond;
+        public Sentencias sent;
 
         public If(Expresion e, Sentencias s) {
             this.cond = e;
@@ -400,8 +399,8 @@ public class ArbolSintactico {
 
     public static class Param {
 
-        Expresion expr;
-        Param param;
+        public Expresion expr;
+        public Param param;
 
         public Param(Expresion e, Param p) {
             this.expr = e;
@@ -420,10 +419,10 @@ public class ArbolSintactico {
 
     public static class Expresion {
 
-        int idx;
-        Valor v;
-        Expresion e;
-        Operacion oper;
+        public int idx;
+        public Valor v;
+        public Expresion e;
+        public Operacion oper;
 
         public Expresion(Valor v, Operacion oper) {
             this.v = v;
@@ -492,8 +491,8 @@ public class ArbolSintactico {
 
     public static class Operacion {
 
-        Operaciones oper;
-        Expresion expr;
+        public Operaciones oper;
+        public Expresion expr;
 
         public Operacion(Operaciones o, Expresion e) {
             this.oper = o;
@@ -519,12 +518,12 @@ public class ArbolSintactico {
 
     public static class Valor {
 
-        int idx;
-        Numero num;
-        Id id;
-        Boleano bol;
-        In in;
-        IdSentencia fun;
+        public int idx;
+        public Numero num;
+        public Id id;
+        public Boleano bol;
+        public In in;
+        public IdSentencia fun;
 
         public Valor(Numero e) {
             this.num = e;
@@ -570,7 +569,7 @@ public class ArbolSintactico {
 
     public static class Numero {
 
-        int elem;
+        public int elem;
 
         public Numero(String elem) {
             this.elem = Integer.parseInt(elem);
@@ -585,7 +584,7 @@ public class ArbolSintactico {
 
     public static class Boleano {
 
-        boolean elem;
+        public boolean elem;
 
         public Boleano(String elem) {
             this.elem = Boolean.parseBoolean(elem);
@@ -600,7 +599,7 @@ public class ArbolSintactico {
 
     public static class Id {
 
-        String elem;
+        public String elem;
 
         public Id(String elem) {
             this.elem = elem;

@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ArbolSintactico;
+package Semantico;
 
 /**
  *
- * @author felix
+ * @author Felix
  */
-public enum Tipo {
-    BOOLEAN, INT, NULL
+public enum TipoSub {
+    FUNCION, CONSTANTE, VARIABLE, PARAMETRO
 }

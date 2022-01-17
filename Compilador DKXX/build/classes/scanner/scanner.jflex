@@ -1,11 +1,8 @@
 package scanner;
 
-import java.io.*;
-import java_cup.runtime.*;
-
-import java_cup.runtime.SymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import parser.ParserSym;
+import parser.sym;
+import java.util.ArrayList;
 
 %%
 
@@ -18,91 +15,122 @@ import parser.ParserSym;
 %line
 %column
 
-//%eofval{
-//    return symbol(ParserSym.EOF);
-//%eofval}
+%eofval{
+    return symbol(sym.EOF);
+%eofval}
 
-// Declaraciones
 
 entero = [\-\+]?[1-9][0-9]* | [\-\+]?0
 variable = [A-Za-z_][A-Za-z_0-9]*
 
-ws           = [' '|'\t']+
-endline      = ['\r'|'\n'|"\r\n"]+
+coment = "#" [^\r\n]* [\r\n]?
 
-//WS = [ \t\r\n] // Separadores de tokens.
+WS = [ \t\r\n] // Separadores de tokens.
 
 %{
+    private ArrayList<Token> tokens = new ArrayList<>();
+    private ArrayList<ErrorLexico> errores = new ArrayList<>();
 
-    private Complex symbol(int type) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type);
+    private ComplexSymbol symbol(int type) {
+        ComplexSymbol s = new ComplexSymbol(sym.terminalNames[type], type);
+        s.left = yyline;
+        s.right = yycolumn;
+        tokens.add(new Token(s));
+        return s;
     }
 
-    private Symbol symbol(int type, Object value) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type, value);
+    private ComplexSymbol symbol(int type, Object value) {
+        ComplexSymbol s = new ComplexSymbol(sym.terminalNames[type], type, value);
+        s.left = yyline;
+        s.right = yycolumn;
+        tokens.add(new Token(s, (String) value));
+        return s;
+    }
+    
+    public String toStringTokens() {
+        String s = "";
+        for (Token t : tokens) {
+            s += t.toString() + "\n";
+        }
+        return s;
     }
 
+    //Gestion de Errores.
+    private void addError(String token, int linea, int col) {
+       errores.add(new ErrorLexico(token, linea, col));
+    }
+
+    public boolean hayErrores(){
+        return !errores.isEmpty();
+    }
+    
+    public String toStringErrores(){
+        String s = "";
+        for(ErrorLexico e : errores){
+            s += e.toString() + "\n";
+        }
+        return s;
+    }
 %}
 
 %%
 // Reglas y Acciones
 
 // palabras resevadas
-";"         { return new symbol(ParserSym.PUNTYCOMA);}
+";"         { return symbol(sym.PUNTYCOMA);}
+","         { return symbol(sym.COMA); }
 
 // aritmeticos
-"+"         { return new symbol(ParserSym.SUMA); }
-"-"         { return new symbol(ParserSym.RESTA); }
-"*"         { return new symbol(ParserSym.MULT); }
-"/"         { return new symbol(ParserSym.DIV); }
+"+"         { return symbol(sym.SUMA); }
+"-"         { return symbol(sym.RESTA); }
+"*"         { return symbol(sym.MULT); }
+"/"         { return symbol(sym.DIV); }
 
 // parentesis y brackets
-"("         { return new symbol(ParserSym.LPAREN); }
-")"         { return new symbol(ParserSym.RPAREN); }
-"{"         { return new symbol(ParserSym.LKEY); }
-"}"         { return new symbol(ParserSym.RKEY); }
+"("         { return symbol(sym.LPAREN); }
+")"         { return symbol(sym.RPAREN); }
+"{"         { return symbol(sym.LKEY); }
+"}"         { return symbol(sym.RKEY); }
 
 // logicos
-"true"      { return new symbol(ParserSym.BOLEAN, 1.0); }
-"false"     { return new symbol(ParserSym.BOLEAN, 0.0); }
-"<="        { return new symbol(ParserSym.MENORIGU); }
-">="        { return new symbol(ParserSym.MAYORIGU); }
-">"         { return new symbol(ParserSym.MAYORQUE); }
-"<"         { return new symbol(ParserSym.MENORQUE); }
-"=="        { return new symbol(ParserSym.IGUALES); }
-"!="        { return new symbol(ParserSym.NIGUALES); }
-"!"         { return new symbol(ParserSym.NOT); }
-"&"         { return new symbol(ParserSym.AND); }
-"|"         { return new symbol(ParserSym.OR); }
+"true"      { return symbol(sym.BOLEAN, "true"); }
+"false"     { return symbol(sym.BOLEAN, "false"); }
+"<="        { return symbol(sym.MENORIGU); }
+">="        { return symbol(sym.MAYORIGU); }
+">"         { return symbol(sym.MAYORQUE); }
+"<"         { return symbol(sym.MENORQUE); }
+"=="        { return symbol(sym.IGUALES); }
+"!="        { return symbol(sym.NIGUALES); }
+"&"         { return symbol(sym.AND); }
+"|"         { return symbol(sym.OR); }
 
-"="         { return new symbol(ParserSym.IGUAL); }
+"="         { return symbol(sym.IGUAL); }
 
 // separador del programa
-"main"      { return new symbol(ParserSym.MAIN); }
-"declare"   { return new symbol(ParserSym.DECLARE); }
+"main"      { return symbol(sym.MAIN); }
+"declare"   { return symbol(sym.DECLARE); }
 
 // condicional y bucle
-"if"        { return new symbol(ParserSym.IF); }
-"while"     { return new symbol(ParserSym.WHILE); }
+"if"        { return symbol(sym.IF); }
+"while"     { return symbol(sym.WHILE); }
 
 // variables y funciones
-"int"       { return new symbol(ParserSym.INT); }
-"bool"      { return new symbol(ParserSym.BOOL); }
-"const"     { return new symbol(ParserSym.CONST); }
-"function"  { return new symbol(ParserSym.FUNCTION); }
-"return"    { return new symbol(ParserSym.RETRN); }
+"int"       { return symbol(sym.INT); }
+"bool"      { return symbol(sym.BOOL); }
+"const"     { return symbol(sym.CONST); }
+"function"  { return symbol(sym.FUNCTION); }
+"return"    { return symbol(sym.RETRN); }
 
 // entrada y salida
-"output"    { return new symbol(ParserSym.OUT); }
-"input"     { return new symbol(ParserSym.IN); }
+"output"    { return symbol(sym.OUT); }
+"input"     { return symbol(sym.IN); }
 
 // no terminales
-{entero}    { return new symbol(ParserSym.VALOR, this.yytext()); }
-{variable}  { return new symbol(ParserSym.ID, this.yytext()); }
-{ws}        {}
-//{endline}   {}
+{entero}    { return symbol(sym.NUMERO, this.yytext()); }
+{variable}  { return symbol(sym.ID, this.yytext()); }
 
+{coment}    {}
+{WS}        {}
 
-//Gestión de errores
-//Acciones post identificación
-//Gestión de comentarios
+/* Gestion Errores */
+[^]         {addError(yytext(), yyline, yycolumn); }
