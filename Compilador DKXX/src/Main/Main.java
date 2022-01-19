@@ -3,6 +3,7 @@ package Main;
 import ArbolSintactico.ArbolSintactico;
 import CodigoIntermedio.CodigoTresDirecciones;
 import Ensamblador.Codigo68k;
+import Optimizador.Optimizador;
 import Semantico.TablaSimbolos;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -95,6 +96,13 @@ public class Main {
             WriteFile(out + nombre + ".X68", c68k.toString());
 
             // Codigo Ensamblador Optimizado.
+            Optimizador opt= new Optimizador(ctd);
+
+            opt.optimizar();
+            WriteFile("out/" + nombre+"_Optimizado" + ".ctd", ctd.toString());
+            c68k.generar(ctd);
+            WriteFile("out/" + nombre+"_Optimizado" + ".X68", c68k.toString());
+            
             System.out.println("-> Compilación completada");
         } catch (FileNotFoundException ex) {
             System.out.println("El archivo de entrada " + args[0] + " o el path de salida " + out + " no es valido");
