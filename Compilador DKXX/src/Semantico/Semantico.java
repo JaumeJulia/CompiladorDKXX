@@ -151,13 +151,11 @@ public class Semantico {
             addError(1, l, id);
             return false;
         }
-        int i = 0;
+        int i = 1;
         Simbolo p = ts.getParam(f, i);
         if (par != null) {
             while (p != null && par != null) {
-                if (verExpr(par.expr, p.getTipo(), l)) {
-                    return false;
-                }
+                verExpr(par.expr, p.getTipo(), l);
                 i++;
                 par = par.param;
                 p = ts.getParam(f, i);
@@ -165,6 +163,10 @@ public class Semantico {
         }
         if (p != null) {
             addError(3, l, id);
+            return false;
+        }
+        if (par != null){
+            addError(10, l, id);
             return false;
         }
         return true;
@@ -271,6 +273,9 @@ public class Semantico {
                 break;
             case 9:
                 errores.add("El retorno en la funcion \"" + aux + "\" no es correcto en linea " + l);
+                break;
+            case 10:
+                errores.add("Hay parametros de mas en la funcion \"" + aux + "\" en linea " + l);
                 break;
         }
 
