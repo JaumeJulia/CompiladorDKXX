@@ -55,7 +55,30 @@ public class Instruccion {
             this.dest = dest;
         }
         
-        
+        public void modificarIntruccion(Operador operacion, String op1, String op2, String dest) {
+
+        this.operacion = operacion;
+        this.op1 = op1;
+        this.op2 = op2;
+        this.dest = dest;
+
+    }
+
+    public boolean esCondicional() {
+        return operacion == Operador.MENORQUE || operacion == Operador.MAYORQUE
+                || operacion == Operador.MENORIGU || operacion == Operador.MAYORIGU
+                || operacion == Operador.IGUALES || operacion == Operador.NIGUALES;
+    }
+
+    public boolean esArtim() {
+        return operacion == Operador.SUMA || operacion == Operador.RESTA || operacion == Operador.MULT
+                || operacion == Operador.DIV || operacion == Operador.AND || operacion == Operador.OR;
+    }
+
+    public boolean esParam() {
+        return operacion == Operador.PARAM;
+    }
+
 
         @Override
         public String toString() {

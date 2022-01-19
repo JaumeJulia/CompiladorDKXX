@@ -62,8 +62,8 @@ public class CodigoTresDirecciones {
         tp.add(new Procedimiento(nombre, npa, retorno, null));
 
     }
-    
-    public void newProcedimientoadd (ArrayList<Parametro> parametros){
+
+    public void newProcedimientoadd(ArrayList<Parametro> parametros) {
         Procedimiento p = tp.get(tp.size() - 1);
         p.parametros = parametros;
     }
@@ -170,7 +170,7 @@ public class CodigoTresDirecciones {
         }
         return null;
     }
-    
+
     public Procedimiento getPro(String id) {
         for (int i = 0; i < tp.size(); i++) {
             if (tp.get(i).getNombre().equals(id)) {
@@ -180,12 +180,37 @@ public class CodigoTresDirecciones {
         return null;
     }
 
-    @Override
-    public String toString() {
-        String s = "";
-        for (int i = 0; i < codigo.size(); i++) {
-            s += codigo.get(i).toString() + "\n";
-        }
-        return s;
+    public void setCodigo(ArrayList<Instruccion> codigo) {
+        this.codigo = codigo;
     }
-}
+
+    public void borrarVariable(String nombre) {
+
+        for (int i = 0; i < tv.size(); i++) {
+            if (tv.get(i).getID().equals(nombre)) {
+                tv.remove(i);
+                break;
+            }
+
+        }
+    }
+
+    public Variable getVariable(String id) {
+        for (int i = 0; i < tv.size(); i++) {
+            if (tv.get(i).id.equals(id)) {
+                return tv.get(i);
+            }
+        }
+        return null;
+    }
+        @Override
+        public String toString
+        
+            () {
+        String s = "";
+            for (int i = 0; i < codigo.size(); i++) {
+                s += codigo.get(i).toString() + "\n";
+            }
+            return s;
+        }
+    }
