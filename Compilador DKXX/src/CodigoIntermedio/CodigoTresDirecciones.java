@@ -31,28 +31,32 @@ public class CodigoTresDirecciones {
     }
 
     public String newVariable(Tipo tipo, String nombre) {
-
         if (nombre == null) {
             nv++;
             tv.add(new Variable("t" + nv, tipo, npa));
             return "t" + nv;
         } else {
-            boolean encontrado = false;
             int i = 0;
-            while (!encontrado && i < tv.size()) {
+            while (i < tv.size()) {
                 Variable v = tv.get(i);
                 if (v.id.equals(nombre) && v.procedimiento == npa) {
-                    encontrado = true;
+                    return nombre + "_" + npa;
                 } else {
                     i++;
                 }
             }
-            if (!encontrado) {
-                tv.add(new Variable(nombre, tipo, npa));
+            i = 0;
+            while (i < tv.size()) {
+                Variable v = tv.get(i);
+                if (v.id.equals(nombre) && v.procedimiento == 0) {
+                    return nombre + "_0";
+                } else {
+                    i++;
+                }
             }
-
-            return nombre;
         }
+        tv.add(new Variable(nombre, tipo, npa));
+        return nombre + "_" + npa;
     }
 
     public void newProcedimiento(String nombre, Tipo retorno) {
@@ -162,10 +166,35 @@ public class CodigoTresDirecciones {
         return codigo;
     }
 
-    public Variable getVar(String id, int procedimiento) {
+    public String getVarName(String id) {
         for (int i = 0; i < tv.size(); i++) {
-            if (tv.get(i).id.equals(id) && tv.get(i).procedimiento == procedimiento) {
-                return tv.get(i);
+            if (tv.get(i).id.equals(id) && tv.get(i).procedimiento == npa) {
+                return tv.get(i).getID() + "_" + tv.get(i).getProcedimiento();
+            }
+        }
+        for (int i = 0; i < tv.size(); i++) {
+            if (tv.get(i).id.equals(id) && tv.get(i).procedimiento == 0) {
+                return tv.get(i).getID() + "_" + tv.get(i).getProcedimiento();
+            }
+        }
+        return null;
+    }
+
+    public Variable getVar(String id) {
+        int div = id.lastIndexOf("_");
+        if (div >= 0) {
+            int capa = Integer.parseInt(id.substring(div + 1));
+            String nombre = id.substring(0, div);
+            for (int i = 0; i < tv.size(); i++) {
+                if (tv.get(i).id.equals(nombre) && tv.get(i).procedimiento == capa) {
+                    return tv.get(i);
+                }
+            }
+        } else {
+            for (int i = 0; i < tv.size(); i++) {
+                if (tv.get(i).id.equals(id)) {
+                    return tv.get(i);
+                }
             }
         }
         return null;
@@ -185,7 +214,6 @@ public class CodigoTresDirecciones {
     }
 
     public void borrarVariable(String nombre) {
-
         for (int i = 0; i < tv.size(); i++) {
             if (tv.get(i).getID().equals(nombre)) {
                 tv.remove(i);
@@ -203,14 +231,13 @@ public class CodigoTresDirecciones {
         }
         return null;
     }
-        @Override
-        public String toString
-        
-            () {
+
+    @Override
+    public String toString() {
         String s = "";
-            for (int i = 0; i < codigo.size(); i++) {
-                s += codigo.get(i).toString() + "\n";
-            }
-            return s;
+        for (int i = 0; i < codigo.size(); i++) {
+            s += codigo.get(i).toString() + "\n";
         }
+        return s;
     }
+}

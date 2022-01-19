@@ -555,7 +555,7 @@ public class ArbolSintactico {
                 case 0:
                     return num.codigoIntermedio();
                 case 1:
-                    return id.codigoIntermedio();
+                    return ctd.getVarName(id.codigoIntermedio());
                 case 2:
                     return bol.codigoIntermedio();
                 case 3:

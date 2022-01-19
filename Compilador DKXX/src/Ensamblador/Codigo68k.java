@@ -8,7 +8,6 @@ package Ensamblador;
 import ArbolSintactico.Tipo;
 import CodigoIntermedio.CodigoTresDirecciones;
 import CodigoIntermedio.Instruccion;
-import CodigoIntermedio.Operador;
 import CodigoIntermedio.Parametro;
 import CodigoIntermedio.Procedimiento;
 import CodigoIntermedio.Variable;
@@ -22,8 +21,6 @@ public class Codigo68k {
 
     ArrayList<String> codigo;
     CodigoTresDirecciones ctd;
-    int capa;
-    int capasiguiente;
 
     public Codigo68k() {
         codigo = new ArrayList<>();
@@ -32,8 +29,6 @@ public class Codigo68k {
     public void generar(CodigoTresDirecciones ctd) {
 
         this.ctd = ctd;
-        capa = 0;
-        capasiguiente = 1;
 
         codigo.clear();
         codigo.add("\torg $1000");
@@ -132,7 +127,7 @@ public class Codigo68k {
     }
 
     private void multiplicacion(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
+        Variable d = ctd.getVar(i.getDest());
         codigo.add("\tMOVE.W " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tEXT.L D0");
         codigo.add("\tMOVE.W " + getOp(i.getOp2()) + ",D1");
@@ -142,7 +137,7 @@ public class Codigo68k {
     }
 
     private void division(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
+        Variable d = ctd.getVar(i.getDest());
         codigo.add("\tMOVE.W " + getOp(i.getOp1()) + ",D1");
         codigo.add("\tEXT.L D1");
         codigo.add("\tMOVE.W " + getOp(i.getOp2()) + ",D0");
@@ -152,7 +147,7 @@ public class Codigo68k {
     }
 
     private void suma(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
+        Variable d = ctd.getVar(i.getDest());
         codigo.add("\tMOVE.W " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tMOVE.W " + getOp(i.getOp2()) + ",D1");
         codigo.add("\tJSR ISUMA");
@@ -160,7 +155,7 @@ public class Codigo68k {
     }
 
     private void resta(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
+        Variable d = ctd.getVar(i.getDest());
         codigo.add("\tMOVE.W " + getOp(i.getOp1()) + ",D1");
         codigo.add("\tMOVE.W " + getOp(i.getOp2()) + ",D0");
         codigo.add("\tJSR IRESTA");
@@ -168,8 +163,8 @@ public class Codigo68k {
     }
 
     private void comparar(Instruccion i) {
-        Variable v1 = ctd.getVar(i.getOp1(), capa);
-        Variable v2 = ctd.getVar(i.getOp2(), capa);
+        Variable v1 = ctd.getVar(i.getOp1());
+        Variable v2 = ctd.getVar(i.getOp2());
         if (v1 == null) {
             codigo.add("\tMOVE.W " + getValor(i.getOp1()) + ",D0");
         } else {
@@ -201,7 +196,7 @@ public class Codigo68k {
     }
 
     private void and(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
+        Variable d = ctd.getVar(i.getDest());
         codigo.add("\tMOVE.B " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tMOVE.B " + getOp(i.getOp2()) + ",D1");
         codigo.add("\tAND.B D0,D1");
@@ -209,7 +204,7 @@ public class Codigo68k {
     }
 
     private void asigna(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
+        Variable d = ctd.getVar(i.getDest());
         if (d.getTipo() == Tipo.INT) {
             codigo.add("\tMOVE.W " + getOp(i.getOp1()) + "," + identificador(d));
         } else {
@@ -218,7 +213,7 @@ public class Codigo68k {
     }
 
     private void in(Instruccion i) {
-        Variable d = ctd.getVar(i.getDest(), capa);
+        Variable d = ctd.getVar(i.getDest());
         codigo.add("\tSUBA.L #2,A7");
         codigo.add("\tJSR GETINT");
         if (d.getTipo() == Tipo.INT) {
@@ -230,7 +225,7 @@ public class Codigo68k {
     }
 
     private void out(Instruccion i) {
-        Variable op = ctd.getVar(i.getOp1(), capa);
+        Variable op = ctd.getVar(i.getOp1());
         if (op != null) {
             if (op.getTipo() == Tipo.INT) {
                 codigo.add("\tMOVE.W " + identificador(op) + ",-(A7)");
@@ -249,7 +244,7 @@ public class Codigo68k {
 
     private void rtn(Instruccion i) {
         if (i.getDest() != null) {
-            Variable r = ctd.getVar(i.getDest(), capa);
+            Variable r = ctd.getVar(i.getDest());
             if (r != null) {
                 if (r.getTipo() == Tipo.INT) {
                     codigo.add("\tMOVE.W " + identificador(r) + ",4(A7)");
@@ -261,15 +256,11 @@ public class Codigo68k {
             } else {
                 codigo.add("\tMOVE.W " + getValor(i.getDest()) + ",4(A7)");;
             }
-        } else {
-            capa = 0;
         }
         codigo.add("\tRTS");
     }
 
     private void pmb(Instruccion i) {
-        capa = capasiguiente;
-        capasiguiente++;
         Procedimiento p = ctd.getPro(i.getDest());
         ArrayList<Parametro> param = p.getParametros();
         int k = 4;
@@ -280,7 +271,7 @@ public class Codigo68k {
             int ind = param.size() - 1;
             while (ind >= 0) {
                 Parametro aux = param.get(ind);
-                Variable v = ctd.getVar(aux.getNombre(), capa);
+                Variable v = ctd.getVar(aux.getNombre());
                 if (v.getTipo() == Tipo.BOOLEAN) {
                     codigo.add("\tMOVE.W " + k + "(A7),D0");
                     codigo.add("\tMOVE.B D0," + identificador(v));
@@ -314,7 +305,7 @@ public class Codigo68k {
         }
         if (k > 0) {
             if (p.getRetorno() != null) {
-                Variable v = ctd.getVar(i.getOp1(), capa);
+                Variable v = ctd.getVar(i.getOp1());
                 codigo.add("\tMOVE.W (A7)+," + identificador(v));
             }
             codigo.add("\tADDA.L #" + k + ",A7");
@@ -322,7 +313,7 @@ public class Codigo68k {
     }
 
     private void param(Instruccion i) {
-        Variable p = ctd.getVar(i.getDest(), capa);
+        Variable p = ctd.getVar(i.getDest());
         if (p.getTipo() == Tipo.INT) {
             codigo.add("\tMOVE.W " + identificador(p) + ",-(A7)");
         } else {
@@ -350,7 +341,7 @@ public class Codigo68k {
     }
 
     private String getOp(String op) {
-        Variable v = ctd.getVar(op, capa);
+        Variable v = ctd.getVar(op);
         if (v == null) {
             return getValor(op);
         }

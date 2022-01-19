@@ -3,8 +3,9 @@ package Main;
 import ArbolSintactico.ArbolSintactico;
 import CodigoIntermedio.CodigoTresDirecciones;
 import Ensamblador.Codigo68k;
-import Optimizador.Optimizador;
-import Semantico.TablaSimbolos;
+import Optimizacion.Optimizacion;
+import Semantico.Semantico;
+import TablaSimbolos.TablaSimbolos;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -57,10 +58,10 @@ public class Main {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
             ArbolSintactico arbol = parser.getArbol(); // Arbol Sintactico.
-            
+
             //Sintactico.
-            TablaSimbolos semantico = parser.getTablaSimbolos();
-            
+            Semantico semantico = parser.getSemantico();
+
             if (scanner.hayErrores() || parser.hayErrores() || semantico.hayErrores()) {
                 String s = "";
                 if (scanner.hayErrores()) {
@@ -69,41 +70,42 @@ public class Main {
                 if (parser.hayErrores()) {
                     s += "\tErrores sintactico:\n" + parser.toStringErrores();
                 }
-                if (semantico.hayErrores()){
+                if (semantico.hayErrores()) {
                     s += "\tErrores semantico:\n" + semantico.toStringErrores();
                 }
                 s += "-> No se pudo proseguir con la compilacion";
-                WriteFile(out + nombre + ".error", s);
+                WriteFile(out + nombre + "_errrores.txt", s);
                 System.out.println(s);
                 System.exit(0);
             }
-            
-            WriteFile(out + nombre + ".token", scanner.toStringTokens());
-            WriteFile(out + nombre + ".ts", semantico.toString());
 
+            WriteFile(out + nombre + "_tokens.txt", scanner.toStringTokens());
+            WriteFile(out + nombre + "_tabla_simbolos.txt", semantico.ts.toString());
 
             System.out.println("\tOK");
 
             //Codigo Intermedio.
             CodigoTresDirecciones ctd = arbol.GenerarCTD();
-            WriteFile(out + nombre + ".ctd", ctd.toString());
-            WriteFile(out + nombre + ".tv", ctd.printTv());
-            WriteFile(out + nombre + ".tp", ctd.printTp());
+            WriteFile(out + nombre + "_codigo_intermedio.txt", ctd.toString());
+            WriteFile(out + nombre + "_tabla_variables.txt", ctd.printTv());
+            WriteFile(out + nombre + "_tabla_procedimientos.txt", ctd.printTp());
 
             // Codigo Ensamblador.
             Codigo68k c68k = new Codigo68k();
             c68k.generar(ctd);
-            WriteFile(out + nombre + ".X68", c68k.toString());
+            WriteFile(out + nombre + "_ensamblador.X68", c68k.toString());
 
-            // Codigo Ensamblador Optimizado.
-            Optimizador opt= new Optimizador(ctd);
-
+            // Codigo Intermedio Optimizado.
+            Optimizacion opt = new Optimizacion(ctd);
             opt.optimizar();
-            WriteFile("out/" + nombre+"_Optimizado" + ".ctd", ctd.toString());
-            c68k.generar(ctd);
-            WriteFile("out/" + nombre+"_Optimizado" + ".X68", c68k.toString());
+            WriteFile("out/" + nombre + "_codigo_intermedio_optimizado.txt", ctd.toString());
             
+            // Codigo Ensambladorr Optimizado.
+            c68k.generar(ctd);
+            WriteFile(out + nombre + "_ensamblador_optimizado.X68", c68k.toString());
+
             System.out.println("-> Compilación completada");
+            
         } catch (FileNotFoundException ex) {
             System.out.println("El archivo de entrada " + args[0] + " o el path de salida " + out + " no es valido");
         } catch (IOException ex) {
