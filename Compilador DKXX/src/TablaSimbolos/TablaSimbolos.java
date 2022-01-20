@@ -130,7 +130,7 @@ public class TablaSimbolos {
         int i = ts.indexOf(f);
         if (i + n < ts.size()) {
             Simbolo s = ts.get(i + n);
-            if (s.getTipoSub().equals(TipoSub.PARAMETRO)) {
+            if (s.getTipoSub().equals(TipoSub.PARAMETRO) && s.getNivel() == f.getNivel()) {
                 return s;
             }
         }

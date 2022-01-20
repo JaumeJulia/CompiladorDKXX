@@ -160,13 +160,13 @@ public class Semantico {
                 par = par.param;
                 p = ts.getParam(f, i);
             }
+            if (par != null) {
+                addError(10, l, id);
+                return false;
+            }
         }
         if (p != null) {
             addError(3, l, id);
-            return false;
-        }
-        if (par != null){
-            addError(10, l, id);
             return false;
         }
         return true;

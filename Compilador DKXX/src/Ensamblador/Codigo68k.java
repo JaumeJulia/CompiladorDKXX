@@ -192,7 +192,7 @@ public class Codigo68k {
         codigo.add("\tMOVE.B " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tMOVE.B " + getOp(i.getOp2()) + ",D1");
         codigo.add("\tOR.B D0,D1");
-        codigo.add("\tBMI" +  i.getDest());
+        codigo.add("\tBMI" + i.getDest());
     }
 
     private void and(Instruccion i) {
@@ -200,7 +200,7 @@ public class Codigo68k {
         codigo.add("\tMOVE.B " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tMOVE.B " + getOp(i.getOp2()) + ",D1");
         codigo.add("\tAND.B D0,D1");
-        codigo.add("\tBMI " +  i.getDest());
+        codigo.add("\tBMI " + i.getDest());
     }
 
     private void asigna(Instruccion i) {
@@ -239,7 +239,7 @@ public class Codigo68k {
             codigo.add("\tMOVE.W " + getValor(i.getOp1()) + ",-(A7)");
         }
         codigo.add("\tJSR PRINTINT");
-        codigo.add("\tADDA.L #4,A7");
+        codigo.add("\tADDA.L #2,A7");
     }
 
     private void rtn(Instruccion i) {
@@ -292,22 +292,15 @@ public class Codigo68k {
             codigo.add("\tSUBA.L #2,A7");
         }
         codigo.add("\tJSR " + i.getDest());
-        if (p.getRetorno() != null) {
-            if (p.getRetorno() == Tipo.INT) {
-
-            } else {
-
-            }
-        }
         int k = 0;
         if (p.getParametros() != null) {
             k = 2 * p.getParametros().size();
         }
+        if (p.getRetorno() != null) {
+            Variable v = ctd.getVar(i.getOp1());
+            codigo.add("\tMOVE.W (A7)+," + identificador(v));
+        }
         if (k > 0) {
-            if (p.getRetorno() != null) {
-                Variable v = ctd.getVar(i.getOp1());
-                codigo.add("\tMOVE.W (A7)+," + identificador(v));
-            }
             codigo.add("\tADDA.L #" + k + ",A7");
         }
     }
@@ -428,22 +421,14 @@ public class Codigo68k {
 
         codigo.add("PRINTINT:");
         codigo.add("\tMOVE.W 4(A7),D1");
-        codigo.add("\tMOVE.W D1,-(A7)");
-        codigo.add("\tJSR IPRINT");
-        codigo.add("\tADDA.W #2,A7");
+        codigo.add("\tEXT.L D1");
+        codigo.add("\tMOVE.L #3,D0");
+        codigo.add("\tTRAP #15");
         codigo.add("\tMOVE.L #11,D0");
         codigo.add("\tMOVE.W #$00FF,D1");
         codigo.add("\tTRAP #15");
         codigo.add("\tADD.W #1,D1");
         codigo.add("\tAND.W #$00FF,D1");
-        codigo.add("\tTRAP #15");
-        codigo.add("\tRTS");
-
-        codigo.add("IPRINT:");
-        codigo.add("\tCLR.L D1");
-        codigo.add("\tMOVE.W 4(A7),D1");
-        codigo.add("\tEXT.L D1");
-        codigo.add("\tMOVE.L #3,D0");
         codigo.add("\tTRAP #15");
         codigo.add("\tRTS");
 
