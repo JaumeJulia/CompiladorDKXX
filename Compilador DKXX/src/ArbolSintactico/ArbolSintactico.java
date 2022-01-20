@@ -312,7 +312,7 @@ public class ArbolSintactico {
                     return null;
                 }
             } else {
-                ctd.generar(Operador.ASIG, e, null, i);
+                ctd.generar(Operador.ASIG, e, null, ctd.getVarName(i));
                 return null;
             }
         }
@@ -481,7 +481,7 @@ public class ArbolSintactico {
                     return dest;
                 } else {
                     String dest = ctd.newVariable(Tipo.INT, null);
-                    ctd.generar(op, op1, op2, dest);
+                    ctd.generar(op, op1, op2, ctd.getVarName(dest));
                     return dest;
                 }
             }

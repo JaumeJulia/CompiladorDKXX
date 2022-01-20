@@ -251,7 +251,7 @@ public class Semantico {
                 errores.add("No existe elemento \"" + aux + "\" en linea " + l);
                 break;
             case 2:
-                errores.add("Se intenta modifioar la constante \"" + aux + "\" en linea " + l);
+                errores.add("Se intenta modificar la constante \"" + aux + "\" en linea " + l);
                 break;
             case 3:
                 errores.add("Faltan parametros en la funcion \"" + aux + "\" en linea " + l);

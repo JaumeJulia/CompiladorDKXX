@@ -33,10 +33,11 @@ public class CodigoTresDirecciones {
         return "e" + ne;
     }
 
+    // Añade una nueva variable a la tv.
     public String newVariable(Tipo tipo, String nombre) {
         if (nombre == null) {
             nv++;
-            tv.add(new Variable("t" + nv, tipo, npa));
+            tv.add(new Variable("t" + nv, tipo, npa, true));
             return "t" + nv;
         } else {
             int i = 0;
@@ -48,51 +49,68 @@ public class CodigoTresDirecciones {
                     i++;
                 }
             }
-            i = 0;
-            while (i < tv.size()) {
-                Variable v = tv.get(i);
-                if (v.id.equals(nombre) && v.procedimiento == 0) {
-                    return nombre + "_0";
-                } else {
-                    i++;
-                }
-            }
         }
-        tv.add(new Variable(nombre, tipo, npa));
+        tv.add(new Variable(nombre, tipo, npa, false));
         return nombre + "_" + npa;
     }
 
+    // Devuelve el nombre de una variable para el codigo con el ambito.
+    public String getVarName(String nombre) {
+        for (Variable v : tv) {
+            if (v.id.equals(nombre) && v.procedimiento == npa) {
+                if(v.isTemporal()){
+                    return nombre;
+                }
+                return nombre + "_" + npa;
+            }
+        }
+        for (Variable v : tv) {
+            if (v.id.equals(nombre) && v.procedimiento == 0) {
+                if(v.isTemporal()){
+                    return nombre;
+                }
+                return nombre + "_" + 0;
+            }
+        }
+        return null;
+    }
+
+    // Inicia un nuevo procedimiento.
     public void newProcedimiento(String nombre, Tipo retorno) {
         np++;
         npa = np;
-
         tp.add(new Procedimiento(nombre, npa, retorno, null));
-
     }
 
+    // Añade los parametros al procedimiento.
     public void newProcedimientoadd(ArrayList<Parametro> parametros) {
         Procedimiento p = tp.get(tp.size() - 1);
         p.parametros = parametros;
     }
 
+    // Nueva lista de parametros.
     public void newListaParametros() {
         param = new ArrayList<>();
     }
 
+    // Añade los parametros a la lista de parametros.
     public void addParametro(Tipo t, String id) {
         Parametro p = new Parametro(t, id);
         newVariable(t, id);
         param.add(p);
     }
 
+    // Devuelve la lista de parametros.
     public ArrayList<Parametro> closeListaParametros() {
         return param;
     }
 
+    // Cierre de un procedimiento.
     public void closeProcedimiento() {
         npa = 0;
     }
 
+    // Devuelve el retorno de un procedimiento.
     public Tipo getReturnProcedimiento(String id) {
         for (int i = 0; i < tp.size(); i++) {
             if (tp.get(i).getNombre().equals(id)) {
@@ -102,6 +120,7 @@ public class CodigoTresDirecciones {
         return null;
     }
 
+    // Genera la instruccion en trres direcciones.
     public void generar(Operador a, String op1, String op2, String dest) {
         if (declaracion && npa == 0) {
             constante.add(new Instruccion(a, op1, op2, dest));
@@ -109,19 +128,22 @@ public class CodigoTresDirecciones {
             codigo.add(new Instruccion(a, op1, op2, dest));
         }
     }
-    
-    public void startdeclaration(){
+
+    // Inicio de declaraciones del programa.
+    public void startdeclaration() {
         generar(Operador.GOTO, null, null, "run");
         this.declaracion = true;
     }
-    
-    public void enddeclaracion(){
+
+    // FFin de declaraciones del programa.
+    public void enddeclaracion() {
         this.declaracion = false;
         generar(Operador.SKIP, null, null, "run");
         codigo.addAll(constante);
         constante.clear();
     }
 
+    // Traduce el operador del arbol a la instruccion de tres direcciones.
     public Operador traductorOperacion(Operaciones op) {
         switch (op) {
             case MULT:
@@ -153,6 +175,7 @@ public class CodigoTresDirecciones {
         }
     }
 
+    // Devuelve el tipo de resultado de la operacion.
     public Tipo getTipoOperacion(Operador op) {
         if (op == Operador.MULT || op == Operador.DIV || op == Operador.SUMA || op == Operador.RESTA) {
             return Tipo.INT;
@@ -185,40 +208,6 @@ public class CodigoTresDirecciones {
         return codigo;
     }
 
-    public String getVarName(String id) {
-        for (int i = 0; i < tv.size(); i++) {
-            if (tv.get(i).id.equals(id) && tv.get(i).procedimiento == npa) {
-                return tv.get(i).getID() + "_" + tv.get(i).getProcedimiento();
-            }
-        }
-        for (int i = 0; i < tv.size(); i++) {
-            if (tv.get(i).id.equals(id) && tv.get(i).procedimiento == 0) {
-                return tv.get(i).getID() + "_" + tv.get(i).getProcedimiento();
-            }
-        }
-        return null;
-    }
-
-    public Variable getVar(String id) {
-        int div = id.lastIndexOf("_");
-        if (div >= 0) {
-            int capa = Integer.parseInt(id.substring(div + 1));
-            String nombre = id.substring(0, div);
-            for (int i = 0; i < tv.size(); i++) {
-                if (tv.get(i).id.equals(nombre) && tv.get(i).procedimiento == capa) {
-                    return tv.get(i);
-                }
-            }
-        } else {
-            for (int i = 0; i < tv.size(); i++) {
-                if (tv.get(i).id.equals(id)) {
-                    return tv.get(i);
-                }
-            }
-        }
-        return null;
-    }
-
     public Procedimiento getPro(String id) {
         for (int i = 0; i < tp.size(); i++) {
             if (tp.get(i).getNombre().equals(id)) {
@@ -240,6 +229,27 @@ public class CodigoTresDirecciones {
             }
 
         }
+    }
+
+    // Devuelve la variable solicitada.
+    public Variable getVar(String id) {
+        int div = id.lastIndexOf("_");
+        if (div >= 0) {
+            int capa = Integer.parseInt(id.substring(div + 1));
+            String nombre = id.substring(0, div);
+            for (int i = 0; i < tv.size(); i++) {
+                if (tv.get(i).id.equals(nombre) && tv.get(i).procedimiento == capa) {
+                    return tv.get(i);
+                }
+            }
+        } else {
+            for (int i = 0; i < tv.size(); i++) {
+                if (tv.get(i).id.equals(id)) {
+                    return tv.get(i);
+                }
+            }
+        }
+        return null;
     }
 
     public Variable getVariable(String id) {
