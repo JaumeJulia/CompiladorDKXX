@@ -144,7 +144,7 @@ public class TablaSimbolos {
                 errores.add("No existe elemento \"" + aux + "\" en linea " + row + " columna " + col);
                 break;
             case 2:
-                errores.add("Se intenta modifioar la constante \"" + aux + "\" en linea " + row + " columna " + col);
+                errores.add("Se intenta modificar la constante \"" + aux + "\" en linea " + row + " columna " + col);
                 break;
             case 3:
                 errores.add("Faltan parametros en la funcion \"" + aux + "\" en linea " + row + " columna " + col);
