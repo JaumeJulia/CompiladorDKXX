@@ -5,7 +5,6 @@ import CodigoIntermedio.CodigoTresDirecciones;
 import Ensamblador.Codigo68k;
 import Optimizacion.Optimizacion;
 import Semantico.Semantico;
-import TablaSimbolos.TablaSimbolos;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;

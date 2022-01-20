@@ -16,6 +16,9 @@ import java.util.ArrayList;
 public class CodigoTresDirecciones {
 
     private ArrayList<Instruccion> codigo = new ArrayList<>();
+    private ArrayList<Instruccion> constante = new ArrayList<>(); //Declaracion var.
+    private boolean declaracion = false;
+
     private ArrayList<Variable> tv = new ArrayList<>();
     private ArrayList<Procedimiento> tp = new ArrayList<>();
     private ArrayList<Parametro> param; // ArrayList para montar procedimientos.
@@ -100,7 +103,23 @@ public class CodigoTresDirecciones {
     }
 
     public void generar(Operador a, String op1, String op2, String dest) {
-        codigo.add(new Instruccion(a, op1, op2, dest));
+        if (declaracion && npa == 0) {
+            constante.add(new Instruccion(a, op1, op2, dest));
+        } else {
+            codigo.add(new Instruccion(a, op1, op2, dest));
+        }
+    }
+    
+    public void startdeclaration(){
+        generar(Operador.GOTO, null, null, "run");
+        this.declaracion = true;
+    }
+    
+    public void enddeclaracion(){
+        this.declaracion = false;
+        generar(Operador.SKIP, null, null, "run");
+        codigo.addAll(constante);
+        constante.clear();
     }
 
     public Operador traductorOperacion(Operaciones op) {

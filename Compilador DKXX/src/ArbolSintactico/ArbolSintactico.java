@@ -46,9 +46,9 @@ public class ArbolSintactico {
 
         public String codigoIntermedio() {
             if (decl != null) {
-                ctd.generar(Operador.GOTO, null, null, "run");
+                ctd.startdeclaration();
                 this.decl.codigoIntermedio();
-                ctd.generar(Operador.SKIP, null, null, "run");
+                ctd.enddeclaracion();
             }
             this.main.codigoIntermedio();
             return null;
