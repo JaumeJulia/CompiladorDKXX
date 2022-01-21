@@ -1,0 +1,32 @@
+declare {
+    
+    # declaramos funciones
+    function int resto (int n, int m){
+
+	# devolvemos valor a partir de parametros
+        return n-((n/m)*m);
+    }
+
+    # funcion sin retorno
+    function division (){
+
+	# leemos por teclado
+        int n = input();
+        int m = input();
+
+	# evaluamos condiciones
+        if(m != 0){
+		
+	    # imprimimos resultado de funcion con parametros
+            output(resto(n, m));
+        }
+
+        if(m == 0){
+            output(-1);
+        } 
+    }
+
+}
+main{
+    division();
+}

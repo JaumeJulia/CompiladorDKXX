@@ -1,0 +1,3 @@
+	Errores semantico:
+	 - Ya existe elemento "suma" en linea 12
+-> No se pudo proseguir con la compilacion

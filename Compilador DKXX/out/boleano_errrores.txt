@@ -1,0 +1,10 @@
+	Errores sintactico:
+	 - Symbol: NUMERO. Se esperaba: [RKEY, RETRN, WHILE, IF, OUT, CONST, INT, BOOL, ID] en linea 2 en columna 8
+sentencia
+	 - Symbol: EOF. Se esperaba: [RKEY, FUNCTION, CONST, INT, BOOL] en linea 10 en columna 1
+	Errores semantico:
+	 - No existe elemento "i" en linea 7
+	 - No existe elemento "i" en linea 7
+	 - No existe elemento "resto" en linea 7
+	 - Tipo INT no compatible en linea 10
+-> No se pudo proseguir con la compilacion

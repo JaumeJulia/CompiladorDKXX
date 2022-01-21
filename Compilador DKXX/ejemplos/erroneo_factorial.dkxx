@@ -3,12 +3,12 @@ declare{
     const int hola = 4;
     
     function int factorial(int num){
-        bool posible = false;
+        bool posible = hola; #error de tipo
         if (num != 1){
             posible=true;
             int aux=num;
             num = num - 1;
-            while(num > 0){
+            while(posible){
                 aux = aux * num;
                 num = num - 1;
             }
@@ -20,5 +20,5 @@ declare{
 
 main{
     int i = input();
-    output(factorial(i));
+    output(factorial(i))); # error de sintaxis por parentesis extra
 }

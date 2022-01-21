@@ -1,0 +1,4 @@
+VARIABLE: i, tipo: INT, nivel: 0
+FUNCION: resto, tipo: INT, nivel: 1
+	PARAMETRO: n, tipo: INT, nivel: 1
+	PARAMETRO: m, tipo: INT, nivel: 1

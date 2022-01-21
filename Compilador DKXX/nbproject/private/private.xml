@@ -6,9 +6,8 @@
             <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/parser.cup</file>
             <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/scanner/scanner.jflex</file>
             <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/Main/Main.java</file>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/symbols/SymbolBase.java</file>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/symbols/SymbolOperacion.java</file>
-            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/parser/symbols/SymbolExpresion.java</file>
+            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/Semantico/Semantico.java</file>
+            <file>file:/C:/Users/pujol/Documents/Compiladores/CompiladorDKXX/Compilador%20DKXX/src/TablaSimbolos/TablaSimbolos.java</file>
         </group>
     </open-files>
 </project-private>

@@ -1,0 +1,6 @@
+declare{
+}
+main{
+	id_algo
+# sin en vez de id_algo sin ";" pongo un numero o una expresion sí va bien
+}

@@ -1,5 +1,6 @@
 declare{
  
+    # declaramos constante (se ha de asignar un valor en su declaracion)
     const int hola = 4;
     
     function int factorial(int num){

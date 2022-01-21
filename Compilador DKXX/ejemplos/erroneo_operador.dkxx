@@ -1,0 +1,11 @@
+declare{
+	const int elem = 10;
+	function int prueba(){
+        	bool elem = false;
+		return elem; # error de tipo de retorno
+    	}
+}
+main{
+        output(elem);
+    	output(5 * 4 + 3 + true); # error de tipo de operando
+}
