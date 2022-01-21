@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+PUEDE QUE FALTA ALGUNOS CASOS EN LAS OPTIMIZACIONES TIPO QUE UNA ASIGNACION NO ESTA OPTIMIZADA PORQUE ESE CASO SE ME HA OLVIDADO O ALGO
+DECIRMELO Y SE PUEDE CAMBIAR, PERO YO SEGUIRE MIRANDO CASOS QUE SE ME HAN OLVIDADO
  */
 package Optimizacion;
 
@@ -50,13 +49,13 @@ public class Optimizacion {
             if (RbrancamentsAdjacents(i, act, sig)) {
             } else if (SaltoSobreSalto(i, act, sig)) {
             } else if (AsignacionDiferida(i, act, sig)) {
-            }
-// else if (CodigoInaccesible(i, act, sig)) {
-//             i++;
-//            } 
-            else if (OperacionesConstantes(i, act)) {
-            } else if (ReducciondeFuerza(i, act)) {
-            } else {
+            } else if (CodigoInaccesible(i, act, sig)) {
+                i++;
+            } else if (OperacionesConstantes(i, act)) {
+            } 
+            else if (ReducciondeFuerza(i, act)) {
+            } 
+            else {
                 i++;
             }
 
@@ -111,7 +110,7 @@ public class Optimizacion {
         }
 
         //CASO DONDE ASIGMOS UN VALOR A UNA VARIABLE TEMPORAL PARA LUEGO DARSELA A UNA OPERACION
-        if (act.getOperacion() == Operador.ASIG && (sig.esArtim() || sig.esCondicional() || sig.esParam())) {
+        if (act.getOperacion() == Operador.ASIG && (sig.esArtim() || sig.esCondicional() || sig.esParam() || sig.getOperacion() == Operador.OUT)) {
 
             if (esTemporal(act.getDest())) {
                 if (act.getDest().equals(sig.getOp1())) {
@@ -140,7 +139,17 @@ public class Optimizacion {
     //ELIMINA CODIGO QUE NO SE EJECUTA (TODO CODIGO QUE ESTE DEPUES DE UN GOTO Y NO TENGA UNA EITUETA DE SALTO ATRAS ES CODIGO INACCESIBLE)
     private boolean CodigoInaccesible(int i, Instruccion act, Instruccion sig) {
         int aux;
-        if ((act.getOperacion() == Operador.GOTO && !act.getDest().equals("run")) ) {
+
+        if (act.getOperacion() == Operador.RTN && sig.getOperacion() == Operador.RTN) {
+            if (act.getDest() == null) {
+                instrucciones.remove(i);
+            }
+            if (sig.getDest() == null) {
+                instrucciones.remove(i);
+            }
+        }
+
+        if ((act.getOperacion() == Operador.GOTO && !act.getDest().equals("run"))) {
             aux = i + 1;
             boolean salir = true;
             while (salir) {//MIRAMOS LAS LINIAS DE CODIGO QUE ESTAN DEPUESD EL GOTO PARA VER SI SE ACCEDE O NO 
@@ -229,7 +238,7 @@ public class Optimizacion {
     private boolean ReducciondeFuerza(int i, Instruccion act) {
 
         if (act.getOperacion().equals(Operador.MULT)) {
-            Variable op1 = ctd.getVariable(act.getOp1());
+            Variable op1 = ctd.getVar(act.getOp1());
             if (op1 == null) {
                 int x = Integer.valueOf(act.getOp1());
                 if (x != 0 && ((x & (x - 1)) == 0)) {
@@ -238,7 +247,7 @@ public class Optimizacion {
                     return true;
                 }
             }
-            Variable op2 = ctd.getVariable(act.getOp2());
+            Variable op2 = ctd.getVar(act.getOp2());
             if (op2 == null) {
                 int x = Integer.valueOf(act.getOp2());
                 if (x != 0 && ((x & (x - 1)) == 0)) {
@@ -248,7 +257,7 @@ public class Optimizacion {
                 }
             }
         } else if (act.getOperacion().equals(Operador.DIV)) {
-            Variable op2 = ctd.getVariable(act.getOp2());
+            Variable op2 = ctd.getVar(act.getOp2());
             if (op2 == null) {
                 int x = Integer.valueOf(act.getOp2());
                 if (x != 0 && ((x & (x - 1)) == 0)) {
@@ -263,88 +272,90 @@ public class Optimizacion {
 
     //ELIMINAMOS LAS OPERACIONES QUE SEAN CONSTANTES, ES DECIR, AQUELLAS OPERACIONES DE LAS CUALES SABEMOS AMBOS OPERANDOS A LA HORA DE COMPOILACION
     private boolean OperacionesConstantes(int i, Instruccion act) {
-        Variable op1 = ctd.getVariable(act.getOp1());
-        int aux;
-        if (op1 == null) {
-            Variable op2 = ctd.getVariable(act.getOp2());
-            if (op2 == null) {
-                switch (act.getOperacion()) {
-                    case SUMA:
-                        Variable dest = ctd.getVariable(act.getDest());
+        if (act.esArtim() || act.esCondicional()) {
+            Variable op1 = ctd.getVar(act.getOp1());
+            int aux;
+            if (op1 == null) {
+                Variable op2 = ctd.getVar(act.getOp2());
+                if (op2 == null) {
+                    switch (act.getOperacion()) {
+                        case SUMA:
+                            Variable dest = ctd.getVar(act.getDest());
 
-                        aux = Integer.valueOf(act.getOp1()) + Integer.valueOf(act.getOp2());
-                        act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
+                            aux = Integer.valueOf(act.getOp1()) + Integer.valueOf(act.getOp2());
+                            act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
 
-                        return true;
-                    case RESTA:
-                        aux = Integer.valueOf(act.getOp1()) - Integer.valueOf(act.getOp2());
-                        act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
-                        return true;
-                    case DIV:
-                        aux = Integer.valueOf(act.getOp1()) / Integer.valueOf(act.getOp2());
-                        act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
-                        return true;
-                    case MULT:
-                        aux = Integer.valueOf(act.getOp1()) * Integer.valueOf(act.getOp2());
-                        act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
-                        return true;
-                    case AND:
-                        if (act.getOp1().equals("-1") && act.getOp2().equals("-1")) {
-                            act.modificarIntruccion(Operador.ASIG, "-1", null, act.getDest());
-                        } else {
-                            act.modificarIntruccion(Operador.ASIG, "0", null, act.getDest());
-                        }
-                        return true;
-                    case OR:
-                        if (act.getOp1().equals("0") && act.getOp2().equals("0")) {
-                            act.modificarIntruccion(Operador.ASIG, "0", null, act.getDest());
-                        } else {
-                            act.modificarIntruccion(Operador.ASIG, "-1", null, act.getDest());
-                        }
-                        return true;
+                            return true;
+                        case RESTA:
+                            aux = Integer.valueOf(act.getOp1()) - Integer.valueOf(act.getOp2());
+                            act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
+                            return true;
+                        case DIV:
+                            aux = Integer.valueOf(act.getOp1()) / Integer.valueOf(act.getOp2());
+                            act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
+                            return true;
+                        case MULT:
+                            aux = Integer.valueOf(act.getOp1()) * Integer.valueOf(act.getOp2());
+                            act.modificarIntruccion(Operador.ASIG, String.valueOf(aux), null, act.getDest());
+                            return true;
+                        case AND:
+                            if (act.getOp1().equals("-1") && act.getOp2().equals("-1")) {
+                                act.modificarIntruccion(Operador.ASIG, "-1", null, act.getDest());
+                            } else {
+                                act.modificarIntruccion(Operador.ASIG, "0", null, act.getDest());
+                            }
+                            return true;
+                        case OR:
+                            if (act.getOp1().equals("0") && act.getOp2().equals("0")) {
+                                act.modificarIntruccion(Operador.ASIG, "0", null, act.getDest());
+                            } else {
+                                act.modificarIntruccion(Operador.ASIG, "-1", null, act.getDest());
+                            }
+                            return true;
 
-                    case IGUALES:
-                        if (act.getOp1().equals(act.getOp2())) {
-                            act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
-                        } else {
-                            instrucciones.remove(i);
-                        }
-                        return true;
-                    case MAYORQUE:
-                        if (Integer.valueOf(act.getOp1()) > Integer.valueOf(act.getOp2())) {
-                            act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
-                        } else {
-                            instrucciones.remove(i);
-                        }
-                        return true;
-                    case MENORQUE:
-                        if (Integer.valueOf(act.getOp1()) < Integer.valueOf(act.getOp2())) {
-                            act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
-                        } else {
-                            instrucciones.remove(i);
-                        }
-                        return true;
-                    case MAYORIGU:
-                        if (Integer.valueOf(act.getOp1()) >= Integer.valueOf(act.getOp2())) {
-                            act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
-                        } else {
-                            instrucciones.remove(i);
-                        }
-                        return true;
-                    case MENORIGU:
-                        if (Integer.valueOf(act.getOp1()) <= Integer.valueOf(act.getOp2())) {
-                            act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
-                        } else {
-                            instrucciones.remove(i);
-                        }
-                        return true;
-                    case NIGUALES:
-                        if (!act.getOp1().equals(act.getOp2())) {
-                            act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
-                        } else {
-                            instrucciones.remove(i);
-                        }
-                        return true;
+                        case IGUALES:
+                            if (act.getOp1().equals(act.getOp2())) {
+                                act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
+                            } else {
+                                instrucciones.remove(i);
+                            }
+                            return true;
+                        case MAYORQUE:
+                            if (Integer.valueOf(act.getOp1()) > Integer.valueOf(act.getOp2())) {
+                                act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
+                            } else {
+                                instrucciones.remove(i);
+                            }
+                            return true;
+                        case MENORQUE:
+                            if (Integer.valueOf(act.getOp1()) < Integer.valueOf(act.getOp2())) {
+                                act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
+                            } else {
+                                instrucciones.remove(i);
+                            }
+                            return true;
+                        case MAYORIGU:
+                            if (Integer.valueOf(act.getOp1()) >= Integer.valueOf(act.getOp2())) {
+                                act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
+                            } else {
+                                instrucciones.remove(i);
+                            }
+                            return true;
+                        case MENORIGU:
+                            if (Integer.valueOf(act.getOp1()) <= Integer.valueOf(act.getOp2())) {
+                                act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
+                            } else {
+                                instrucciones.remove(i);
+                            }
+                            return true;
+                        case NIGUALES:
+                            if (!act.getOp1().equals(act.getOp2())) {
+                                act.modificarIntruccion(Operador.GOTO, null, null, act.getDest());
+                            } else {
+                                instrucciones.remove(i);
+                            }
+                            return true;
+                    }
                 }
             }
         }
