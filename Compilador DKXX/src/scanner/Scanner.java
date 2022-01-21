@@ -368,8 +368,8 @@ public class Scanner implements java_cup.runtime.Scanner {
     }
 
     //Gestion de Errores.
-    private void addError(String token, int linea, int col) {
-       errores.add(new ErrorLexico(token, linea, col));
+    private void addError(String token, int linea) {
+       errores.add(new ErrorLexico(token, linea));
     }
 
     public boolean hayErrores(){
@@ -792,7 +792,7 @@ public class Scanner implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { addError(yytext(), yyline, yycolumn);
+            { addError(yytext(), yyline);
             }
             // fall through
           case 37: break;

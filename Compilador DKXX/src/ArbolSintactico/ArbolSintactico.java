@@ -36,10 +36,10 @@ public class ArbolSintactico {
 
     public static class Init {
 
-        Def decl;
+        Definiciones decl;
         Sentencias main;
 
-        public Init(Def d, Sentencias m) {
+        public Init(Definiciones d, Sentencias m) {
             this.decl = d;
             this.main = m;
         }
@@ -55,23 +55,39 @@ public class ArbolSintactico {
         }
 
     }
+    
+    public static class Definiciones {
+        
+        public Definicion def;
+        public Definiciones defs;
+        
+        public Definiciones(Definicion def, Definiciones defs){
+            this.def = def;
+            this.defs = defs;
+        }
+        
+        public String codigoIntermedio(){
+            def.codigoIntermedio();
+            if(defs != null){
+                defs.codigoIntermedio();
+            }
+            return null;
+        }
+    }
 
-    public static class Def {
+    public static class Definicion {
 
         public int idx;
         public Dfuncion fun;
         public Declaracion dec;
-        public Def def;
 
-        public Def(Dfuncion f, Def d) {
+        public Definicion(Dfuncion f) {
             this.fun = f;
-            this.def = d;
             this.idx = 0;
         }
 
-        public Def(Declaracion f, Def d) {
+        public Definicion(Declaracion f) {
             this.dec = f;
-            this.def = d;
             this.idx = 1;
         }
 
@@ -83,9 +99,6 @@ public class ArbolSintactico {
                 case 1:
                     dec.codigoIntermedio();
                     break;
-            }
-            if (def != null) {
-                def.codigoIntermedio();
             }
             return null;
         }

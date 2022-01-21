@@ -12,16 +12,14 @@ package scanner;
 public class ErrorLexico {
     private String token;
     private int linea;
-    private int columna;
 
-    public ErrorLexico(String token, int linea, int columna) {
+    public ErrorLexico(String token, int linea) {
         this.token = token;
         this.linea = linea;
-        this.columna = columna;
     }
     
     @Override
     public String toString(){
-        return "\t - \"" + token + "\" encontrado en linea " + linea + " columna " + columna;
+        return "\t - \"" + token + "\" encontrado en linea " + linea;
     }
 }

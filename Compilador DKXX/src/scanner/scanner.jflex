@@ -56,8 +56,8 @@ WS = [ \t\r\n] // Separadores de tokens.
     }
 
     //Gestion de Errores.
-    private void addError(String token, int linea, int col) {
-       errores.add(new ErrorLexico(token, linea, col));
+    private void addError(String token, int linea) {
+       errores.add(new ErrorLexico(token, linea));
     }
 
     public boolean hayErrores(){
@@ -133,4 +133,4 @@ WS = [ \t\r\n] // Separadores de tokens.
 {WS}        {}
 
 /* Gestion Errores */
-[^]         {addError(yytext(), yyline, yycolumn); }
+[^]         {addError(yytext(), yyline); }

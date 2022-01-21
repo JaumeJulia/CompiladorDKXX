@@ -192,7 +192,7 @@ public class Codigo68k {
         codigo.add("\tMOVE.B " + getOp(i.getOp1()) + ",D0");
         codigo.add("\tMOVE.B " + getOp(i.getOp2()) + ",D1");
         codigo.add("\tOR.B D0,D1");
-        codigo.add("\tBMI" + i.getDest());
+        codigo.add("\tBMI " + i.getDest());
     }
 
     private void and(Instruccion i) {

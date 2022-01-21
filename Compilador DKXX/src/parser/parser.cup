@@ -12,24 +12,26 @@ import TablaSimbolos.TablaSimbolos;
 import TablaSimbolos.TipoSub;
 
 parser code {:
-    ArbolSintactico arbol= new ArbolSintactico();
-    ArrayList<String> errores = new ArrayList<>();
-    TablaSimbolos ts = new TablaSimbolos();
-    Semantico sem = new Semantico(ts);
 
-    public ArbolSintactico getArbol(){
-        return arbol;
-    }
+    ArbolSintactico arbol= new ArbolSintactico(); // Para generar el arbol sintactico.
+    ArrayList<String> errores = new ArrayList<>(); // Lista de errores sintacticos.
+    TablaSimbolos ts = new TablaSimbolos(); // Para generar la tabla de simbolos.
+    Semantico sem = new Semantico(ts); // Para verificar semanticamente el codigo.
 
-    public TablaSimbolos getTablaSimbolos(){
-        return ts;
-    }
-
-    public Semantico getSemantico(){
-        return sem;
-    }
-
-    //Semantico y Tabla de Simbolos. 
+    // Metodos para extrer el arbol, la tabla de simbolos y el semantico del parser.
+    public ArbolSintactico getArbol(){ return arbol; }
+    public TablaSimbolos getTablaSimbolos(){ return ts; }
+    public Semantico getSemantico(){ return sem; }
+    
+    /**
+     * Metodo para añadir un simbolo en la tabla de simbolos, ademas comprueba 
+     * si ya existe un simbolo igual.
+     * 
+     * @param id del simbolo
+     * @param tipo del simbolo
+     * @param tipoSub del simbolo (clase)
+     * @return true si ha sido añadido, false si no ha podido.
+     */
     private boolean addSim(String id, Tipo tipo, TipoSub tipoSub){;
         if(!ts.addSimbolo(id, tipo, tipoSub, cur_token.left)){
             sem.addError(4, cur_token.left, id);
@@ -38,28 +40,52 @@ parser code {:
         return true;
     }
     
-    //Tratamiento errores.
+    /**
+     * Si hay un error en el sintactico, este metodo añade el error pertinente a
+     * la lista de errores.
+     * 
+     * @param cur_token es el token actual.
+     */
     @Override
     public void syntax_error(Symbol cur_token) {
-        String mensaje = "\t - " + cur_token.toString() + "." + this.showExpectedTokenIds() + " en linea " + cur_token.left + " en columna " + cur_token.right;
+        String mensaje = "\t - " + cur_token.toString() + "." + this.showExpectedTokenIds() + " en linea " + cur_token.left;
         this.report_error(mensaje, cur_token);
     }
-
-    @Override
-    public void report_fatal_error(String mensaje, Object info) {
-        //report_error(mensaje, null);
-    }
-
+    
+    /**
+     * Añade el error a la lista de errores del sintactico.
+     * 
+     * @param mensaje
+     * @param info 
+     */
     @Override
     public void report_error(String mensaje, Object info) {
         errores.add(mensaje);
     }
-
+    
+    /**
+     * Se sobre escribe el error fatal para que no se muestre, ya que no aporta 
+     * al sintactico y se utiliza nuestro propio sistema de errores.
+     * 
+     * @param mensaje
+     * @param info 
+     */
+    @Override
+    public void report_fatal_error(String mensaje, Object info) {
+        //report_error(mensaje, null);
+    }
+    
+    /**
+     * Metodo que devuelve los tokens que el analizador estaba esperando para 
+     * mostrarlos en los mensajes de error.
+     * 
+     * @return 
+     */
     private String showExpectedTokenIds() {
         List<Integer> ids = this.expected_token_ids();
         LinkedList<String> list = new LinkedList<>();
         for (Integer expected : ids) {
-            list.add(this.symbl_name_from_id(expected.intValue()));
+            list.add(this.symbl_name_from_id(expected));
         }
         if (list.size() > 0) {
             return " Se esperaba: " + list.toString();
@@ -68,10 +94,20 @@ parser code {:
         }
     }
 
+    /**
+     * Metodo para saber si ha habido errores en el sintactico.
+     * 
+     * @return 
+     */
     public boolean hayErrores(){
         return !errores.isEmpty();
     }
 
+    /**
+     * Devuelve todos los mensajes de error que ha habido en el sintactico.
+     * 
+     * @return 
+     */
     public String toStringErrores(){
         String s = "";
         for(String e : errores){
@@ -81,167 +117,151 @@ parser code {:
     }
 :};
 
-
-
 terminal    MULT, DIV, SUMA, RESTA, IGUAL, MAYORQUE, MENORQUE, MAYORIGU, MENORIGU, 
             IGUALES, OR, AND, LPAREN, RPAREN, LKEY, RKEY, RETRN, WHILE, IF, NIGUALES,
             OUT, IN, COMA, PUNTYCOMA, FUNCTION, CONST, INT, BOOL, DECLARE, MAIN;
 
-terminal        String      ID;
-terminal        String      NUMERO;
-terminal        String      BOLEAN;
+terminal        String          ID;
+terminal        String          NUMERO;
+terminal        String          BOLEAN;
 
-non terminal    Init        INIT;
-non terminal    Def         DEF;
+non terminal    Dfuncion        DFUNCION;
+non terminal    Tipo            RETURN;
+non terminal    Dparam          PARAMETRO;
+non terminal    Dparam          PARAMCONCAT;
+non terminal    Declaracion     DECLARACION;
+non terminal    Expresion       DECLAREND;
+non terminal    Tipo            TYPE;
+non terminal    Expresion       ASIGNACION;
+non terminal    Expresion       EXPRESION;
+non terminal    Valor           VALOR;
+non terminal    Operacion       OPERACION;
+non terminal    Operaciones     OP;
+non terminal    Param           FUNCION;
+non terminal    Param           INPARAM;
 
-non terminal    Dfuncion    DFUNCION;
-non terminal    Tipo        RETURN;
-non terminal    Dparam      PARAMETRO;
-non terminal    Dparam      PARAMCONCAT;
-non terminal    Declaracion DECLARACION;
-non terminal    Expresion   DECLAREND;
-non terminal    Tipo        TYPE;
-non terminal    Expresion   ASIGNACION;
-non terminal    Expresion   EXPRESION;
-non terminal    Valor       VALOR;
-non terminal    Operacion   OPERACION;
-non terminal    Operaciones OP;
-non terminal    Param       FUNCION;
-non terminal    Param       INPARAM;
+non terminal    Init            INIT;
+non terminal    Sentencia       SENTENCIA;
+non terminal    Sentencias      SENTENCIAS;
+non terminal    SentenciaId     SENTENCIA_ID;
+non terminal    Sentencias      R_SENTENCIAS;
+non terminal    Sentencia       R_SENTENCIA;
+non terminal    Definiciones    DEFINICIONES;
+non terminal    Definicion      DEFINICION;
 
-non terminal Sentencia      SENTENCIA;
-non terminal Sentencias     SENTENCIAS;
-non terminal SentenciaId    SENTENCIA_ID;
-
-non terminal Sentencias     R_SENTENCIAS;
-non terminal Sentencia      R_SENTENCIA;
-
-non terminal                M;
+non terminal                    M;
 
 start with INIT;
 
-INIT    ::=     DECLARE LKEY DEF:d RKEY MAIN LKEY SENTENCIAS:m RKEY
-                {: arbol.setRaiz(new Init(d, m)); :}
+INIT    ::=    DECLARE LKEY DEFINICIONES:d RKEY MAIN LKEY SENTENCIAS:m RKEY {: arbol.setRaiz(new Init(d, m)); :}
         ;
 
 /** sentencias por prog antes **/
 
-DEF     ::=    DFUNCION:f DEF:d {:RESULT = new Def(f,d); :}
-        |      DECLARACION:f PUNTYCOMA DEF:d {: RESULT = new Def(f, d); :}
-        |      {:   :}
-        ;
-
-SENTENCIAS ::= SENTENCIA:e SENTENCIAS:s {: RESULT = new Sentencias(e, s); :}
-        |   {: :}
-        ;
-
-SENTENCIA ::= DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
-        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: sem.verExpr(e, Tipo.INT, cur_token.left);
-                                                                  RESULT= new Sentencia(new Out(e)); :}
-        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: if(sem.verId(i, cur_token.left)){ sem.selOpId(i, d, cur_token.left);}
-                                                                    RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
-        | WHILE LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left);
-                                                                      RESULT= new Sentencia(new While(e, s));  :}
-        | IF LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY    {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left);
-                                                                      RESULT= new Sentencia(new If(e, s)); :}
-        | error PUNTYCOMA                                    {: parser.report_error("sentencia", "WRONG"); :}
-        ;
-
-R_SENTENCIAS ::= R_SENTENCIA:e R_SENTENCIAS:s {: RESULT= new Sentencias(e,s); :}
-        |   {:  :}
-        ;
-
-R_SENTENCIA    ::= RETRN EXPRESION:e PUNTYCOMA  {: RESULT= new Sentencia(new Return(e)); :}
-        | DECLARACION:d  PUNTYCOMA                         {: RESULT= new Sentencia(d); :}
-        | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA              {: sem.verExpr(e, Tipo.INT, cur_token.left);
-                                                                  RESULT= new Sentencia(new Out(e)); :}
-        | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: if(sem.verId(i, cur_token.left)){ sem.selOpId(i, d, cur_token.left);}
-                                                                      RESULT= new Sentencia(new IdSentencia(new Id(i), d)); :}
-        | WHILE LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left);
-                                                                      RESULT= new Sentencia(new While(e, s));  :}
-        | IF LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left);
-                                                                      RESULT= new Sentencia(new If(e, s)); :}
-        | error PUNTYCOMA                                    {: parser.report_error("sentencia", "WRONG"); :}
-        ;
-
-SENTENCIA_ID    ::= ASIGNACION:a {: RESULT= new SentenciaId(a); :}
-                | FUNCION:f {: RESULT= new SentenciaId(f); :}
+DEFINICIONES    ::=    DEFINICION:d DEFINICIONES:s {: RESULT = new Definiciones(d,s); :}
+                |                                  {: :}
                 ;
 
+DEFINICION      ::=    DFUNCION:f              {:RESULT = new Definicion(f); :}
+                |      DECLARACION:d PUNTYCOMA {: RESULT = new Definicion(d); :}
+                |      error PUNTYCOMA         {: :}
+                ;
 
-DFUNCION    ::= FUNCTION M RETURN:r ID:i LPAREN PARAMETRO:p RPAREN LKEY R_SENTENCIAS:s RKEY {: sem.verRet(i, r, s, cur_token.left); addSim(i, r, TipoSub.FUNCION);
-                                                                                                RESULT= new Dfuncion(new Id(i), r, p, s); :}
-            ;
+SENTENCIAS      ::=    SENTENCIA:e SENTENCIAS:s {: RESULT = new Sentencias(e, s); :}
+                |                               {: :}
+                ;
 
-RETURN      ::= TYPE:t {: RESULT= t; :}
-            | {: :}
-            ;
+SENTENCIA       ::=    DECLARACION:d PUNTYCOMA                           {: RESULT = new Sentencia(d); :}
+                | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA                {: sem.verExpr(e, Tipo.INT, cur_token.left); RESULT = new Sentencia(new Out(e)); :}
+                | ID:i SENTENCIA_ID:d PUNTYCOMA                          {: if(sem.verId(i, cur_token.left)){ sem.selOpId(i, d, cur_token.left);} RESULT = new Sentencia(new IdSentencia(new Id(i), d)); :}
+                | WHILE LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left); RESULT = new Sentencia(new While(e, s));  :}
+                | IF LPAREN EXPRESION:e RPAREN LKEY SENTENCIAS:s RKEY    {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left); RESULT = new Sentencia(new If(e, s)); :}
+                | error PUNTYCOMA                                        {: :}
+                ;
 
-PARAMETRO   ::= TYPE:t ID:i PARAMCONCAT:d {: addSim(i, t, TipoSub.PARAMETRO); 
-                                                RESULT= new Dparam(t, new Id(i), d); :}
-            | {:  :}
-            ;
+R_SENTENCIAS    ::= R_SENTENCIA:e R_SENTENCIAS:s {: RESULT = new Sentencias(e,s); :}
+                |                                {: :}
+                ;
 
-PARAMCONCAT ::= COMA TYPE:t ID:i PARAMCONCAT:d {: addSim(i, t, TipoSub.PARAMETRO); 
-                                                     RESULT= new Dparam(t, new Id(i), d); :}
-            | {:  :}
-            ;
+R_SENTENCIA     ::= RETRN EXPRESION:e PUNTYCOMA                            {: RESULT = new Sentencia(new Return(e)); :}
+                | DECLARACION:d  PUNTYCOMA                                 {: RESULT = new Sentencia(d); :}
+                | OUT LPAREN EXPRESION:e RPAREN PUNTYCOMA                  {: sem.verExpr(e, Tipo.INT, cur_token.left); RESULT = new Sentencia(new Out(e)); :}
+                | ID:i SENTENCIA_ID:d PUNTYCOMA                            {: if(sem.verId(i, cur_token.left)){ sem.selOpId(i, d, cur_token.left);} RESULT = new Sentencia(new IdSentencia(new Id(i), d)); :}
+                | WHILE LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left); RESULT = new Sentencia(new While(e, s)); :}
+                | IF LPAREN EXPRESION:e RPAREN LKEY R_SENTENCIAS:s RKEY    {: sem.verExpr(e, Tipo.BOOLEAN, cur_token.left); RESULT = new Sentencia(new If(e, s)); :}
+                | error PUNTYCOMA                                          {: :}
+                ;
 
-DECLARACION ::= CONST TYPE:t ID:i DECLAREND:d {: if(addSim(i, t, TipoSub.CONSTANTE)){sem.verConst(i, d, cur_token.left);}
-                                                    RESULT= new Declaracion(t, new Id(i), d); :}
-            | TYPE:t ID:i DECLAREND:d {: if(addSim(i, t, TipoSub.VARIABLE)){sem.verVar(i, d, cur_token.left);}
-                                            RESULT= new Declaracion(t, new Id(i), d); :}
-            ;
+SENTENCIA_ID    ::= ASIGNACION:a {: RESULT = new SentenciaId(a); :}
+                | FUNCION:f      {: RESULT = new SentenciaId(f); :}
+                ;
 
-DECLAREND   ::= ASIGNACION:a {: RESULT= a; :}
-            | {:  :}
-            ;
+DFUNCION        ::= FUNCTION M RETURN:r ID:i LPAREN PARAMETRO:p RPAREN LKEY R_SENTENCIAS:s RKEY {: sem.verRet(i, r, s, cur_token.left); addSim(i, r, TipoSub.FUNCION); RESULT = new Dfuncion(new Id(i), r, p, s); :}
+                ;
 
-TYPE        ::= INT {: RESULT= Tipo.INT; :}
-            | BOOL {: RESULT= Tipo.BOOLEAN; :}
-            ;
+RETURN          ::= TYPE:t {: RESULT = t; :}
+                |          {: :}
+                ;
 
-ASIGNACION  ::= IGUAL EXPRESION:e {: RESULT= e; :}
-            ;
+PARAMETRO       ::= TYPE:t ID:i PARAMCONCAT:d {: addSim(i, t, TipoSub.PARAMETRO); RESULT = new Dparam(t, new Id(i), d); :}
+                |                             {:  :}
+                ;
 
-EXPRESION   ::= VALOR:v OPERACION:o {: RESULT= sem.priOp(new Expresion(v, o)); :}
-            | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT= new Expresion(e,o); :}
-            ;
+PARAMCONCAT     ::= COMA TYPE:t ID:i PARAMCONCAT:d {: addSim(i, t, TipoSub.PARAMETRO); RESULT = new Dparam(t, new Id(i), d); :}
+                |                                  {:  :}
+                ;
 
-VALOR       ::= ID:id {: sem.verId(id, cur_token.left);
-                           RESULT= new Valor(new Id(id)); :}
-            | NUMERO:n {: RESULT = new Valor(new Numero(n)); :}
-            | BOLEAN:b {: RESULT = new Valor(new Boleano(b)); :}
-            | IN LPAREN RPAREN {: RESULT= new Valor(new In()); :}
-            | ID:i FUNCION:f {: if(sem.verId(i, cur_token.left)){ sem.verFunc(i, f, cur_token.left); }
-                                  RESULT= new Valor(new IdSentencia(new Id(i), new SentenciaId(f))); :}
-            ;
+DECLARACION     ::= CONST TYPE:t ID:i DECLAREND:d {: if(addSim(i, t, TipoSub.CONSTANTE)){sem.verConst(i, d, cur_token.left);} RESULT = new Declaracion(t, new Id(i), d); :}
+                | TYPE:t ID:i DECLAREND:d         {: if(addSim(i, t, TipoSub.VARIABLE)){sem.verVar(i, d, cur_token.left);} RESULT = new Declaracion(t, new Id(i), d); :}
+                ;
 
-OPERACION   ::= OP:o EXPRESION:e {: RESULT= new Operacion(o,e); :} 
-            | {: :}
-            ;
+DECLAREND       ::= ASIGNACION:a {: RESULT = a; :}
+                |                {:  :}
+                ;
 
-OP          ::= MULT {:  RESULT= Operaciones.MULT; :}
-            | DIV {: RESULT= Operaciones.DIV; :}
-            | SUMA {: RESULT= Operaciones.SUMA; :}
-            | RESTA {: RESULT= Operaciones.RESTA; :}
-            | MAYORQUE {: RESULT= Operaciones.MAYORQUE; :}
-            | MENORQUE {:  RESULT= Operaciones.MENORQUE; :}
-            | MAYORIGU {: RESULT= Operaciones.MAYORIGU; :}
-            | MENORIGU {: RESULT= Operaciones.MENORIGU; :}
-            | IGUALES {: RESULT= Operaciones.IGUALES; :}
-            | NIGUALES {: RESULT= Operaciones.NIGUALES; :}
-            | OR {: RESULT= Operaciones.OR; :}
-            | AND {: RESULT= Operaciones.AND; :}
-            ;
+TYPE            ::= INT {: RESULT = Tipo.INT; :}
+                | BOOL  {: RESULT = Tipo.BOOLEAN; :}
+                ;
 
-FUNCION     ::= LPAREN INPARAM:i RPAREN{: RESULT= i;  :}
-            ;
+ASIGNACION      ::= IGUAL EXPRESION:e {: RESULT = e; :}
+                ;
 
-INPARAM     ::= EXPRESION:e {: RESULT= new Param(e, null);  :}
-            | EXPRESION:e COMA INPARAM:p {: RESULT= new Param(e, p);  :}
-            | {:  :}
-            ;
+EXPRESION       ::= VALOR:v OPERACION:o                 {: RESULT = sem.priOp(new Expresion(v, o)); :}
+                | LPAREN EXPRESION:e RPAREN OPERACION:o {: RESULT = new Expresion(e,o); :}
+                ;
 
-M           ::= {: ts.addnivel(); :}
-            ;
+VALOR           ::= ID:id          {: sem.verId(id, cur_token.left); RESULT = new Valor(new Id(id)); :}
+                | NUMERO:n         {: RESULT = new Valor(new Numero(n)); :}
+                | BOLEAN:b         {: RESULT = new Valor(new Boleano(b)); :}
+                | IN LPAREN RPAREN {: RESULT = new Valor(new In()); :}
+                | ID:i FUNCION:f   {: if(sem.verId(i, cur_token.left)){ sem.verFunc(i, f, cur_token.left); } RESULT = new Valor(new IdSentencia(new Id(i), new SentenciaId(f))); :}
+                ;
+
+OPERACION       ::= OP:o EXPRESION:e {: RESULT= new Operacion(o,e); :} 
+                |                    {: :}
+                ;
+
+OP              ::= MULT   {: RESULT = Operaciones.MULT; :}
+                | DIV      {: RESULT = Operaciones.DIV; :}
+                | SUMA     {: RESULT = Operaciones.SUMA; :}
+                | RESTA    {: RESULT = Operaciones.RESTA; :}
+                | MAYORQUE {: RESULT = Operaciones.MAYORQUE; :}
+                | MENORQUE {: RESULT = Operaciones.MENORQUE; :}
+                | MAYORIGU {: RESULT = Operaciones.MAYORIGU; :}
+                | MENORIGU {: RESULT = Operaciones.MENORIGU; :}
+                | IGUALES  {: RESULT = Operaciones.IGUALES; :}
+                | NIGUALES {: RESULT = Operaciones.NIGUALES; :}
+                | OR       {: RESULT = Operaciones.OR; :}
+                | AND      {: RESULT = Operaciones.AND; :}
+                ;
+
+FUNCION         ::= LPAREN INPARAM:i RPAREN {: RESULT = i; :}
+                ;
+
+INPARAM         ::= EXPRESION:e              {: RESULT = new Param(e, null); :}
+                | EXPRESION:e COMA INPARAM:p {: RESULT = new Param(e, p); :}
+                |                            {:  :}
+                ;
+
+M               ::= {: ts.addnivel(); :}
+                ;
