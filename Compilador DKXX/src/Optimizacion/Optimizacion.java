@@ -145,7 +145,7 @@ public class Optimizacion {
                 instrucciones.remove(i);
             }
             if (sig.getDest() == null) {
-                instrucciones.remove(i);
+                instrucciones.remove(i+1);
             }
         }
 
@@ -159,7 +159,7 @@ public class Optimizacion {
                     while (salir && j < instrucciones.size() - 1) {//MIRAMOS SI SE USA EL SKIP O NO PARA BORRARLO
 
                         Instruccion ins = instrucciones.get(j);
-                        if (!ins.getOperacion().equals(Operador.SKIP) && ins.getDest().equals(ini.getDest())) {
+                        if (!ins.getOperacion().equals(Operador.SKIP) && ins.getDest()!=null && ins.getDest().equals(ini.getDest())) {
                             salir = false;
                         }
                         j++;
