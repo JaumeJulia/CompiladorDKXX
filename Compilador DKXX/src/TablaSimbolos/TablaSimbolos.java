@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 public class TablaSimbolos {
 
-    private ArrayList<Simbolo> ts;
+    private ArrayList<Simbolo> te; // tabla de expansión
     private HashMap<Integer, Simbolo> ta;
 
     private int nivel; // capa actual.
@@ -23,7 +23,7 @@ public class TablaSimbolos {
     private int inicioFuncion; // puntero de inicio de la funcion actual.
 
     public TablaSimbolos() {
-        ts = new ArrayList<>();
+        te = new ArrayList<>();
         ta = new HashMap<>();
 
         nivel = 0;
@@ -38,7 +38,7 @@ public class TablaSimbolos {
             }
             Simbolo s = new Simbolo(id, tipo, nivel, tipoSub, pos);
             ta.put(nivel, s);
-            ts.add(inicioFuncion, s);
+            te.add(inicioFuncion, s);
             nivel = 0;
             inicioFuncion = 0;
         } else {
@@ -47,13 +47,13 @@ public class TablaSimbolos {
             }
             if (tipoSub.equals(TipoSub.PARAMETRO)) {
                 Simbolo s = new Simbolo(id, tipo, nivel, tipoSub, pos);
-                ts.add(inicioFuncion, s);
+                te.add(inicioFuncion, s);
             } else {
                 Simbolo s = new Simbolo(id, tipo, nivel, tipoSub, pos);
                 if (nivel == 0 && !ta.isEmpty()) {
-                    ts.add(ts.indexOf(ta.get(1)), s);
+                    te.add(te.indexOf(ta.get(1)), s);
                 } else {
-                    ts.add(s);
+                    te.add(s);
                 }
             }
         }
@@ -61,15 +61,15 @@ public class TablaSimbolos {
     }
 
     public void addnivel() {
-        inicioFuncion = ts.size();
+        inicioFuncion = te.size();
         niveles++;
         nivel = niveles;
     }
 
     private Simbolo haySimbolo(String id) {
         if (nivel != 0) {
-            for (int i = inicioFuncion; i < ts.size(); i++) {
-                Simbolo s = ts.get(i);
+            for (int i = inicioFuncion; i < te.size(); i++) {
+                Simbolo s = te.get(i);
                 if (s.getId().equals(id)) {
                     return s;
                 }
@@ -77,12 +77,12 @@ public class TablaSimbolos {
         } else {
             int max = 0;
             if (ta.isEmpty()) {
-                max = ts.size();
+                max = te.size();
             } else {
-                max = ts.indexOf(ta.get(1));
+                max = te.indexOf(ta.get(1));
             }
             for (int i = 0; i < max; i++) {
-                Simbolo s = ts.get(i);
+                Simbolo s = te.get(i);
                 if (s.getId().equals(id)) {
                     return s;
                 }
@@ -93,8 +93,8 @@ public class TablaSimbolos {
 
     public Simbolo getSimbolo(String id) {
         if (nivel != 0) {
-            for (int i = inicioFuncion; i < ts.size(); i++) {
-                Simbolo s = ts.get(i);
+            for (int i = inicioFuncion; i < te.size(); i++) {
+                Simbolo s = te.get(i);
                 if (s.getId().equals(id)) {
                     return s;
                 }
@@ -102,12 +102,12 @@ public class TablaSimbolos {
         }
         int max = 0;
         if (ta.isEmpty()) {
-            max = ts.size();
+            max = te.size();
         } else {
-            max = ts.indexOf(ta.get(1));
+            max = te.indexOf(ta.get(1));
         }
         for (int i = 0; i < max; i++) {
-            Simbolo s = ts.get(i);
+            Simbolo s = te.get(i);
             if (s.getId().equals(id)) {
                 return s;
             }
@@ -127,9 +127,9 @@ public class TablaSimbolos {
     }
 
     public Simbolo getParam(Simbolo f, int n) {
-        int i = ts.indexOf(f);
-        if (i + n < ts.size()) {
-            Simbolo s = ts.get(i + n);
+        int i = te.indexOf(f);
+        if (i + n < te.size()) {
+            Simbolo s = te.get(i + n);
             if (s.getTipoSub().equals(TipoSub.PARAMETRO) && s.getNivel() == f.getNivel()) {
                 return s;
             }
@@ -140,7 +140,7 @@ public class TablaSimbolos {
     @Override
     public String toString() {
         String txt = "";
-        for (Simbolo s : ts) {
+        for (Simbolo s : te) {
             if (s.getNivel() > 0 && !s.getTipoSub().equals(TipoSub.FUNCION)) {
                 txt += "\t" + s.toString() + "\n";
             } else {
