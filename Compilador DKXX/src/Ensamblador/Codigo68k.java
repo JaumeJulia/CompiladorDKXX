@@ -351,6 +351,9 @@ public class Codigo68k {
     }
 
     private String identificador(Variable v) {
+        if(v.isTemporal()){
+            return v.getID();
+        }
         return v.getID() + "_" + v.getProcedimiento();
     }
 
@@ -373,10 +376,10 @@ public class Codigo68k {
         codigo.add("\tADD.W D0,D1");
         codigo.add("\tNOT.W D1");
         codigo.add("\tADDQ.W #1,D1");
-        codigo.add("\tJSR ADD4");
+        codigo.add("\tRTS");
         codigo.add("ADD1:");
         codigo.add("\tSUB.W D0,D1");
-        codigo.add("\tJSR ADD4");
+        codigo.add("\tRTS");
         codigo.add("ADD2:");
         codigo.add("\tBTST.L #15,D1");
         codigo.add("\tBEQ ADD3");
@@ -384,10 +387,9 @@ public class Codigo68k {
         codigo.add("\tADDQ.W #1,D1");
         codigo.add("\tSUB.W D1,D0");
         codigo.add("\tMOVE.W  D0,D1");
-        codigo.add("\tJSR ADD4");
+        codigo.add("\tRTS");
         codigo.add("ADD3:");
         codigo.add("\tADD.W D0,D1");
-        codigo.add("ADD4:");
         codigo.add("\tRTS");
 
         codigo.add("IRESTA:");
