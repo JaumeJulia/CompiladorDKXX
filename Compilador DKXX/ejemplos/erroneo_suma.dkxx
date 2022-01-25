@@ -1,0 +1,20 @@
+declare{
+	int num = 0;	
+
+	function int suma(bool a, int b){
+		return a + b; # Error en a es bool y requiere int.
+	}
+
+	# error de repetir id para funcion
+	function int suma(int c, int d){
+		int num = c + d;
+		return num;
+	}
+}
+
+main{
+
+	num = suma(num, 5);
+	output(num);	
+
+}
