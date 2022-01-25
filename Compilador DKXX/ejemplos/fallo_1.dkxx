@@ -1,9 +1,0 @@
-declare {
-declare
-}
-
-main {
-}
-
-#retorna const int y bool, hay más elementos como function, if, y tal por lo que
-# no se si hay otra manera de indicar el error que no sea con "se esperaba"
