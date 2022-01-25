@@ -1,13 +1,11 @@
 declare{
- 
-    # declaramos constante (se ha de asignar un valor en su declaracion)
-    const int hola = 4;
-    
+
+    # Devuelve el factorial del numero introducido por parametro.
     function int factorial(int num){
-        bool posible = false;
-        if (num != 1){
-            posible=true;
-            int aux=num;
+
+	# Si es un valor entre 1 y 8 realiza el factorial.
+        if (num > 1 & num < 8){
+            int aux = num;
             num = num - 1;
             while(num > 0){
                 aux = aux * num;
@@ -15,7 +13,14 @@ declare{
             }
             return aux;
         }
-        return num;
+	
+	# Si es un valor fuera de 1 y 8 da error (-1)
+	if(num < 0 | num >= 8){
+	    return -1;
+	}
+
+	# Si es 1 o 0 devuelve 1
+        return 1;
     }
 }
 

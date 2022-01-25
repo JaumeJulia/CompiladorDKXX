@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ArbolSintactico;
 
 /**
  *
- * @author felix
+ * @author Felix Lluis Aguilar Ferrer, Jaume Julià Vallespir, Francisco José
+ * Muñoz Navarro, Antonio Pujol Villegas
  */
 public enum Tipo {
     BOOLEAN, INT, NULL

@@ -159,7 +159,7 @@ public class CodigoTresDirecciones {
             case MENORQUE:
                 return Operador.MENORQUE;
             case MAYORIGU:
-                return Operador.MENORIGU;
+                return Operador.MAYORIGU;
             case MENORIGU:
                 return Operador.MENORIGU;
             case IGUALES:

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Ensamblador;
 
 import ArbolSintactico.Tipo;
@@ -15,41 +10,49 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Felix
+ * @author Felix Lluis Aguilar Ferrer, Jaume Julià Vallespir, Francisco José
+ * Muñoz Navarro, Antonio Pujol Villegas
  */
 public class Codigo68k {
 
-    ArrayList<String> codigo;
-    CodigoTresDirecciones ctd;
+    ArrayList<String> codigo; // Codigo ensamblador
+    CodigoTresDirecciones ctd; // Codigo tres direcciones.
 
     public Codigo68k() {
         codigo = new ArrayList<>();
     }
 
     public void generar(CodigoTresDirecciones ctd) {
-
         this.ctd = ctd;
 
+        // Inicializacion del codigo ensamblador.
         codigo.clear();
         codigo.add("\torg $1000");
         codigo.add("START:");
         codigo.add("\tJSR SCREENSIZE");
 
+        // Traduccion de las instrucciones junto con un comentario de esta antes de traducir.
         ArrayList<Instruccion> codigointermedio = ctd.getCodigo();
         for (int i = 0; i < codigointermedio.size(); i++) {
             codigo.add("* -->" + codigointermedio.get(i).toString());
             traduccion(codigointermedio.get(i));
         }
 
+        // Finalizacion de la simulacion.
         codigo.add("\tSIMHALT");
         codigo.add(" ");
-        memoria(ctd.getTv());
+        memoria(ctd.getTv()); // Adiccion de la memoria.
         codigo.add("\tDC.W 0");
         codigo.add(" ");
-        subrutinas();
+        subrutinas(); // Adiccion de las subrutinas del ensamblador.
         codigo.add("\tEND START");
     }
 
+    /**
+     * Metodo que selecciona el tipo de instruccion a traducir.
+     *
+     * @param i Instruccion.
+     */
     public void traduccion(Instruccion i) {
         switch (i.getOperacion()) {
             case MULT:
@@ -271,7 +274,7 @@ public class Codigo68k {
             int ind = param.size() - 1;
             while (ind >= 0) {
                 Parametro aux = param.get(ind);
-                Variable v = ctd.getVar(aux.getNombre());
+                Variable v = ctd.getVar(aux.getNombre() + "_" + p.getNumeroProcedimiento());
                 if (v.getTipo() == Tipo.BOOLEAN) {
                     codigo.add("\tMOVE.W " + k + "(A7),D0");
                     codigo.add("\tMOVE.B D0," + identificador(v));
@@ -317,6 +320,11 @@ public class Codigo68k {
         }
     }
 
+    /**
+     * Metodo que genera el espacio de memoria del ensamblador.
+     *
+     * @param av Tabla de variables.
+     */
     private void memoria(ArrayList<Variable> av) {
         boolean bytes = false;
         for (Variable v : av) {
@@ -333,6 +341,12 @@ public class Codigo68k {
         }
     }
 
+    /**
+     * Metodo que permite obtener el operador en el formato pertinente.
+     *
+     * @param op Operador de la instruccion.
+     * @return Operador en ensamblador.
+     */
     private String getOp(String op) {
         Variable v = ctd.getVar(op);
         if (v == null) {
@@ -341,6 +355,12 @@ public class Codigo68k {
         return identificador(v);
     }
 
+    /**
+     * Metodo que devuelve el valor equivalente en ensamblador.
+     *
+     * @param op Valor a traducir a ensamblador.
+     * @return Valor en ensamblador.
+     */
     private String getValor(String op) {
         if (op.equals("false")) {
             return "#0";
@@ -350,13 +370,23 @@ public class Codigo68k {
         return "#" + op;
     }
 
+    /**
+     * Metodo que devuelve el formato correcto de una variable.
+     *
+     * @param v Variable a obtener el identificador.
+     * @return Identificador
+     */
     private String identificador(Variable v) {
-        if(v.isTemporal()){
+        if (v.isTemporal()) {
             return v.getID();
         }
         return v.getID() + "_" + v.getProcedimiento();
     }
 
+    /**
+     * Subrutinas que el ensamblador utilizara para realizar algunas
+     * operaciones.
+     */
     private void subrutinas() {
         codigo.add("SCREENSIZE:");
         codigo.add("\tMOVE.L #1024*$10000+768,D1");

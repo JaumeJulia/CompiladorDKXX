@@ -114,7 +114,7 @@ public class Semantico {
         boolean e = false;
         if (r != null) {
             boolean f = false;
-            while (s != null) {
+            while (s != null && s.sentencia != null) {
                 if (s.sentencia.ret != null) {
                     e = true;
                     if (!verExpr(s.sentencia.ret.expr, r, l)) {
