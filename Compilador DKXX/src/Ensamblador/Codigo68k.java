@@ -274,7 +274,7 @@ public class Codigo68k {
             int ind = param.size() - 1;
             while (ind >= 0) {
                 Parametro aux = param.get(ind);
-                Variable v = ctd.getVar(aux.getNombre());
+                Variable v = ctd.getVar(aux.getNombre() + "_" + p.getNumeroProcedimiento());
                 if (v.getTipo() == Tipo.BOOLEAN) {
                     codigo.add("\tMOVE.W " + k + "(A7),D0");
                     codigo.add("\tMOVE.B D0," + identificador(v));

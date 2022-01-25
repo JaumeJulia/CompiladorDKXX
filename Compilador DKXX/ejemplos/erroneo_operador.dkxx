@@ -1,5 +1,6 @@
 declare{
-	const int elem = 10;
+%
+	const $int while elem = 10;
 	function int prueba(){
         	bool elem = false;
 		return elem; # error de tipo de retorno

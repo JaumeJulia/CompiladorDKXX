@@ -81,6 +81,7 @@ WS = [ \t\r\n] // Separadores de tokens.
 ","         { return symbol(sym.COMA); }
 
 // aritmeticos
+"="         { return symbol(sym.IGUAL); }
 "+"         { return symbol(sym.SUMA); }
 "-"         { return symbol(sym.RESTA); }
 "*"         { return symbol(sym.MULT); }
@@ -103,8 +104,6 @@ WS = [ \t\r\n] // Separadores de tokens.
 "!="        { return symbol(sym.NIGUALES); }
 "&"         { return symbol(sym.AND); }
 "|"         { return symbol(sym.OR); }
-
-"="         { return symbol(sym.IGUAL); }
 
 // separador del programa
 "main"      { return symbol(sym.MAIN); }
