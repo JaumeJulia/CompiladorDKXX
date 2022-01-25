@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ArbolSintactico;
 
 import CodigoIntermedio.CodigoTresDirecciones;
@@ -10,40 +5,55 @@ import CodigoIntermedio.Operador;
 
 /**
  *
- * @author felix
+ * @author Felix Lluis Aguilar Ferrer, Jaume Julià Vallespir, Francisco José
+ * Muñoz Navarro, Antonio Pujol Villegas
  */
 public class ArbolSintactico {
 
     public Init raiz;
     public static CodigoTresDirecciones ctd;
-    
-    public ArbolSintactico() {}
 
     public void setRaiz(Init raiz) {
         this.raiz = raiz;
     }
 
+    /**
+     * Metodo para generar el codigo de tres direcciones o codigo intermedio.
+     *
+     * @return El codigo intermedio.
+     */
     public CodigoTresDirecciones GenerarCTD() {
         ctd = new CodigoTresDirecciones();
         raiz.codigoIntermedio();
         return ctd;
     }
 
+    // Todas las operaciones binarias ordenados por orden de prioridad.
     public enum Operaciones {
         MULT, DIV, SUMA, RESTA, MAYORQUE, MENORQUE, MAYORIGU,
         MENORIGU, IGUALES, NIGUALES, OR, AND
     }
 
+    /**
+     * Nodo raiz del arbol, todos los nodos siguen una estrucctura similar.
+     *
+     */
     public static class Init {
 
-        Definiciones decl;
-        Sentencias main;
+        Definiciones decl; // Hijo declaraciones.
+        Sentencias main; // Hijo programa principal.
 
+        // Constructor.
         public Init(Definiciones d, Sentencias m) {
             this.decl = d;
             this.main = m;
         }
 
+        /**
+         * Metodo para generar el codigo intermedio.
+         *
+         * @return null.
+         */
         public String codigoIntermedio() {
             if (decl != null) {
                 ctd.startdeclaration();
@@ -55,42 +65,59 @@ public class ArbolSintactico {
         }
 
     }
-    
+
+    /**
+     * Nodo para el conjunto de Declaraciones del programa.
+     */
     public static class Definiciones {
-        
+
         public Definicion def;
         public Definiciones defs;
-        
-        public Definiciones(Definicion def, Definiciones defs){
+
+        public Definiciones(Definicion def, Definiciones defs) {
             this.def = def;
             this.defs = defs;
         }
-        
-        public String codigoIntermedio(){
+
+        public String codigoIntermedio() {
             def.codigoIntermedio();
-            if(defs != null){
+            if (defs != null) {
                 defs.codigoIntermedio();
             }
             return null;
         }
     }
 
+    /**
+     * Nodo de una definicion del programa.
+     *
+     * En caso que los nodos tengan la posibilidad que una rama este vacia, este
+     * contiene un indice indicando que rama se esta usando.
+     */
     public static class Definicion {
 
         public int idx;
         public Dfuncion fun;
         public Declaracion dec;
 
+        // Constructor en el caso que sea una funcion.
         public Definicion(Dfuncion f) {
             this.fun = f;
             this.idx = 0;
         }
 
+        // Constructor en el caso que sea una declaracion.
         public Definicion(Declaracion f) {
             this.dec = f;
             this.idx = 1;
         }
 
+        /**
+         * La llamada al siguiente nodo se decide mediente el idx evitando asi
+         * no llama a elementos no inicializados.
+         *
+         * @return null.
+         */
         public String codigoIntermedio() {
             switch (idx) {
                 case 0:
@@ -104,6 +131,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo de una definicion de funcion.
+     */
     public static class Dfuncion {
 
         public Id id;
@@ -119,22 +149,33 @@ public class ArbolSintactico {
         }
 
         public String codigoIntermedio() {
+
+            // Nuevo procedimiento.
             String i = this.id.codigoIntermedio();
             ctd.newProcedimiento(i, ret);
+
+            // Se añaden los parametros al procedimiento si hay.
             if (dparam != null) {
                 ctd.newListaParametros();
                 dparam.codigoIntermedio();
                 ctd.newProcedimientoadd(ctd.closeListaParametros());
             }
+
+            // Se añade el codigo la funcion al codigo de tres direcciones.
             ctd.generar(Operador.SKIP, null, null, i);
             ctd.generar(Operador.PMB, null, null, i);
-            sent.codigoIntermedio();
+            sent.codigoIntermedio(); // Bloque de sentencias. 
             ctd.generar(Operador.RTN, null, null, null);
+
+            // Fin del procedimiento.
             ctd.closeProcedimiento();
             return null;
         }
     }
 
+    /**
+     * Nodo para la declaracion de un parametro para una funcion.
+     */
     public static class Dparam {
 
         public Tipo tipo;
@@ -157,6 +198,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para el retorno de un valor por parte de la funcion.
+     */
     public static class Return {
 
         public Expresion expr;
@@ -172,12 +216,14 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para el conjunto de sentencias.
+     */
     public static class Sentencias {
 
         public Sentencia sentencia;
         public Sentencias sentencias;
 
-        
         public Sentencias(Sentencia s, Sentencias ss) {
             this.sentencia = s;
             this.sentencias = ss;
@@ -192,6 +238,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para una sentencia en contreto.
+     */
     public static class Sentencia {
 
         public int idx;
@@ -251,6 +300,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para una declaracion del programa.
+     */
     public static class Declaracion {
 
         public Tipo tipo;
@@ -265,7 +317,6 @@ public class ArbolSintactico {
 
         public String codigoIntermedio() {
             String nom = ctd.newVariable(tipo, id.codigoIntermedio());
-
             if (expr != null) {
                 String e = expr.codigoIntermedio();
                 ctd.generar(Operador.ASIG, e, null, nom);
@@ -274,6 +325,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para la operacion de salida por pantalla.
+     */
     public static class Out {
 
         public Expresion expr;
@@ -289,6 +343,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para la operacion de entrada por teclado.
+     */
     public static class In {
 
         public In() {
@@ -301,6 +358,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para el uso de una sentencia con ID.
+     */
     public static class IdSentencia {
 
         public SentenciaId sid;
@@ -314,6 +374,8 @@ public class ArbolSintactico {
         public String codigoIntermedio() {
             String i = this.id.codigoIntermedio();
             String e = sid.codigoIntermedio();
+
+            // Si es null, i es una funcion sino devuelve una variable temporal.
             if (e == null) {
                 Tipo t = ctd.getReturnProcedimiento(i);
                 if (t != null) {
@@ -331,6 +393,10 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para el uso de una sentencia con ID siendo este o bien los
+     * parametros o la expresion a asignar al id.
+     */
     public static class SentenciaId {
 
         public Param par;
@@ -361,6 +427,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo que definie un bucle en el programa.
+     */
     public static class While {
 
         public Expresion cond;
@@ -374,19 +443,28 @@ public class ArbolSintactico {
         public String codigoIntermedio() {
             String e1 = ctd.newEtiqueta();
             ctd.generar(Operador.SKIP, null, null, e1);
+
+            // Condicion a seguir en el bucle.
             String c = cond.codigoIntermedio();
             String e2 = ctd.newEtiqueta();
             String e3 = ctd.newEtiqueta();
             ctd.generar(Operador.IGUALES, c, Integer.toString(-1), e2);
             ctd.generar(Operador.GOTO, null, null, e3);
             ctd.generar(Operador.SKIP, null, null, e2);
+
+            // Sentencias dentro del bucle.
             sent.codigoIntermedio();
+
+            // Salto para comprobar la condicion.
             ctd.generar(Operador.GOTO, null, null, e1);
             ctd.generar(Operador.SKIP, null, null, e3);
             return null;
         }
     }
 
+    /**
+     * Nodo que define un salto con condicion del programa.
+     */
     public static class If {
 
         public Expresion cond;
@@ -398,18 +476,25 @@ public class ArbolSintactico {
         }
 
         public String codigoIntermedio() {
+
+            // Condicion a para hacer el el contenido del if.
             String c = cond.codigoIntermedio();
             String e1 = ctd.newEtiqueta();
             String e2 = ctd.newEtiqueta();
             ctd.generar(Operador.IGUALES, c, Integer.toString(-1), e1);
             ctd.generar(Operador.GOTO, null, null, e2);
             ctd.generar(Operador.SKIP, null, null, e1);
+
+            // Sentencias dentro del if.
             sent.codigoIntermedio();
             ctd.generar(Operador.SKIP, null, null, e2);
             return null;
         }
     }
 
+    /**
+     * Nodo para la introduccion de un parametro en la llamada de una funcion.
+     */
     public static class Param {
 
         public Expresion expr;
@@ -430,6 +515,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo para la ejecucion de una expresion.
+     */
     public static class Expresion {
 
         public int idx;
@@ -448,25 +536,27 @@ public class ArbolSintactico {
             this.oper = oper;
             this.idx = 1;
         }
-        
-        public Operacion getOper(){
+
+        public Operacion getOper() {
             return oper;
         }
-        
-        public void setOper(Operacion oper){
+
+        public void setOper(Operacion oper) {
             this.oper = oper;
         }
-        
-        public boolean isExpr(){
+
+        public boolean isExpr() {
             return idx == 1;
         }
-        
-        public Expresion getExpr(){
+
+        public Expresion getExpr() {
             return e;
         }
 
         public String codigoIntermedio() {
             String op1 = null;
+
+            // Realiza el codigo intermedio del op1 este puede ser un valor o una expresion.
             switch (idx) {
                 case 0:
                     op1 = v.codigoIntermedio();
@@ -475,9 +565,15 @@ public class ArbolSintactico {
                     op1 = e.codigoIntermedio();
                     break;
             }
+
+            // Si oper es null a acabado la expresion por lo que devuelve op1.
             if (oper != null) {
                 Operador op = ctd.traductorOperacion(oper.getOper());
+
+                // Realiza el codigo intermedio del op2.
                 String op2 = oper.codigoIntermedio();
+
+                // Si es una operacion boleana esta realiza una asignacion y devuelve el valor.
                 if (ctd.getTipoOperacion(op) == Tipo.BOOLEAN) {
                     String dest = ctd.newVariable(Tipo.BOOLEAN, null);
                     String e1 = ctd.newEtiqueta();
@@ -502,6 +598,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo que define la operacion y con que expresion.
+     */
     public static class Operacion {
 
         public Operaciones oper;
@@ -515,12 +614,12 @@ public class ArbolSintactico {
         public Operaciones getOper() {
             return oper;
         }
-        
-        public Expresion getExpr(){
+
+        public Expresion getExpr() {
             return expr;
         }
-        
-        public void setExpr(Expresion expr){
+
+        public void setExpr(Expresion expr) {
             this.expr = expr;
         }
 
@@ -529,6 +628,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo que define un valor de la expresion.
+     */
     public static class Valor {
 
         public int idx;
@@ -580,6 +682,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo que define un Numero.
+     */
     public static class Numero {
 
         public int elem;
@@ -595,6 +700,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo que define un Boleano.
+     */
     public static class Boleano {
 
         public boolean elem;
@@ -610,6 +718,9 @@ public class ArbolSintactico {
         }
     }
 
+    /**
+     * Nodo que define un ID.
+     */
     public static class Id {
 
         public String elem;

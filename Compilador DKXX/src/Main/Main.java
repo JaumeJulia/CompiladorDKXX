@@ -19,14 +19,19 @@ import parser.parser;
 
 /**
  *
- * @author felix
+ * @author Felix Lluis Aguilar Ferrer, Jaume Julià Vallespir, Francisco José
+ * Muñoz Navarro, Antonio Pujol Villegas
  */
 public class Main {
 
     /**
+     * Inicio del compilador.
+     *
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+
+        // Verificacion de las entradas del compilador.
         if (args.length < 1) {
             System.err.println("-> Indica un fitxer amb les dades d'entrada");
             System.exit(0);
@@ -44,11 +49,11 @@ public class Main {
                 + "\n\tin: " + args[0] + "\n\tout: " + out + "\n-> Parser");
 
         try {
-            //Scanner.
+            // Scanner.
             FileReader in = new FileReader(args[0]);
             Scanner scanner = new Scanner(in);
 
-            //Parser.
+            // Parser.
             SymbolFactory sf = new ComplexSymbolFactory();
             parser parser = new parser(scanner, sf);
             try {
@@ -56,11 +61,11 @@ public class Main {
             } catch (Exception ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
-            ArbolSintactico arbol = parser.getArbol(); // Arbol Sintactico.
 
-            //Sintactico.
+            // Sintactico.
             Semantico semantico = parser.getSemantico();
 
+            // Errores.
             if (scanner.hayErrores() || parser.hayErrores() || semantico.hayErrores()) {
                 String s = "";
                 if (scanner.hayErrores()) {
@@ -78,12 +83,14 @@ public class Main {
                 System.exit(0);
             }
 
+            ArbolSintactico arbol = parser.getArbol(); // Arbol Sintactico.
+
             WriteFile(out + nombre + "_tokens.txt", scanner.toStringTokens());
             WriteFile(out + nombre + "_tabla_simbolos.txt", semantico.ts.toString());
 
             System.out.println("\tOK");
 
-            //Codigo Intermedio.
+            // Codigo Intermedio.
             CodigoTresDirecciones ctd = arbol.GenerarCTD();
             WriteFile(out + nombre + "_codigo_intermedio.txt", ctd.toString());
             WriteFile(out + nombre + "_tabla_variables.txt", ctd.printTv());
@@ -97,14 +104,15 @@ public class Main {
             // Codigo Intermedio Optimizado.
             Optimizacion opt = new Optimizacion(ctd);
             opt.optimizar();
-            WriteFile("out/" + nombre + "_codigo_intermedio_optimizado.txt", ctd.toString());
-            
+            WriteFile(out + nombre + "_codigo_intermedio_optimizado.txt", ctd.toString());
+
             // Codigo Ensambladorr Optimizado.
             c68k.generar(ctd);
             WriteFile(out + nombre + "_ensamblador_optimizado.X68", c68k.toString());
 
+            // Fin de la compilacion.
             System.out.println("-> Compilación completada");
-            
+
         } catch (FileNotFoundException ex) {
             System.out.println("El archivo de entrada " + args[0] + " o el path de salida " + out + " no es valido");
         } catch (IOException ex) {
@@ -112,6 +120,13 @@ public class Main {
         }
     }
 
+    /**
+     * Escritura de un string en un archivo.
+     *
+     * @param Path direccion de destino del archivo.
+     * @param data contenido del archivo.
+     * @throws IOException
+     */
     public static void WriteFile(String Path, String data) throws IOException {
         BufferedWriter writer = null;
         writer = new BufferedWriter(new FileWriter(Path));
@@ -119,6 +134,12 @@ public class Main {
         writer.close();
     }
 
+    /**
+     * Devuelve el nombre del archivo sin path ni extension.
+     *
+     * @param path direccion del archivo.
+     * @return
+     */
     public static String FileName(String path) {
         int idxI = path.lastIndexOf("/", path.length());
         int idxF = path.lastIndexOf(".", path.length());
