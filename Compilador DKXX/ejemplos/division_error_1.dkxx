@@ -1,0 +1,45 @@
+declare {
+
+    # Se declara una constante sin valor por lo que dara error.
+    const int n;
+    const int m = 3;
+    
+    function int resto (int n, int m){
+	if(n < m){
+	    return m;
+	}
+
+        return n-(n/m)*m;
+    }
+
+    
+    function division (){
+	# El siguiente comentario esta mal indicado ya que no usa el hash
+	# por lo que producira un error ya que verá una division, por eso
+	# buscara un ; para seguir. A parte dará error el . ya que no es 
+	# un token que se tenga en cuenta.
+	// Este comentario utiliza las dobles barras.
+        if(m != 0){
+ 	    output(n/m);
+            output(resto(n, m));
+        }
+
+	# Por el error anterior, detecta error aqui, ya que este if esta al 
+	# nivel de una funcion. y buscará un ; para seguir.
+        if(m == 0){
+            output(-1);
+
+	# Debido al error del comentario en la siguiente llave acaba el declare,
+	# por lo que lo siguiente que espera es el main el cual no se encuentra+
+	# por lo que dará error y no podrá seguir compilando.
+        } 
+    }
+}
+
+main{
+    # Si se arrelga el comentario erroneo, aqui dara error ya que se intenta 
+    # modificar las constantes.
+    n = input();
+    m = input();
+    division();
+}

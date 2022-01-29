@@ -1,0 +1,39 @@
+declare{
+
+    function int factorial(int num){
+
+	# Al introducir dos & seguidos, el compilador detecta 
+	# error sintactico por lo que buscara el ; mas cercano 
+	# para continuar, esto hace que no se declare aux por 
+	# lo que habra error de que no existe dicho elemento en 
+        # las proximas lineas y en el retorno por lo que tambien 
+        # dara error de no hay retorno.
+        if (num > 1 && num < 8){
+            int aux = num;
+            num = num - 1;
+            while(num > 0){
+                aux = aux * num;
+                num = num - 1;
+            }
+            return aux;
+        }
+	
+	# Como en la anterior llave cierra la función a causa 
+        # del error anterior, el analizador detectará este if fuera 
+	# de lugar dando un error.
+	if(num < 0 | num >= 8){
+	    return -1;
+	}
+
+        return 1;
+    }
+}
+
+main{
+
+    # Aqui hay un error de tipo ya que input genera un int y se 
+    # quiere guardar en un boolean y a continuacion, este se usa en 
+    # una funcion que pide un int, por lo que tambien dará error de tipo.
+    bool i = input();
+    output(factorial(i));
+}

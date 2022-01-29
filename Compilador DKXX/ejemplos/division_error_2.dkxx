@@ -1,0 +1,39 @@
+declare {
+
+    int m;
+    
+    function int division (int n, int m){
+	if(n < m){
+	    return m;
+	}
+        return n-(n/m)*m;
+    }
+
+    # Como ya hay una funcion llamada division esta dara error.
+    function division (){
+
+        if(m != 0){
+	    # Al usarse n y no estar definida va a dar error tanto de 
+	    # tipo ya que no se puede defir como el tipo de la expresion 
+	    # a la cual pertenece; y tambien dara error el resto ya que la 
+	    # funcion no esta definida.
+ 	    output(n/m);
+            output(resto(n, m));
+        }
+        if(m == 0){
+            output(-1);
+        } 
+    }
+
+}
+
+main{
+
+    # Error no se ha declarado n por lo tanto dara erro al usarla.
+    n = input();
+    m = input();
+
+    # Al llamar la funcion division buscara dos parametros que no encontrado
+    # por lo que dara un error de falta de parametros.   
+    division();
+}

@@ -1,0 +1,30 @@
+declare{
+
+    # Devuelve el factorial del numero introducido por parametro.
+    function int factorial(int num){
+
+	# Si es un valor entre 1 y 8 realiza el factorial.
+        if (num > 1 & num < 8){
+            int aux = num;
+            num = num - 1;
+            while(num > 0){
+                aux = aux * num;
+                num = num - 1;
+            }
+            return aux;
+        }
+	
+	# Si es un valor fuera de 1 y 8 da error (-1)
+	if(num < 0 | num >= 8){
+	    return -1;
+	}
+
+	# Si es 1 o 0 devuelve 1
+        return 1;
+    }
+}
+
+main{
+    int i = input();
+    output(factorial(i));
+}
