@@ -1,0 +1,39 @@
+declare {
+    # Declaracion de variables.
+    int n;
+    int m;
+    
+    # Funcion que calcula el resto de una division.
+    function int resto (int n, int m){
+
+	# Si el divisor es mas pequeño que el dividendo devuelve este ultimo como resto.
+	if(n < m){
+	    return m;
+	}
+
+	# Calcula el resto.
+        return n-(n/m)*m;
+    }
+
+    # Funcion imprime el cociente y resto de la division.
+    function division (){
+
+	# No se puede dividir por 0.
+        if(m != 0){
+	    # Calcula y imprime el cociente y resto.
+ 	    output(n/m);
+            output(resto(n, m));
+        }
+        if(m == 0){
+            output(-1); # Error de ejecucion (-1).
+        } 
+    }
+
+}
+
+main{
+    # leemos por teclado y realiza la division
+    n = input();
+    m = input();
+    division();
+}

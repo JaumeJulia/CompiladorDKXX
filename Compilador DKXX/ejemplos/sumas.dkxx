@@ -1,0 +1,17 @@
+declare{
+	# EL declare esta vacio.
+}
+main{
+
+	# Realiza la operacion suma con todos los posibles valores.
+    	output(5 + -5);
+	output(-5 + 5);
+	output(-5 + -5);
+	output(5 + 5);
+
+	# Realiza la operacion resta con todos los posibles valores.
+	output(5 - -5);
+	output(-5 - 5);
+	output(-5 - -5);
+	output(5 - 5);
+}
