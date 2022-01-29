@@ -1,6 +1,0 @@
-CONSTANTE: hola, tipo: INT, nivel: 0
-VARIABLE: i, tipo: INT, nivel: 0
-FUNCION: factorial, tipo: INT, nivel: 1
-	PARAMETRO: num, tipo: INT, nivel: 1
-	VARIABLE: posible, tipo: BOOLEAN, nivel: 1
-	VARIABLE: aux, tipo: INT, nivel: 1

@@ -1,4 +1,0 @@
-resto 1 INT 
-	INT n
-	INT m
-

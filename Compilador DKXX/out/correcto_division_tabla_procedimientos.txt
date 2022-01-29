@@ -1,6 +1,0 @@
-resto 1 INT 
-	INT n
-	INT m
-
-division 2 null 
-

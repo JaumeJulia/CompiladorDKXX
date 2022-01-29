@@ -1,5 +1,0 @@
-	Errores semantico:
-	 - Tipo INT no compatible en linea 6
-	 - El retorno en la funcion "prueba" no es correcto en linea 6
-	 - Tipo INT no compatible en linea 10
--> No se pudo proseguir con la compilacion

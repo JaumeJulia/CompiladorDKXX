@@ -1,3 +1,0 @@
-factorial 1 INT 
-	INT num
-

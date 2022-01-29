@@ -1,3 +1,0 @@
-	Errores sintactico:
-	 - Symbol: RKEY. Se esperaba: [LPAREN] en linea 4 en columna 0
--> No se pudo proseguir con la compilacion

@@ -1,6 +1,0 @@
-FUNCION: resto, tipo: INT, nivel: 1
-	PARAMETRO: n, tipo: INT, nivel: 1
-	PARAMETRO: m, tipo: INT, nivel: 1
-FUNCION: division, tipo: null, nivel: 2
-	VARIABLE: n, tipo: INT, nivel: 2
-	VARIABLE: m, tipo: INT, nivel: 2
