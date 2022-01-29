@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Semantico;
 
 import java.util.ArrayList;
@@ -13,7 +8,8 @@ import TablaSimbolos.TablaSimbolos;
 
 /**
  *
- * @author Felix
+ * @author Felix Lluis Aguilar Ferrer, Jaume Julià Vallespir, Francisco José
+ * Muñoz Navarro, Antonio Pujol Villegas
  */
 public class Semantico {
 
@@ -25,7 +21,11 @@ public class Semantico {
         this.errores = new ArrayList<>();
     }
 
-    // Prioridad Operaciones.
+    /**
+     * Prioridad Operaciones
+     *
+     * @param e Expresion
+     */
     public Expresion priOp(Expresion e) {
         // Se verifica que haya dos operaciones.
         if (e.getOper() != null && e.getOper().getExpr().getOper() != null) {
@@ -48,8 +48,13 @@ public class Semantico {
         }
         return e;
     }
-
-    //Verificar si es funcion o asignacion.
+    
+    /**
+     * Verificar si es funcion o asignacion
+     * @param id
+     * @param sid
+     * @param l 
+     */
     public void selOpId(String id, SentenciaId sid, int l) {
         if (sid.expr != null) {
             verVar(id, sid.expr, l);
@@ -58,7 +63,12 @@ public class Semantico {
         }
     }
 
-    //Verifica que exista el id
+    /**
+     * Verifica que exista el id
+     * @param id
+     * @param l
+     * @return 
+     */
     public boolean verId(String id, int l) {
         Simbolo s = ts.getFuncion(id);
         if (s == null) {
@@ -71,7 +81,12 @@ public class Semantico {
         return true;
     }
 
-    //Verifica Asignacion Const
+    /**
+     * Verifica Asignacion Const
+     * @param id
+     * @param e
+     * @param l 
+     */
     public void verConst(String id, Expresion e, int l) {
         Simbolo s = ts.getSimbolo(id);
         if (s != null) {
@@ -85,7 +100,13 @@ public class Semantico {
         }
     }
 
-    //Verifica Asignacion
+    /**
+     * Verifica Asignacion
+     * @param id
+     * @param e
+     * @param l
+     * @return 
+     */
     public boolean verVar(String id, Expresion e, int l) {
         Simbolo s = ts.getSimbolo(id);
         if (s != null) {
@@ -109,7 +130,14 @@ public class Semantico {
         return false;
     }
 
-    //Verifica Retornos
+    /**
+     * Verifica Retornos
+     * @param id
+     * @param r
+     * @param s
+     * @param l
+     * @return 
+     */
     public boolean verRet(String id, Tipo r, Sentencias s, int l) {
         boolean e = false;
         if (r != null) {
@@ -130,7 +158,7 @@ public class Semantico {
                 addError(7, l, id);
             }
         } else {
-            while (s != null && s.sentencia != null) {
+            while (s != null) {
                 if (s.sentencia.ret != null) {
                     verExpr(s.sentencia.ret.expr, Tipo.NULL, l);
                     e = true;
@@ -144,7 +172,13 @@ public class Semantico {
         return true;
     }
 
-    //Verifica Funcion
+    /**
+     * Verifica Funcion
+     * @param id
+     * @param par
+     * @param l
+     * @return 
+     */
     public boolean verFunc(String id, Param par, int l) {
         Simbolo f = ts.getFuncion(id);
         if (f == null) {
@@ -172,7 +206,13 @@ public class Semantico {
         return true;
     }
 
-    //Verifica Expresion
+    /**
+     * Verifica Expresion
+     * @param e
+     * @param t
+     * @param l
+     * @return 
+     */
     public boolean verExpr(Expresion e, Tipo t, int l) {
         Tipo opt = t;
         if (e.oper != null) {
@@ -209,6 +249,12 @@ public class Semantico {
         return true;
     }
 
+    /**
+     * Verifica Valor
+     * @param v
+     * @param t
+     * @return 
+     */
     public boolean verificarValor(Valor v, Tipo t) {
         switch (v.idx) {
             case 0:
@@ -242,6 +288,12 @@ public class Semantico {
         return !errores.isEmpty();
     }
 
+    /**
+     * Errores tipificados
+     * @param cod
+     * @param l
+     * @param aux 
+     */
     public void addError(int cod, int l, String aux) {
         switch (cod) {
             case 0:
