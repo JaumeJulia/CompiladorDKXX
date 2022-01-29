@@ -130,7 +130,7 @@ public class Semantico {
                 addError(7, l, id);
             }
         } else {
-            while (s != null) {
+            while (s != null && s.sentencia != null) {
                 if (s.sentencia.ret != null) {
                     verExpr(s.sentencia.ret.expr, Tipo.NULL, l);
                     e = true;
